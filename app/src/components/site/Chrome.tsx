@@ -9,14 +9,15 @@ import { formatPrice } from '@/lib/money';
 const NAV = [
   { href: '/', label: 'Accueil', match: (p: string) => p === '/' },
   { href: '/carte', label: 'La carte', match: (p: string) => p.startsWith('/carte') },
-  { href: '/compte', label: 'Mon compte', match: (p: string) => p.startsWith('/compte') || p.startsWith('/connexion') || p.startsWith('/suivi') },
   { href: '/infos', label: 'Infos pratiques', match: (p: string) => p.startsWith('/infos') },
 ];
 const CHECKOUT = ['/panier', '/commande', '/paiement'];
+const ACCOUNT = { href: '/compte', match: (p: string) => p.startsWith('/compte') || p.startsWith('/connexion') || p.startsWith('/inscription') || p.startsWith('/suivi') };
 
-export function Header({ name, tagline }: { name: string; tagline: string }) {
+export function Header({ name, tagline, userName }: { name: string; tagline: string; userName?: string | null }) {
   const path = usePathname();
   const { count, subtotal, ready } = useCart();
+  // userName : null = déconnecté, '' = connecté sans prénom
   const split = name.replace(/\s/g, '').toUpperCase();
   return (
     <header className="header">
@@ -32,6 +33,9 @@ export function Header({ name, tagline }: { name: string; tagline: string }) {
         {NAV.map(n => <Link key={n.href} href={n.href} className={n.match(path) ? 'is-active' : ''}>{n.label}</Link>)}
       </nav>
       <div className="header__actions">
+        <Link className={`account-link hide-mobile ${ACCOUNT.match(path) ? 'is-active' : ''}`} href={userName != null ? '/compte' : '/connexion'}>
+          <Icon name="user" />{userName == null ? 'Connexion' : userName || 'Mon compte'}
+        </Link>
         <Link className="btn btn--primary btn--sm hide-mobile" href="/carte">Commander</Link>
         <Link className="cart-btn" href="/panier" aria-label="Voir le panier">
           <Icon name="bag" />
@@ -55,8 +59,8 @@ export function TabBar() {
         <span className="tabbar__cartwrap"><Icon name="bag" />{ready && count > 0 && <span className="tabbar__badge">{count}</span>}</span>
         <span>Panier</span>
       </Link>
-      <Link href="/compte" className={is(NAV[2].match)}><Icon name="user" /><span>Compte</span></Link>
-      <Link href="/infos" className={is(NAV[3].match)}><Icon name="pin" /><span>Infos</span></Link>
+      <Link href="/compte" className={is(ACCOUNT.match)}><Icon name="user" /><span>Compte</span></Link>
+      <Link href="/infos" className={is(NAV[2].match)}><Icon name="pin" /><span>Infos</span></Link>
     </nav>
   );
 }

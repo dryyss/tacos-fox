@@ -22,7 +22,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
           <span className="trust-strip__sep" aria-hidden="true" />
           <span className="trust-strip__item"><Icon name="direct" /> Commande directe, sans appli de livraison</span>
         </div>
-        <Header name={settings.name} tagline={settings.tagline} />
+        <Header name={settings.name} tagline={settings.tagline} userName={session?.user ? (session.user.name?.split(' ')[0] ?? '') : null} />
         <main id="app" className="app" tabIndex={-1}>{children}</main>
         <Footer settings={settings} />
         <CartBar />
