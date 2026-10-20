@@ -32,6 +32,12 @@ export function Footer({ settings }: { settings: Restaurant['settings'] }) {
         <Link href="/confidentialite">Confidentialité</Link>
         <Link href="/allergenes">Allergènes</Link>
         <span>Prix TTC, service compris</span>
+        <a className="footer__credit" href="https://magar-developpement.fr" target="_blank" rel="noopener" aria-label="Site réalisé par MAGAR Développement">
+          <span>Site réalisé par</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/magar-dev-mark.svg" alt="" width={28} height={20} />
+          <strong>MAGAR <em>Développement</em></strong>
+        </a>
       </div>
     </footer>
   );

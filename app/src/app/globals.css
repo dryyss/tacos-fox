@@ -1238,3 +1238,12 @@ body.is-locked { overflow: hidden; }
   .header .nav { margin-left: 0; justify-self: center; }
   .header__actions { margin-left: 0; justify-self: end; }
 }
+
+/* Crédit du développeur dans le pied de page */
+.footer__credit { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; color: rgba(255,255,255,.55); }
+.footer__credit img { width: 28px; height: auto; }
+.footer__credit strong { color: #fff; font-family: var(--display); font-weight: 400; font-size: 1rem; letter-spacing: .06em; }
+.footer__credit em { font-style: normal; font-family: var(--text); font-size: .72rem; letter-spacing: .02em; color: rgba(255,255,255,.6); }
+.footer .footer__credit:hover { text-decoration: none; color: #fff; }
+.footer__credit:hover strong { color: var(--yellow); }
+@media (max-width: 719px) { .footer__credit { margin-left: 0; width: 100%; margin-top: 6px; } }
