@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 150" width="120" height="150" role="img" aria-label="TACOSFOX by Paris, since 1998">
+  <!-- Logo provisoire. À remplacer par le fichier officiel du restaurant. -->
+  <!-- Toque -->
+  <path d="M36 44 C24 44 22 28 34 26 C34 12 54 8 60 20 C66 8 86 12 86 26 C98 28 96 44 84 44 Z" fill="#fff" stroke="#141414" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M40 44 L80 44 L80 52 L40 52 Z" fill="#fff" stroke="#141414" stroke-width="3" stroke-linejoin="round"/>
+  <!-- Oreilles -->
+  <path d="M30 54 L46 52 L38 78 Z" fill="#141414"/>
+  <path d="M90 54 L74 52 L82 78 Z" fill="#141414"/>
+  <!-- Tête -->
+  <path d="M33 56 L87 56 C92 76 78 96 60 108 C42 96 28 76 33 56 Z" fill="#141414"/>
+  <!-- Museau -->
+  <path d="M47 74 L73 74 C71 86 65 94 60 99 C55 94 49 86 47 74 Z" fill="#fff"/>
+  <!-- Yeux -->
+  <circle cx="50" cy="67" r="3.2" fill="#fff"/>
+  <circle cx="70" cy="67" r="3.2" fill="#fff"/>
+  <!-- Truffe -->
+  <circle cx="60" cy="92" r="3.4" fill="#141414"/>
+  <!-- Textes -->
+  <text x="60" y="117" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="6" letter-spacing="2" fill="#141414">BY PARIS</text>
+  <text x="60" y="134" text-anchor="middle" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900" font-size="15" letter-spacing="2.2" fill="#D7261E">TACOSFOX</text>
+  <text x="60" y="144" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="5.5" letter-spacing="2.4" fill="#141414">SINCE 1998</text>
+</svg>

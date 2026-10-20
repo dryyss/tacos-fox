@@ -1,0 +1,17 @@
+# Base PostgreSQL de développement (port 5434 pour ne pas gêner une instance locale)
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: tacosfox-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: tacosfox
+      POSTGRES_PASSWORD: tacosfox
+      POSTGRES_DB: tacosfox
+    ports:
+      - "5434:5432"
+    volumes:
+      - tacosfox-data:/var/lib/postgresql/data
+
+volumes:
+  tacosfox-data:
