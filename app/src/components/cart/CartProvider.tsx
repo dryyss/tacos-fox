@@ -13,6 +13,7 @@ export interface CartItem {
   unitPrice: number;
   details: string[];
   tbc?: boolean;
+  image?: string | null;
 }
 
 export interface CheckoutInfo {
@@ -45,7 +46,7 @@ interface CartContextValue {
   setMode(mode: Mode): void;
   updateCheckout(patch: Partial<CheckoutInfo>): void;
   /* Aligne les prix affichés sur ceux recalculés par le serveur */
-  syncPrices(prices: { key: string; unitPrice: number; name: string; details: string[] }[]): void;
+  syncPrices(prices: { key: string; unitPrice: number; name: string; details: string[]; image?: string | null }[]): void;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -112,7 +113,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     updateCheckout: patch => setCheckout(prev => ({ ...prev, ...patch })),
     syncPrices: prices => setItems(prev => prev.map(i => {
       const p = prices.find(x => x.key === i.key);
-      return p && (p.unitPrice !== i.unitPrice || p.name !== i.name) ? { ...i, unitPrice: p.unitPrice, name: p.name, details: p.details } : i;
+      return p && (p.unitPrice !== i.unitPrice || p.name !== i.name || (p.image ?? null) !== (i.image ?? null)) ? { ...i, unitPrice: p.unitPrice, name: p.name, details: p.details, image: p.image ?? null } : i;
     })),
   }), [ready, items, mode, checkout, add, setQty]);
 

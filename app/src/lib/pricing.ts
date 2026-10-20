@@ -32,6 +32,10 @@ function describe(labels: string[]): string {
   return [...counts].map(([l, n]) => (n > 1 ? `${l} x${n}` : l)).join(', ');
 }
 
+/* Libellés du ticket : préfixe selon le groupe, et mention explicite quand un groupe est laissé vide */
+const DETAIL_PREFIX: Record<string, string> = { cheeses: 'Suppl. ', 'extra-meat': 'Suppl. viande ', gratin: 'Gratiné ' };
+const EMPTY_DETAIL: Record<string, string> = { sauces: 'Sans sauce', crudites: 'Sans crudités' };
+
 export function lineName(product: CatalogProduct, size?: CatalogSize): string {
   if (product.kind === 'TACOS') return `Tacos ${size?.label ?? ''}`.trim();
   if (product.kind === 'PIZZA') return `Pizza ${product.name}`;
@@ -81,8 +85,8 @@ export function priceLine(
       unit += choice.price;
       labels.push(choice.label);
     }
-    if (labels.length) details.push(group.key === 'cheeses' ? 'Suppl. ' + describe(labels) : group.key === 'gratin' ? 'Gratiné ' + labels[0].toLowerCase() : describe(labels));
-    else if (group.key === 'sauces') details.push('Sans sauce');
+    if (labels.length) details.push((DETAIL_PREFIX[group.key] ?? '') + (group.key === 'gratin' ? labels[0].toLowerCase() : describe(labels)));
+    else if (EMPTY_DETAIL[group.key]) details.push(EMPTY_DETAIL[group.key]);
   }
 
   if (product.kind === 'PIZZA' && size?.bogo) {

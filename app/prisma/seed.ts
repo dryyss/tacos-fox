@@ -6,6 +6,7 @@ import { PrismaClient, ProductKind } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { menuPhoto } from '../src/lib/menu-photos';
 import { EXAMPLE_SLIDES } from '../src/lib/slide-examples';
+import { SANDWICH_CATEGORIES, sandwichGroups } from './option-presets';
 
 const require = createRequire(import.meta.url);
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -16,7 +17,7 @@ const prisma = new PrismaClient({
 });
 const cents = (euros: number) => Math.round(euros * 100);
 
-type Choice = { label: string; price?: number };
+type Choice = { label: string; price?: number; isAvailable?: boolean };
 type Group = { id: string; label: string; type: string; min: number; max: number; choices: Choice[] };
 type SrcProduct = {
   id: string; cat: string; name: string; desc: string; price: number; badges: string[];
@@ -89,7 +90,9 @@ async function seedCatalog() {
       price: cents(p.sizes ? p.sizes[0].price : p.price), priceFrom: !!p.priceFrom,
       badges: p.badges ?? [], tbc: !!p.tbc, isFeatured: featured.has(p.id), sortOrder: order,
       sizes: (p.sizes ?? []).map((s, i) => ({ code: s.id, label: s.label, hint: s.hint ?? null, price: cents(s.price), bogo: !!s.bogo, sortOrder: i })),
-      groups: (p.options ?? []).map(g => ({ key: g.id, label: g.label, min: g.min, max: g.max, choices: g.choices })),
+      groups: SANDWICH_CATEGORIES.includes(p.cat) && !p.options
+        ? sandwichGroups({ description: p.desc, formula: p.formula ?? null })
+        : (p.options ?? []).map(g => ({ key: g.id, label: g.label, min: g.min, max: g.max, choices: g.choices })),
     });
   }
 }
@@ -117,7 +120,7 @@ async function upsertProduct({ sizes, groups, ...data }: ProductInput) {
       data: {
         productId: product.id, key: g.key, label: g.label, hint: g.hint ?? null, min: g.min, max: g.max,
         maxFromSize: !!g.maxFromSize, allowRepeat: !!g.allowRepeat, sortOrder: i,
-        choices: { create: g.choices.map((c, j) => ({ label: c.label, price: cents(c.price ?? 0), sortOrder: j })) },
+        choices: { create: g.choices.map((c, j) => ({ label: c.label, price: cents(c.price ?? 0), isAvailable: c.isAvailable ?? true, sortOrder: j })) },
       },
     });
   }

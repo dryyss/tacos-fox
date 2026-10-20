@@ -5,7 +5,7 @@ import { useCart } from '@/components/cart/CartProvider';
 import type { Totals } from '@/lib/pricing';
 
 export interface QuoteResult {
-  lines: { index: number; ok: boolean; error?: string; line?: { unitPrice: number; name: string; details: string[] } }[];
+  lines: { index: number; ok: boolean; error?: string; image?: string | null; line?: { unitPrice: number; name: string; details: string[] } }[];
   totals: Totals;
   promo: { code: string; valid: boolean; message?: string } | null;
   errors: string[];
@@ -31,7 +31,7 @@ export function useQuote(promoCode?: string) {
         if (!res.ok || id !== seq.current) return;
         const q: QuoteResult = await res.json();
         setQuote(q);
-        syncPrices(q.lines.filter(l => l.ok).map(l => ({ key: items[l.index].key, ...l.line! })));
+        syncPrices(q.lines.filter(l => l.ok).map(l => ({ key: items[l.index].key, ...l.line!, image: l.image ?? null })));
       } finally {
         if (id === seq.current) setLoading(false);
       }

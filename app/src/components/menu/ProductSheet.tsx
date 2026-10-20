@@ -29,7 +29,10 @@ export function ProductSheet({ product, pizzas, initialSize, onClose }: { produc
   const toast = useToast();
   const defaultSize = initialSize ?? (product.kind === 'TACOS' ? 'M' : (product.sizes.find(s => s.bogo) ?? product.sizes[0])?.code);
   const [sizeCode, setSizeCode] = useState<string | undefined>(product.sizes.some(s => s.code === defaultSize) ? defaultSize : product.sizes[0]?.code);
-  const [selections, setSelections] = useState<Selections>({});
+  // Choix obligatoire à option unique (accompagnement « Frites ») : présélectionné
+  const [selections, setSelections] = useState<Selections>(() => Object.fromEntries(
+    product.groups.filter(g => g.min > 0 && g.choices.filter(c => c.isAvailable).length === 1).map(g => [g.key, [g.choices.find(c => c.isAvailable)!.id]]),
+  ));
   const [freePizzaId, setFreePizzaId] = useState(product.id);
   const [qty, setQty] = useState(1);
   const [errorKey, setErrorKey] = useState<string | null>(null);
@@ -71,7 +74,7 @@ export function ProductSheet({ product, pizzas, initialSize, onClose }: { produc
   const submit = () => {
     try {
       const priced = priceLine(product, { productId: product.id, qty, sizeCode, selections, freePizzaId: bogoActive ? freePizzaId : null }, pizzas);
-      add({ input: priced.config, name: priced.name, unitPrice: priced.unitPrice, details: priced.details, tbc: product.tbc });
+      add({ input: priced.config, name: priced.name, unitPrice: priced.unitPrice, details: priced.details, tbc: product.tbc, image: product.imageUrl });
       onClose();
     } catch (e) {
       if (!(e instanceof PricingError)) throw e;

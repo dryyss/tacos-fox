@@ -28,6 +28,7 @@ export interface LineResult {
   index: number;
   ok: boolean;
   line?: PricedLine;
+  image?: string | null;
   error?: string;
 }
 
@@ -57,7 +58,8 @@ export async function quoteCart(input: QuoteInput): Promise<Quote> {
 
   const lines: LineResult[] = input.lines.map((l, index) => {
     try {
-      return { index, ok: true, line: priceLine(byId.get(l.productId), l, products) };
+      const product = byId.get(l.productId);
+      return { index, ok: true, line: priceLine(product, l, products), image: product?.imageUrl ?? null };
     } catch (e) {
       if (e instanceof PricingError) return { index, ok: false, error: e.message };
       throw e;

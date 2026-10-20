@@ -176,7 +176,7 @@ export function Checkout({ step, ctx }: { step: Step; ctx: CheckoutContext }) {
               const err = lineError(idx);
               return (
                 <div key={i.key} className={`cart-item ${err ? 'is-invalid' : ''}`}>
-                  <Photo label="" />
+                  <Photo src={i.image} alt={i.name} label="" />
                   <div>
                     <div className="cart-item__name"><span>{i.name}</span><span className="price">{formatPrice(i.unitPrice * i.input.qty)}</span></div>
                     <div className="cart-item__details">{i.details.join(' · ')}{i.tbc && <> · <em>prix à confirmer</em></>}</div>

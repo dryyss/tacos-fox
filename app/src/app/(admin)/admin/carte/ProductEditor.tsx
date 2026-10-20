@@ -5,7 +5,7 @@ import { useState, useTransition } from 'react';
 import { useToast } from '@/components/ui/Toast';
 import { Photo } from '@/components/menu/ProductCard';
 import { ALLERGENS } from '@/lib/allergens';
-import { deleteProduct, saveProduct, uploadImage, type ProductInput } from './actions';
+import { applyGroupToCategory, deleteProduct, saveProduct, uploadImage, type ProductInput } from './actions';
 import { Euro as EuroField, Toggle } from '@/components/admin/fields';
 
 interface Choice { id: string | null; label: string; price: number; isAvailable: boolean }
@@ -154,6 +154,12 @@ export function ProductEditor({ product, categories }: { product: EditorProduct 
               <div className="filters" style={{ margin: '8px 0 0' }}>
                 <button className="btn btn--ghost btn--sm" onClick={() => setGroup(gi, { choices: [...g.choices, { id: null, label: '', price: 0, isAvailable: true }] })}>Ajouter un choix</button>
                 {!g.maxFromSize && <button className="btn btn--ghost btn--sm" onClick={() => { if (confirm(`Supprimer le groupe « ${g.label} » ?`)) set('groups', p.groups.filter((_, k) => k !== gi)); }}>Supprimer le groupe</button>}
+                {product && g.id && !g.maxFromSize && (
+                  <button className="btn btn--ghost btn--sm" disabled={pending} title="Copie ce groupe, ses choix et ses prix sur tous les produits de la catégorie" onClick={() => {
+                    if (!confirm(`Appliquer « ${g.label} » (tel qu'enregistré) à tous les produits de la catégorie ? Les choix et prix de ce groupe y seront remplacés.`)) return;
+                    start(async () => { const r = await applyGroupToCategory(product.id, g.key); toast(r.ok ? `« ${g.label} » appliqué à ${r.count} produits` : r.error ?? 'Erreur'); });
+                  }}>Appliquer à toute la catégorie</button>
+                )}
               </div>
             </div>
           ))}

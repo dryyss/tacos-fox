@@ -163,3 +163,48 @@ export async function uploadImage(form: FormData): Promise<Result & { url?: stri
   const image = await prisma.image.create({ data: { mime: file.type, size: file.size, data: Buffer.from(await file.arrayBuffer()) } });
   return { ok: true, url: `/api/images/${image.id}` };
 }
+
+/* Copie un groupe d'options (par sa clé) sur tous les produits de la même catégorie.
+   Les choix sont rapprochés par libellé pour garder leurs identifiants (paniers en cours). */
+export async function applyGroupToCategory(productId: string, groupKey: string): Promise<Result & { count?: number }> {
+  await requireStaff();
+  try {
+    const source = await prisma.product.findUnique({
+      where: { id: productId },
+      include: { optionGroups: { where: { key: groupKey }, include: { choices: { orderBy: { sortOrder: 'asc' } } } } },
+    });
+    const group = source?.optionGroups[0];
+    if (!source || !group) return { ok: false, error: 'Enregistrez d\'abord le produit et ce groupe.' };
+    if (group.maxFromSize) return { ok: false, error: 'Ce groupe dépend des tailles du produit et ne peut pas être copié.' };
+
+    const targets = await prisma.product.findMany({
+      where: { categoryId: source.categoryId, id: { not: source.id } },
+      include: { optionGroups: { where: { key: groupKey }, include: { choices: true } } },
+    });
+    await prisma.$transaction(async tx => {
+      for (const t of targets) {
+        const existing = t.optionGroups[0];
+        const target = existing
+          ? await tx.optionGroup.update({ where: { id: existing.id }, data: { label: group.label, hint: group.hint, min: group.min, max: group.max, allowRepeat: group.allowRepeat } })
+          : await tx.optionGroup.create({ data: { productId: t.id, key: group.key, label: group.label, hint: group.hint, min: group.min, max: group.max, allowRepeat: group.allowRepeat, sortOrder: group.sortOrder } });
+        const byLabel = new Map((existing?.choices ?? []).map(c => [c.label.toLowerCase(), c]));
+        const keep: string[] = [];
+        for (const c of group.choices) {
+          const match = byLabel.get(c.label.toLowerCase());
+          if (match) {
+            await tx.optionChoice.update({ where: { id: match.id }, data: { label: c.label, price: c.price, isAvailable: c.isAvailable, sortOrder: c.sortOrder } });
+            keep.push(match.id);
+          } else {
+            keep.push((await tx.optionChoice.create({ data: { groupId: target.id, label: c.label, price: c.price, isAvailable: c.isAvailable, sortOrder: c.sortOrder } })).id);
+          }
+        }
+        await tx.optionChoice.deleteMany({ where: { groupId: target.id, id: { notIn: keep } } });
+      }
+    }, { timeout: 60000 });
+    refresh();
+    return { ok: true, count: targets.length };
+  } catch (e) {
+    console.error(e);
+    return { ok: false, error: 'Copie impossible.' };
+  }
+}

@@ -15,7 +15,8 @@
     "db:studio": "prisma studio",
     "postinstall": "prisma generate",
     "build:deploy": "prisma generate && prisma migrate deploy && next build",
-    "stripe:listen": "node scripts/stripe-listen.mjs"
+    "stripe:listen": "node scripts/stripe-listen.mjs",
+    "db:add-options": "tsx --env-file=.env prisma/add-options.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",

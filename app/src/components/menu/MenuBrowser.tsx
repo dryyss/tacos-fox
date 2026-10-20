@@ -25,7 +25,7 @@ export function useProductOpener(pizzas: CatalogProduct[]) {
     if (!product.isAvailable) return;
     if (product.sizes.length || product.groups.length) return setOpen({ product });
     const l = priceLine(product, { productId: product.id, qty: 1 });
-    add({ input: l.config, name: l.name, unitPrice: l.unitPrice, details: l.details, tbc: product.tbc });
+    add({ input: l.config, name: l.name, unitPrice: l.unitPrice, details: l.details, tbc: product.tbc, image: product.imageUrl });
   }, [add]);
 
   const sheet = open && <ProductSheet key={open.product.id + (open.size ?? '')} product={open.product} initialSize={open.size} pizzas={pizzas} onClose={() => setOpen(null)} />;

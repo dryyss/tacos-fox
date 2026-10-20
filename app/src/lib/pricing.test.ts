@@ -77,6 +77,25 @@ describe('priceLine', () => {
     expect(() => priceLine(regina, { productId: 'regina', qty: 1, sizeCode: 'mega', freePizzaId: 'burger' }, catalog)).toThrow(/offerte/);
   });
 
+  it('sandwich : suppléments payants, crudités vides signalées, accompagnement et boisson', () => {
+    const sandwich = product({
+      id: 'grec', name: 'Grec', price: 970, formula: 'Menu : frites + boisson',
+      groups: [
+        group('crudites', { max: 3, choices: [choice('Salade'), choice('Tomate'), choice('Oignon')] }),
+        group('sauces', { max: 2, choices: [choice('Blanche'), choice('Samouraï')] }),
+        group('extra-meat', { max: 3, choices: [choice('Kebab', 180), choice('Saumon', 250)] }),
+        group('cheeses', { max: 3, choices: [choice('Cheddar', 70)] }),
+        group('side', { min: 1, choices: [choice('Frites'), choice('Potatoes', 100)] }),
+        group('extras', { max: 2, choices: [choice('Frites supplémentaires', 150)] }),
+        group('drink', { min: 1, choices: [choice('Coca-Cola')] }),
+      ],
+    });
+    const l = priceLine(sandwich, { productId: 'grec', qty: 1, selections: { sauces: ['Blanche'], 'extra-meat': ['Kebab'], cheeses: ['Cheddar'], side: ['Potatoes'], drink: ['Coca-Cola'] } });
+    expect(l.unitPrice).toBe(970 + 180 + 70 + 100);
+    expect(l.details).toEqual(['Sans crudités', 'Blanche', 'Suppl. viande Kebab', 'Suppl. Cheddar', 'Potatoes', 'Coca-Cola']);
+    expect(() => priceLine(sandwich, { productId: 'grec', qty: 1, selections: { drink: ['Coca-Cola'] } })).toThrow(/accompagnement|side/i);
+  });
+
   it('affiche la formule pour un produit simple', () => {
     expect(priceLine(product({ formula: 'Menu : frites + boisson' }), { productId: 'p', qty: 1 }).details).toEqual(['Menu : frites + boisson']);
   });
