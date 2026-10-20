@@ -125,10 +125,15 @@ export function ProductSheet({ product, pizzas, initialSize, onClose }: { produc
         <div className={`step ${errorKey === 'free' ? 'is-error' : ''}`}>
           <StepHead n={++n} title="Votre pizza offerte" hint="Même taille, recette au choix" count={{ text: pizzas.find(p => p.id === freePizzaId)?.name ?? product.name, cls: 'is-ok' }} />
           <div className="bogo-note" style={{ margin: '0 0 10px' }}><Icon name="star" />1 {size!.label} achetée = 1 {size!.label} offerte, sur place et à emporter.</div>
-          <div className="chips">
+          <div className="pick-grid">
             {pizzas.filter(p => p.isAvailable).map(p => (
-              <button key={p.id} type="button" className={`chip ${freePizzaId === p.id ? 'is-selected' : ''}`} onClick={() => setFreePizzaId(p.id)}>
-                <Icon name="check" className="ico chip__check" />{p.name}
+              <button key={p.id} type="button" className={`pick ${freePizzaId === p.id ? 'is-selected' : ''}`} aria-pressed={freePizzaId === p.id} onClick={() => setFreePizzaId(p.id)}>
+                <span className="pick__media">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {p.imageUrl ? <img src={p.imageUrl} alt="" loading="lazy" /> : <Icon name="fox" className="ph__fox" />}
+                  <span className="pick__check"><Icon name="check" /></span>
+                </span>
+                <span className="pick__name">{p.name}</span>
               </button>
             ))}
           </div>
