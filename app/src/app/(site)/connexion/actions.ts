@@ -50,3 +50,8 @@ export async function register(_: FormState, form: FormData): Promise<FormState>
 export async function logout() {
   await signOut({ redirectTo: '/' });
 }
+
+/* Connexion via Auth0 (Google, Apple, Microsoft ou e-mail), puis retour sur le site */
+export async function loginWithAuth0(form: FormData) {
+  await signIn('auth0', { redirectTo: safeReturn(form.get('retour')) });
+}
