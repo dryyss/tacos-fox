@@ -28,7 +28,7 @@ Application Next.js hébergée sur **Vercel** (fonctions en région `fra1`, Fran
 | `RESEND_API_KEY` | clé Resend, domaine d'envoi vérifié | clé Resend (ou vide : les e-mails sont alors écrits dans les journaux) |
 | `EMAIL_FROM` | `Tacos Fox <commandes@tacosfox.fr>` | idem |
 
-`SEED_ADMIN_EMAIL` et `SEED_ADMIN_PASSWORD` ne servent qu'au seed lancé depuis un poste (§ 4) : ne pas les déclarer sur Vercel. `NEON_BRANCH` ne sert qu'aux outils Neon en local.
+Les comptes et rôles se gèrent dans Auth0 (rôles `tacosfox:admin`, `tacosfox:staff`, Action `tacosfox-roles`) ; ajouter `AUTH_AUTH0_ID`, `AUTH_AUTH0_SECRET` et `AUTH_AUTH0_ISSUER` sur Vercel. `NEON_BRANCH` ne sert qu'aux outils Neon en local.
 
 Points d'attention :
 
@@ -48,13 +48,13 @@ Points d'attention :
 2. Semer la carte, les zones, les horaires et le compte gérant **une seule fois**, depuis un poste, en visant explicitement la chaîne **directe** de la branche `production`. Le script `db:seed` charge `.env` (le fichier doit exister) mais les variables passées en ligne de commande priment ; renseigner impérativement `DATABASE_URL_UNPOOLED`, que le seed utilise en priorité, sinon il viserait la base de `.env`.
 
    ```bash
-   DATABASE_URL_UNPOOLED="postgresql://…" SEED_ADMIN_EMAIL=... SEED_ADMIN_PASSWORD=... npm run db:seed
+   DATABASE_URL_UNPOOLED="postgresql://…" npm run db:seed
    ```
 
    Sous PowerShell :
 
    ```powershell
-   $env:DATABASE_URL_UNPOOLED="postgresql://…"; $env:SEED_ADMIN_EMAIL="..."; $env:SEED_ADMIN_PASSWORD="..."; npm run db:seed
+   $env:DATABASE_URL_UNPOOLED="postgresql://…"; npm run db:seed
    ```
 
    Le seed ne touche pas à une carte existante ; ne pas utiliser `--reset-catalog` en production.

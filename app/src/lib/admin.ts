@@ -2,11 +2,15 @@ import 'server-only';
 import { redirect } from 'next/navigation';
 import { auth, isStaff } from '@/auth';
 
-/* Pages du back-office : redirige vers la connexion si le rôle ne suffit pas */
+/* Pages du back-office. Non connecté : connexion. Connecté sans droits : son compte (renvoyer vers
+   la connexion bouclerait, puisqu'elle redirige les personnes déjà connectées). Équipe sur une page
+   réservée au gérant : tableau des commandes. */
 export async function requireStaffPage(adminOnly = false) {
   const session = await auth();
   const role = session?.user?.role;
-  if (!session?.user || !isStaff(role) || (adminOnly && role !== 'ADMIN')) redirect('/connexion?retour=/admin');
+  if (!session?.user) redirect('/connexion?retour=/admin');
+  if (!isStaff(role)) redirect('/compte?acces=refuse');
+  if (adminOnly && role !== 'ADMIN') redirect('/admin');
   return session.user;
 }
 

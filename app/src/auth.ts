@@ -1,10 +1,8 @@
 import NextAuth, { type DefaultSession } from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
 import Auth0 from 'next-auth/providers/auth0';
-import bcrypt from 'bcryptjs';
-import { z } from 'zod';
 import type { Role } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
+import { ROLES_CLAIM, roleFromClaim } from '@/lib/roles';
 
 declare module 'next-auth' {
   interface Session {
@@ -15,61 +13,46 @@ declare module 'next-auth' {
   }
 }
 
-/* Auth0 (Google, Apple, Microsoft, e-mail) actif seulement si ses variables sont définies */
-export const auth0Enabled = !!(process.env.AUTH_AUTH0_ID && process.env.AUTH_AUTH0_SECRET && process.env.AUTH_AUTH0_ISSUER);
-
-const credentialsSchema = z.object({
-  email: z.string().trim().toLowerCase().email(),
-  password: z.string().min(1).max(200),
-});
+/* Toute l'authentification passe par Auth0 ; les rôles viennent d'Auth0 (voir lib/roles.ts) */
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: 'jwt', maxAge: 60 * 60 * 24 * 30 },
-  pages: { signIn: '/connexion' },
-  providers: [
-    ...(auth0Enabled ? [Auth0({ authorization: { params: { prompt: 'login' } } })] : []),
-    Credentials({
-      credentials: { email: {}, password: {} },
-      async authorize(raw) {
-        const parsed = credentialsSchema.safeParse(raw);
-        if (!parsed.success) return null;
-        const user = await prisma.user.findUnique({ where: { email: parsed.data.email } });
-        if (!user?.passwordHash || !(await bcrypt.compare(parsed.data.password, user.passwordHash))) return null;
-        return { id: user.id, email: user.email, name: user.name, role: user.role };
-      },
-    }),
-  ],
+  pages: { signIn: '/connexion', error: '/connexion' },
+  providers: [Auth0],
   callbacks: {
-    /* Connexion Auth0 : rattache ou crée le compte du site à partir de l'e-mail.
-       Un compte existant n'est rattaché que si Auth0 garantit l'e-mail (sinon prise de compte possible). */
+    /* Une identité Auth0 déjà liée passe toujours. Rattacher une NOUVELLE identité à un compte existant
+       exige un e-mail vérifié par Auth0, sinon n'importe qui pourrait prendre le compte d'un autre. */
     async signIn({ account, profile }) {
-      if (account?.provider !== 'auth0') return true;
+      if (account?.provider !== 'auth0') return false;
       const email = typeof profile?.email === 'string' ? profile.email.trim().toLowerCase() : '';
       if (!email) return '/connexion?erreur=email';
+      const linked = await prisma.account.findUnique({ where: { provider_providerAccountId: { provider: 'auth0', providerAccountId: account.providerAccountId } }, select: { userId: true } });
+      if (linked) return true;
       const existing = await prisma.user.findUnique({ where: { email }, select: { id: true } });
       if (existing && profile?.email_verified !== true) return '/connexion?erreur=verification';
       return true;
     },
-    async jwt({ token, user, trigger, account, profile }) {
-      if (account?.provider === 'auth0') {
-        const email = String(profile?.email ?? '').trim().toLowerCase();
-        const verified = profile?.email_verified === true;
-        const name = typeof profile?.given_name === 'string' ? profile.given_name : typeof profile?.name === 'string' && !profile.name.includes('@') ? profile.name : null;
-        const dbUser = await prisma.user.upsert({
-          where: { email },
-          create: { email, name, emailVerified: verified ? new Date() : null },
-          update: verified ? { emailVerified: new Date() } : {},
-          select: { id: true, name: true, role: true },
-        });
+    async jwt({ token, account, profile, trigger }) {
+      if (account?.provider === 'auth0' && profile) {
+        const email = String(profile.email ?? '').trim().toLowerCase();
+        const verified = profile.email_verified === true;
+        const role = roleFromClaim(profile[ROLES_CLAIM]);
+        const name = typeof profile.given_name === 'string' ? profile.given_name : typeof profile.name === 'string' && !profile.name.includes('@') ? profile.name : null;
+        const key = { provider: 'auth0', providerAccountId: account.providerAccountId };
+        const linked = await prisma.account.findUnique({ where: { provider_providerAccountId: key }, select: { userId: true } });
+        // Auth0 fait foi pour le rôle : recopié à chaque connexion, retrait de rôle compris
+        const data = { role, ...(verified ? { emailVerified: new Date() } : {}) };
+        const select = { id: true, name: true, role: true } as const;
+        const dbUser = linked
+          ? await prisma.user.update({ where: { id: linked.userId }, data, select })
+          : await prisma.user.upsert({ where: { email }, create: { email, name, ...data }, update: data, select });
+        if (!linked) await prisma.account.create({ data: { ...key, userId: dbUser.id, type: 'oidc' } });
         token.sub = dbUser.id;
         token.name = dbUser.name ?? name;
         token.role = dbUser.role;
-      } else if (user) {
-        token.sub = user.id;
-        token.role = user.role;
       } else if (trigger === 'update' && token.sub) {
-        const fresh = await prisma.user.findUnique({ where: { id: token.sub }, select: { name: true, role: true } });
-        if (fresh) { token.name = fresh.name; token.role = fresh.role; }
+        const fresh = await prisma.user.findUnique({ where: { id: token.sub }, select: { name: true } });
+        if (fresh) token.name = fresh.name;
       }
       return token;
     },

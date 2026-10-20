@@ -8,7 +8,8 @@ import { Account } from './Account';
 export const metadata: Metadata = { title: 'Mon compte', robots: { index: false } };
 export const dynamic = 'force-dynamic';
 
-export default async function AccountPage() {
+export default async function AccountPage({ searchParams }: { searchParams: Promise<{ acces?: string }> }) {
+  const { acces } = await searchParams;
   const session = await auth();
   if (!session?.user?.id) redirect('/connexion?retour=/compte');
 
@@ -22,6 +23,8 @@ export default async function AccountPage() {
 
   const favIds = new Set(user.favorites.map(f => f.productId));
   return (
+    <>
+    {acces === 'refuse' && <p className="alert alert--error" style={{ maxWidth: 900, margin: '16px auto 0', marginInline: 'var(--page-x)' }}>L&apos;espace de gestion est réservé à l&apos;équipe Tacos Fox. Demandez au gérant de vous attribuer un rôle.</p>}
     <Account
       user={{ name: user.name ?? '', email: user.email, phone: user.phone ?? '', marketingOptIn: user.marketingOptIn, createdAt: user.createdAt.toISOString(), isStaff: user.role !== 'CUSTOMER' }}
       orders={orders.map(o => ({
@@ -33,5 +36,6 @@ export default async function AccountPage() {
       favorites={catalog.products.filter(p => favIds.has(p.id))}
       pizzas={catalog.products.filter(p => p.kind === 'PIZZA')}
     />
+    </>
   );
 }

@@ -1,9 +1,8 @@
-/* Seed : carte complète, zones, horaires, réglages et compte gérant.
+/* Seed : carte complète, zones, horaires et réglages. Les comptes et rôles (gérant, équipe) se gèrent dans Auth0.
    La carte n'est semée que si elle est vide (sinon les modifications du gérant seraient écrasées).
    Pour la réinitialiser depuis le relevé : npm run db:seed -- --reset-catalog */
 import { createRequire } from 'node:module';
 import { PrismaClient, ProductKind } from '@prisma/client';
-import bcrypt from 'bcryptjs';
 import { menuPhoto } from '../src/lib/menu-photos';
 import { EXAMPLE_SLIDES } from '../src/lib/slide-examples';
 import { SANDWICH_CATEGORIES, sandwichGroups } from './option-presets';
@@ -154,22 +153,10 @@ async function seedSlides() {
   await prisma.promoSlide.createMany({ data: EXAMPLE_SLIDES });
 }
 
-async function seedAdmin() {
-  const email = process.env.SEED_ADMIN_EMAIL;
-  const password = process.env.SEED_ADMIN_PASSWORD;
-  if (!email || !password) return console.warn('SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD absents : pas de compte gérant créé.');
-  await prisma.user.upsert({
-    where: { email },
-    create: { email, name: 'Gérant', role: 'ADMIN', passwordHash: await bcrypt.hash(password, 12) },
-    update: { role: 'ADMIN' },
-  });
-}
-
 async function main() {
   await seedCatalog();
   await seedSettings();
   await seedSlides();
-  await seedAdmin();
   const n = await prisma.product.count({ where: { isHidden: false } });
   console.log(`Seed terminé : ${n} produits visibles.`);
 }

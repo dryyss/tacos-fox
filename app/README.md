@@ -6,7 +6,7 @@ Référence fonctionnelle : `../pics/CDC-0006_Tacos_Fox.pdf` (formule Pro). Maqu
 ## Démarrer en local
 
 ```bash
-cp .env.example .env          # renseigner DATABASE_URL / DATABASE_URL_UNPOOLED (branche Neon de dev), AUTH_SECRET, SEED_ADMIN_PASSWORD
+cp .env.example .env          # renseigner DATABASE_URL / DATABASE_URL_UNPOOLED (branche Neon de dev), AUTH_SECRET, AUTH_AUTH0_ID / SECRET / ISSUER
 npm install
 npm run db:migrate            # applique les migrations
 npm run db:seed               # carte, zones, horaires, compte gérant
@@ -16,7 +16,8 @@ npm run dev
 La base de développement est une branche Neon du projet `tacos-fox` (jamais `production`). Alternative hors ligne : `docker compose up -d` (PostgreSQL sur le port 5434, chaînes commentées dans `.env.example`).
 
 - Site : http://localhost:3000
-- Gestion : http://localhost:3000/admin (compte `SEED_ADMIN_EMAIL`)
+- Gestion : http://localhost:3000/admin (compte Auth0 ayant le rôle `tacosfox:admin` ou `tacosfox:staff`)
+- Connexion : uniquement via Auth0 (e-mail, Google, Apple, Microsoft). Les rôles se donnent dans Auth0 (User Management → Users → Roles) et sont repris à la connexion suivante.
 - Sans clé Stripe, le paiement carte est simulé (développement uniquement). Sans clé Resend, les e-mails sont écrits dans la console.
 
 `npm run db:seed` ne touche pas à une carte existante. Pour la recharger depuis le relevé `prisma/catalog-source.cjs` : `npm run db:seed -- --reset-catalog` (écrase les modifications faites dans la gestion).
