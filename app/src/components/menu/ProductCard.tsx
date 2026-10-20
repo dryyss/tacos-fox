@@ -25,7 +25,7 @@ export function Badges({ product }: { product: CatalogProduct }) {
   return (
     <>
       {!product.isAvailable && <span className="badge badge--off">Indisponible</span>}
-      {bogo && <span className="badge badge--bogo">1 achetée = 1 offerte</span>}
+      {bogo && <span className="badge badge--bogo" title="1 pizza achetée = 1 offerte (Senior et Mega)">2e offerte</span>}
       {product.badges.filter(b => BADGES[b]).map(b => <span key={b} className={`badge badge--${b}`}><Icon name={BADGES[b].icon} />{BADGES[b].label}</span>)}
     </>
   );

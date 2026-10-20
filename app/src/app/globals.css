@@ -1194,3 +1194,21 @@ body.is-locked { overflow: hidden; }
   .cat-grid { grid-template-columns: repeat(3, 1fr); }
   .menu-heading { font-size: 2.8rem; margin-top: 0; }
 }
+
+/* Carte : écrans larges et finitions */
+.card__badges .badge { white-space: nowrap; }
+@media (min-width: 1024px) {
+  .menu-top__inner, .menu-layout { grid-template-columns: 220px minmax(0, 1fr) 300px; gap: 24px; }
+  .menu-top__inner { display: grid; }
+  .menu-top__inner .search { grid-column: 2; max-width: none; }
+  .menu-main .grid { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+  .menu-main .grid--1 { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 1280px) {
+  .menu-top__inner, .menu-layout { max-width: 1320px; }
+}
+@media (min-width: 1440px) {
+  .menu-top__inner, .menu-layout { max-width: 1560px; grid-template-columns: 260px minmax(0, 1fr) 340px; gap: 32px; }
+  .cat-grid { grid-template-columns: repeat(4, 1fr); }
+  .cat-hero { min-height: 240px; }
+}
