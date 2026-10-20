@@ -216,7 +216,11 @@ function MiniCart() {
             <div className="menu-cart__list">
               {items.map(i => (
                 <div key={i.key} className="menu-cart__item">
-                  <span className="qty-badge">{i.input.qty}</span>
+                  <span className="menu-cart__thumb">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {i.image ? <img src={i.image} alt="" loading="lazy" /> : <Icon name="fox" />}
+                    <span className="qty-badge">{i.input.qty}</span>
+                  </span>
                   <div className="menu-cart__info"><strong>{i.name}</strong>{i.details.length > 0 && <small>{i.details.join(' · ')}</small>}</div>
                   <span className="menu-cart__price">{formatPrice(i.unitPrice * i.input.qty)}</span>
                 </div>

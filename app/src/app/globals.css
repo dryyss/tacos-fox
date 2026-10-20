@@ -1259,3 +1259,9 @@ body.is-locked { overflow: hidden; }
 .auth-card__perks { display: grid; gap: 8px; margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--grey-2); font-size: .88rem; color: var(--ink-2); }
 .auth-card__perks li { display: flex; gap: 8px; align-items: center; }
 .auth-card__perks .ico { color: var(--green); width: 18px; height: 18px; }
+
+/* Mini-panier : photo du plat avec la quantité en pastille */
+.menu-cart__thumb { position: relative; width: 52px; height: 52px; flex: none; border-radius: 10px; overflow: visible; background: radial-gradient(120% 90% at 20% 0%, #2d2d2d 0%, var(--black) 60%); display: grid; place-items: center; color: rgba(255,255,255,.2); }
+.menu-cart__thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+.menu-cart__thumb > .ico { width: 26px; height: 26px; }
+.menu-cart__thumb .qty-badge { position: absolute; top: 3px; left: 3px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; font-size: .72rem; box-shadow: 0 1px 4px rgba(0,0,0,.35); }
