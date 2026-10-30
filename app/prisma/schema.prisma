@@ -28,6 +28,7 @@ model User {
   phone          String?
   image          String?
   role           Role      @default(CUSTOMER)
+  staffRestaurants String[] @default([]) // slugs des restaurants de l'équipier (rôles Auth0 tacosfox:staff:<slug>)
   marketingOptIn Boolean   @default(false)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
@@ -150,6 +151,7 @@ model Product {
   optionGroups OptionGroup[]
   favorites    Favorite[]
   orderItems   OrderItem[]
+  restaurants  Restaurant[]  @relation("ProductRestaurants") // vide = carte commune (tous les restaurants)
 
   @@index([categoryId])
 }
@@ -235,6 +237,7 @@ enum PaymentStatus {
 model Order {
   id                    String        @id @default(cuid())
   number                Int           @unique @default(autoincrement())
+  restaurantId          String? // obligatoire pour toute nouvelle commande
   userId                String?
   mode                  OrderMode
   status                OrderStatus   @default(RECEIVED)
@@ -265,12 +268,14 @@ model Order {
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
 
-  user   User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user       User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  restaurant Restaurant? @relation(fields: [restaurantId], references: [id])
   items  OrderItem[]
   events OrderEvent[]
 
   @@index([status, createdAt])
   @@index([userId])
+  @@index([restaurantId, status, createdAt])
 }
 
 model OrderItem {
@@ -299,6 +304,51 @@ model OrderEvent {
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
+}
+
+/* ---------- Restaurants (formule multi-restaurants) ---------- */
+
+model Restaurant {
+  id                   String   @id @default(cuid())
+  slug                 String   @unique // ville, pour l'URL de la page locale : /restaurants/stains
+  code                 String   @unique // 3 lettres, préfixe des factures : F-STA-2026-00001
+  name                 String // « Tacos Fox Stains »
+  city                 String
+  postalCode           String
+  addressLine1         String   @default("")
+  phone                String   @default("")
+  email                String   @default("")
+  intro                String   @default("") // texte de la page locale (référencement)
+  isActive             Boolean  @default(true) // visible et commandable
+  orderingEnabled      Boolean  @default(true) // interrupteur rush / fermeture exceptionnelle
+  prepMinutes          Int      @default(20)
+  slotInterval         Int      @default(15)
+  tables               Int      @default(0) // nombre de QR codes de table
+  legalName            String   @default("") // société qui exploite et encaisse (factures)
+  siret                String   @default("")
+  vatNumber            String   @default("")
+  vatRate              Int      @default(1000) // points de base : 1000 = 10 %
+  stripeAccountId      String? // compte Stripe Connect qui reçoit les paiements
+  stripeChargesEnabled Boolean  @default(false)
+  sortOrder            Int      @default(0)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  hours    RestaurantHours[]
+  orders   Order[]
+  products Product[]         @relation("ProductRestaurants")
+}
+
+model RestaurantHours {
+  restaurantId String
+  dayOfWeek    Int // 0 = lundi ... 6 = dimanche
+  isOpen       Boolean @default(true)
+  open         String // "11:00"
+  close        String // "23:00", "00:00" = minuit
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@id([restaurantId, dayOfWeek])
 }
 
 /* ---------- Réglages du restaurant ---------- */
@@ -404,6 +454,7 @@ model Settings {
   prepMinutes      Int     @default(20)
   deliveryMinutes  Int     @default(35)
   slotInterval     Int     @default(15)
+  enabledOptions   String[] @default([]) // options du devis activées : O1 (gestion carte), O5 (livraison), O7 (espace client)…
   instagram        String?
   snapchat         String?
   tiktok           String?

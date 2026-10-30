@@ -16,7 +16,8 @@
     "postinstall": "prisma generate",
     "build:deploy": "prisma generate && prisma migrate deploy && next build",
     "stripe:listen": "node scripts/stripe-listen.mjs",
-    "db:add-options": "tsx --env-file=.env prisma/add-options.ts"
+    "db:add-options": "tsx --env-file=.env prisma/add-options.ts",
+    "db:add-restaurants": "tsx --env-file=.env prisma/add-restaurants.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",

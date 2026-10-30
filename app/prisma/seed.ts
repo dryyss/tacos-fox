@@ -6,6 +6,7 @@ import { PrismaClient, ProductKind } from '@prisma/client';
 import { menuPhoto } from '../src/lib/menu-photos';
 import { EXAMPLE_SLIDES } from '../src/lib/slide-examples';
 import { SANDWICH_CATEGORIES, sandwichGroups } from './option-presets';
+import { ensureRestaurants } from './restaurant-presets';
 
 const require = createRequire(import.meta.url);
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -156,6 +157,7 @@ async function seedSlides() {
 async function main() {
   await seedCatalog();
   await seedSettings();
+  await ensureRestaurants(prisma);
   await seedSlides();
   const n = await prisma.product.count({ where: { isHidden: false } });
   console.log(`Seed terminé : ${n} produits visibles.`);
