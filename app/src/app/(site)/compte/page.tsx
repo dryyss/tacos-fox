@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { auth } from '@/auth';
+import { auth, isStaff } from '@/auth';
+import { getPublicFeatures } from '@/lib/public-features';
 import { prisma } from '@/lib/prisma';
 import { getCatalog, getZones } from '@/lib/catalog';
 import { Account } from './Account';
@@ -11,6 +12,8 @@ export const dynamic = 'force-dynamic';
 export default async function AccountPage({ searchParams }: { searchParams: Promise<{ acces?: string }> }) {
   const { acces } = await searchParams;
   const session = await auth();
+  // Sans l'espace client (option O7) : l'équipe va à la gestion, les autres à l'accueil
+  if (!(await getPublicFeatures()).customerAccount) redirect(isStaff(session?.user?.role) ? '/admin' : '/');
   if (!session?.user?.id) redirect('/connexion?retour=/compte');
 
   const [user, orders, zones, catalog] = await Promise.all([

@@ -128,10 +128,10 @@ export function Checkout({ step, ctx }: { step: Step; ctx: CheckoutContext }) {
 
   const modePanel = (
     <div className="panel">
-      <div className="panel__title"><Icon name="store" /> Comment récupérer la commande ?</div>
-      <div className="segmented" style={{ gridTemplateColumns: `repeat(${ctx.modes.length},1fr)` }}>
+      <div className="panel__title"><Icon name={ctx.modes.length > 1 ? 'store' : MODE_ICONS[effectiveMode]} /> {ctx.modes.length > 1 ? 'Comment récupérer la commande ?' : MODE_LABELS[effectiveMode]}</div>
+      {ctx.modes.length > 1 && <div className="segmented" style={{ gridTemplateColumns: `repeat(${ctx.modes.length},1fr)` }}>
         {ctx.modes.map(m => <button key={m} type="button" className={effectiveMode === m ? 'is-selected' : ''} onClick={() => setMode(m)}><Icon name={MODE_ICONS[m]} />{MODE_LABELS[m]}</button>)}
-      </div>
+      </div>}
       <p className="mode-note"><Icon name="check" /><span>{modeNote(effectiveMode, ctx)}</span></p>
       {effectiveMode === 'LIVRAISON' && (
         <div className="field" style={{ marginTop: 12 }}>
@@ -197,7 +197,7 @@ export function Checkout({ step, ctx }: { step: Step; ctx: CheckoutContext }) {
           <div className="panel">
             <div className="panel__title">Récapitulatif</div>
             <TotalsPanel quote={quote} mode={effectiveMode} count={count} />
-            {promoBox}{promoState}
+            {ctx.features.promoCodes && <>{promoBox}{promoState}</>}
             {minMissing > 0 && <p className="mode-note" style={{ color: 'var(--red)' }}><Icon name="clock" /><span>Minimum de commande en livraison : {formatPrice(zone!.minimum)}. Ajoutez {formatPrice(minMissing)} pour continuer.</span></p>}
             {!ctx.orderingEnabled && <p className="alert alert--error"><Icon name="clock" />Les commandes en ligne sont suspendues pour le moment.</p>}
           </div>
@@ -299,7 +299,7 @@ export function Checkout({ step, ctx }: { step: Step; ctx: CheckoutContext }) {
               <div className={`field ${invalid('email')}`}><label htmlFor="f-email">E-mail</label><input id="f-email" type="email" inputMode="email" autoComplete="email" placeholder="Pour le reçu" className={invalid('email')} {...field('email')} /><span className="field__err">E-mail invalide</span></div>
             </div>
             <div className="field"><label htmlFor="f-note">Un mot pour la cuisine (optionnel)</label><textarea id="f-note" maxLength={500} placeholder="Sans oignons, sauce à part, bien gratiné..." {...field('note')} /></div>
-            {!ctx.user && <p className="small muted"><Link className="link" href="/connexion?retour=/commande">Connectez-vous</Link> pour retrouver vos adresses et l&apos;historique de vos commandes.</p>}
+            {ctx.features.customerAccount && !ctx.user && <p className="small muted"><Link className="link" href="/connexion?retour=/commande">Connectez-vous</Link> pour retrouver vos adresses et l&apos;historique de vos commandes.</p>}
           </div>
           <button type="submit" hidden />
         </form>

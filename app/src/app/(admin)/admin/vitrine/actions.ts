@@ -34,7 +34,7 @@ const slideSchema = z.object({
 });
 
 async function wrap(fn: () => Promise<Result | void>): Promise<Result> {
-  await requireStaff();
+  await requireStaff('menu');
   try {
     const r = await fn();
     revalidatePath('/', 'layout');

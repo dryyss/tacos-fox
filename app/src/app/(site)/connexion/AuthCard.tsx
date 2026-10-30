@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Icon } from '@/components/Icons';
 import { loginWithAuth0, signupWithAuth0 } from './actions';
 
@@ -9,8 +10,10 @@ const ERRORS: Record<string, string> = {
   Configuration: 'La connexion est momentanément indisponible. Réessayez dans un instant.',
 };
 
-/* Carte de connexion / inscription : tout passe par Auth0 (e-mail, Google, Apple, Microsoft) */
-export function AuthCard({ mode, retour, error }: { mode: 'login' | 'signup'; retour?: string; error?: string }) {
+/* Carte de connexion / inscription : tout passe par Auth0 (e-mail, Google, Apple, Microsoft).
+   staffOnly (pas d'espace client, option O7) : connexion de l'équipe seulement, sans inscription. */
+export function AuthCard({ mode, retour, error, staffOnly = false }: { mode: 'login' | 'signup'; retour?: string; error?: string; staffOnly?: boolean }) {
+  if (staffOnly) return <StaffCard retour={retour} error={error} />;
   const message = error ? ERRORS[error] ?? 'La connexion n\'a pas abouti. Réessayez.' : null;
   const primary = mode === 'login' ? { action: loginWithAuth0, label: 'Se connecter' } : { action: signupWithAuth0, label: 'Créer mon compte' };
   const secondary = mode === 'login' ? { action: signupWithAuth0, label: 'Créer un compte', hint: 'Première commande ?' } : { action: loginWithAuth0, label: 'Se connecter', hint: 'Déjà client ?' };
@@ -46,6 +49,29 @@ export function AuthCard({ mode, retour, error }: { mode: 'login' | 'signup'; re
         </ul>
       </div>
       <p className="small muted" style={{ textAlign: 'center', marginTop: 14 }}>Pas besoin de compte pour commander : vous pouvez aussi commander en invité.</p>
+    </div>
+  );
+}
+
+function StaffCard({ retour, error }: { retour?: string; error?: string }) {
+  const message = error ? ERRORS[error] ?? 'La connexion n’a pas abouti. Réessayez.' : null;
+  return (
+    <div className="page auth-box">
+      <div className="auth-card">
+        <div className="auth-card__head">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.svg" alt="" width={56} height={70} />
+          <h1 className="page-title">Espace équipe</h1>
+          <p className="page-sub">Connexion réservée à l&apos;équipe Tacos Fox : écran cuisine, commandes et historique.</p>
+        </div>
+        {message && <p className="alert alert--error" style={{ marginTop: 0, marginBottom: 14 }}><Icon name="close" />{message}</p>}
+        <form action={loginWithAuth0}>
+          <input type="hidden" name="retour" value={retour ?? '/admin'} />
+          <button className="btn btn--primary btn--xl btn--block" type="submit">Se connecter</button>
+        </form>
+        <p className="auth-card__methods">Votre accès est créé par le gérant.</p>
+      </div>
+      <p className="small muted" style={{ textAlign: 'center', marginTop: 14 }}>Pour commander, pas besoin de compte : <Link className="link" href="/carte">voir la carte</Link>.</p>
     </div>
   );
 }

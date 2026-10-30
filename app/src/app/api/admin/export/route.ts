@@ -10,7 +10,7 @@ const cell = (v: string) => (/[;"\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v
 
 /* Export CSV (séparateur « ; », compatible Excel français) des commandes d'une période */
 export async function GET(req: Request) {
-  try { await requireStaff(true); } catch { return new Response('Accès refusé', { status: 401 }); }
+  try { await requireStaff('accounting'); } catch { return new Response('Accès refusé', { status: 401 }); }
   const url = new URL(req.url);
   const du = url.searchParams.get('du'), au = url.searchParams.get('au');
   if (!isDay(du) || !isDay(au)) return new Response('Période invalide', { status: 400 });

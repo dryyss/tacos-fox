@@ -1,3 +1,4 @@
+import { requireStaffPage } from '@/lib/admin';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { withMenuPhoto } from '@/lib/menu-photos';
@@ -6,6 +7,7 @@ import { MenuAdmin } from './MenuAdmin';
 export const metadata = { title: 'Carte' };
 
 export default async function AdminMenuPage() {
+  await requireStaffPage('menu');
   const categories = await prisma.category.findMany({
     orderBy: { sortOrder: 'asc' },
     include: { products: { orderBy: { sortOrder: 'asc' }, include: { sizes: { orderBy: { sortOrder: 'asc' } } } } },

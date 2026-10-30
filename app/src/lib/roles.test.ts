@@ -3,6 +3,7 @@ import { roleFromClaim } from './roles';
 
 describe('roleFromClaim', () => {
   it('donne le rôle le plus élevé transmis par Auth0', () => {
+    expect(roleFromClaim(['superadmin', 'staff'])).toBe('SUPERADMIN');
     expect(roleFromClaim(['admin'])).toBe('ADMIN');
     expect(roleFromClaim(['staff', 'admin'])).toBe('ADMIN');
     expect(roleFromClaim(['staff'])).toBe('STAFF');

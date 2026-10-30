@@ -4,8 +4,10 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { getPublicFeatures } from '@/lib/public-features';
 
 async function userId(): Promise<string> {
+  if (!(await getPublicFeatures()).customerAccount) throw new Error('Espace client indisponible'); // option O7
   const session = await auth();
   if (!session?.user?.id) throw new Error('Non connecté');
   return session.user.id;

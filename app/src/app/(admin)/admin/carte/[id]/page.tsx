@@ -1,3 +1,4 @@
+import { requireStaffPage } from '@/lib/admin';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
@@ -7,6 +8,7 @@ import { ProductEditor, type EditorProduct } from '../ProductEditor';
 export const metadata = { title: 'Modifier un produit' };
 
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
+  await requireStaffPage('menu');
   const { id } = await params;
   const categories = await prisma.category.findMany({ orderBy: { sortOrder: 'asc' }, select: { id: true, label: true } });
 

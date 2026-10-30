@@ -15,8 +15,9 @@ datasource db {
 
 enum Role {
   CUSTOMER
-  STAFF
-  ADMIN
+  STAFF // équipe d'un ou plusieurs restaurants
+  ADMIN // gérant Tacos Fox (tous les restaurants)
+  SUPERADMIN // MAGAR Développement : tout, options comprises
 }
 
 model User {

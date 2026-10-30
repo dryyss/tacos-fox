@@ -7,6 +7,8 @@ import { prisma } from './prisma';
 import { getHours, getProductsForPricing, getSettings } from './catalog';
 import { computeTotals, MAX_QTY, priceLine, PricingError, type Mode, type PricedLine, type Totals } from './pricing';
 import { openStatus, timeSlots } from './hours';
+import { publicFeatures } from './features';
+import { availableModes } from './restaurants';
 
 export const cartLineSchema = z.object({
   productId: z.string().min(1).max(64),
@@ -69,8 +71,9 @@ export async function quoteCart(input: QuoteInput): Promise<Quote> {
   const errors: string[] = lines.filter(l => !l.ok).map(l => l.error!);
 
   const settings = await getSettings();
-  const modeEnabled = { SURPLACE: settings.modeSurplace, EMPORTER: settings.modeEmporter, LIVRAISON: settings.modeLivraison }[input.mode];
-  if (!modeEnabled) errors.push('Ce mode de commande n\'est pas disponible pour le moment.');
+  const features = publicFeatures(settings.enabledOptions);
+  // Seuls les modes inclus ou achetés en option (livraison = O5) sont acceptés
+  if (!(await availableModes()).includes(input.mode as Mode)) errors.push('Ce mode de commande n\'est pas disponible.');
 
   let zone = null;
   if (input.mode === 'LIVRAISON') {
@@ -81,7 +84,9 @@ export async function quoteCart(input: QuoteInput): Promise<Quote> {
   const subtotal = priced.reduce((a, l) => a + l.lineTotal, 0);
   let promoResult: Quote['promo'] = null;
   let promoRule = null;
-  if (input.promoCode) {
+  if (input.promoCode && !features.promoCodes) {
+    promoResult = { code: input.promoCode, valid: false, message: 'Les codes promo ne sont pas disponibles.' };
+  } else if (input.promoCode) {
     const { promo, message } = await findPromo(input.promoCode, subtotal);
     promoResult = { code: input.promoCode, valid: !!promo, message };
     if (promo) promoRule = { code: promo.code, type: promo.type, value: promo.value, minSubtotal: promo.minSubtotal };

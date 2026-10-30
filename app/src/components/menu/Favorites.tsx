@@ -6,19 +6,22 @@ import { Icon } from '@/components/Icons';
 import { useToast } from '@/components/ui/Toast';
 import { toggleFavorite } from '@/app/(site)/compte/actions';
 
-const FavoritesContext = createContext<{ loggedIn: boolean; ids: Set<string>; setIds: (s: Set<string>) => void }>({ loggedIn: false, ids: new Set(), setIds: () => {} });
+const FavoritesContext = createContext<{ enabled: boolean; loggedIn: boolean; ids: Set<string>; setIds: (s: Set<string>) => void }>({ enabled: false, loggedIn: false, ids: new Set(), setIds: () => {} });
 
-export function FavoritesProvider({ loggedIn, initial, children }: { loggedIn: boolean; initial: string[]; children: ReactNode }) {
+/* Favoris : partie de l'espace client (option O7) */
+export function FavoritesProvider({ enabled, loggedIn, initial, children }: { enabled: boolean; loggedIn: boolean; initial: string[]; children: ReactNode }) {
   const [ids, setIds] = useState(() => new Set(initial));
-  return <FavoritesContext.Provider value={{ loggedIn, ids, setIds }}>{children}</FavoritesContext.Provider>;
+  return <FavoritesContext.Provider value={{ enabled, loggedIn, ids, setIds }}>{children}</FavoritesContext.Provider>;
 }
 
 /* Cœur de la fiche produit ; invite à se connecter si besoin */
 export function FavoriteButton({ productId }: { productId: string }) {
-  const { loggedIn, ids, setIds } = useContext(FavoritesContext);
+  const { enabled, loggedIn, ids, setIds } = useContext(FavoritesContext);
   const toast = useToast();
   const [pending, start] = useTransition();
   const on = ids.has(productId);
+
+  if (!enabled) return null;
 
   if (!loggedIn) return <Link className="small link" href="/connexion?retour=/carte" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 6 }}><Icon name="heart-o" /> Connectez-vous pour l&apos;ajouter aux favoris</Link>;
 

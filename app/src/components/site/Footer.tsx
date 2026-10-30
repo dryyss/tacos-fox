@@ -3,7 +3,7 @@ import { Icon } from '@/components/Icons';
 import type { Restaurant } from '@/lib/catalog';
 import { phoneHref } from '@/lib/format';
 
-export function Footer({ settings }: { settings: Restaurant['settings'] }) {
+export function Footer({ settings, accountEnabled }: { settings: Restaurant['settings']; accountEnabled: boolean }) {
   return (
     <footer className="footer">
       <div className="footer__grid">
@@ -17,7 +17,7 @@ export function Footer({ settings }: { settings: Restaurant['settings'] }) {
           <Link href="/carte">La carte</Link>
           <Link href="/carte?cat=tacos">Composer un tacos</Link>
           <Link href="/carte?cat=pizzas">Pizzas : 1 achetée = 1 offerte</Link>
-          <Link href="/compte">Mon compte</Link>
+          {accountEnabled && <Link href="/compte">Mon compte</Link>}
         </div>
         <div className="footer__links">
           <strong>Le restaurant</strong>
@@ -32,6 +32,7 @@ export function Footer({ settings }: { settings: Restaurant['settings'] }) {
         <Link href="/confidentialite">Confidentialité</Link>
         <Link href="/allergenes">Allergènes</Link>
         <span>Prix TTC, service compris</span>
+        <Link href="/connexion?retour=/admin">Espace équipe</Link>
         <a className="footer__credit" href="https://magar-developpement.fr" target="_blank" rel="noopener" aria-label="Site réalisé par MAGAR Développement">
           <span>Site réalisé par</span>
           {/* eslint-disable-next-line @next/next/no-img-element */}

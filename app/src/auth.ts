@@ -64,4 +64,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
 });
 
-export const isStaff = (role?: Role) => role === 'STAFF' || role === 'ADMIN';
+export const isStaff = (role?: Role) => role === 'STAFF' || role === 'ADMIN' || role === 'SUPERADMIN';

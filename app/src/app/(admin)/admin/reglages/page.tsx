@@ -6,7 +6,7 @@ import { SettingsEditor } from './SettingsEditor';
 export const metadata = { title: 'Horaires et réglages' };
 
 export default async function SettingsPage() {
-  await requireStaffPage(true);
+  await requireStaffPage('settings');
   const [settings, hours] = await Promise.all([getSettings(), getHours()]);
   const { id, updatedAt, ...editable } = settings; void id; void updatedAt;
   return (

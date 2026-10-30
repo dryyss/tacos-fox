@@ -5,6 +5,7 @@ import { Icon } from '@/components/Icons';
 import { TrackingRefresher } from '@/components/order/TrackingRefresher';
 import { prisma } from '@/lib/prisma';
 import { getSettings } from '@/lib/catalog';
+import { publicFeatures } from '@/lib/features';
 import { formatPrice } from '@/lib/money';
 import { MODE_LABELS, orderNumberLabel, phoneHref } from '@/lib/format';
 
@@ -21,6 +22,7 @@ export default async function TrackingPage({ params }: { params: Promise<{ token
     getSettings(),
   ]);
   if (!order) notFound();
+  const features = publicFeatures(settings.enabledOptions);
 
   const delivery = order.mode === 'LIVRAISON';
   const flow = ['RECEIVED', 'PREPARING', delivery ? 'OUT_FOR_DELIVERY' : 'READY'];
@@ -115,7 +117,7 @@ export default async function TrackingPage({ params }: { params: Promise<{ token
           {settings.phone && <a className="btn btn--light" href={phoneHref(settings.phone)}><Icon name="phone" /> Appeler le resto</a>}
           {order.invoiceNumber
             ? <a className="btn btn--dark" href={`/api/invoices/${token}`}>Facture PDF</a>
-            : <Link className="btn btn--dark" href="/compte">Mes commandes</Link>}
+            : features.customerAccount ? <Link className="btn btn--dark" href="/compte">Mes commandes</Link> : <Link className="btn btn--dark" href="/carte">Retour à la carte</Link>}
         </div>
         <p className="small muted" style={{ margin: '18px auto 0', maxWidth: 420 }}>Un reçu a été envoyé à {order.customerEmail}. Un problème ? Appelez-nous, on règle ça tout de suite.</p>
       </section>

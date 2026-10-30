@@ -14,7 +14,8 @@ const NAV = [
 const CHECKOUT = ['/panier', '/commande', '/paiement'];
 const ACCOUNT = { href: '/compte', match: (p: string) => p.startsWith('/compte') || p.startsWith('/connexion') || p.startsWith('/inscription') || p.startsWith('/suivi') };
 
-export function Header({ name, tagline, userName }: { name: string; tagline: string; userName?: string | null }) {
+/* accountEnabled : espace client (option O7). Sans lui, seule l'équipe connectée voit un lien, vers la gestion. */
+export function Header({ name, tagline, userName, accountEnabled, isStaff }: { name: string; tagline: string; userName?: string | null; accountEnabled: boolean; isStaff: boolean }) {
   const path = usePathname();
   const { count, subtotal, ready } = useCart();
   // userName : null = déconnecté, '' = connecté sans prénom
@@ -33,9 +34,13 @@ export function Header({ name, tagline, userName }: { name: string; tagline: str
         {NAV.map(n => <Link key={n.href} href={n.href} className={n.match(path) ? 'is-active' : ''}>{n.label}</Link>)}
       </nav>
       <div className="header__actions">
-        <Link className={`account-link hide-mobile ${ACCOUNT.match(path) ? 'is-active' : ''}`} href={userName != null ? '/compte' : '/connexion'}>
-          <Icon name="user" />{userName == null ? 'Connexion' : userName || 'Mon compte'}
-        </Link>
+        {accountEnabled ? (
+          <Link className={`account-link hide-mobile ${ACCOUNT.match(path) ? 'is-active' : ''}`} href={userName != null ? '/compte' : '/connexion'}>
+            <Icon name="user" />{userName == null ? 'Connexion' : userName || 'Mon compte'}
+          </Link>
+        ) : isStaff && (
+          <Link className="account-link hide-mobile" href="/admin"><Icon name="user" />Gestion</Link>
+        )}
         <Link className="btn btn--primary btn--sm hide-mobile" href="/carte">Commander</Link>
         <Link className="cart-btn" href="/panier" aria-label="Voir le panier">
           <Icon name="bag" />
@@ -47,19 +52,19 @@ export function Header({ name, tagline, userName }: { name: string; tagline: str
   );
 }
 
-export function TabBar() {
+export function TabBar({ accountEnabled }: { accountEnabled: boolean }) {
   const path = usePathname();
   const { count, ready } = useCart();
   const is = (m: (p: string) => boolean) => (m(path) ? 'is-active' : '');
   return (
-    <nav className="tabbar" aria-label="Navigation mobile">
+    <nav className="tabbar" aria-label="Navigation mobile" style={accountEnabled ? undefined : { gridTemplateColumns: 'repeat(4, 1fr)' }}>
       <Link href="/" className={is(NAV[0].match)}><Icon name="home" /><span>Accueil</span></Link>
       <Link href="/carte" className={is(NAV[1].match)}><Icon name="menu" /><span>Carte</span></Link>
       <Link href="/panier" className={`tabbar__cart ${CHECKOUT.includes(path) ? 'is-active' : ''}`}>
         <span className="tabbar__cartwrap"><Icon name="bag" />{ready && count > 0 && <span className="tabbar__badge">{count}</span>}</span>
         <span>Panier</span>
       </Link>
-      <Link href="/compte" className={is(ACCOUNT.match)}><Icon name="user" /><span>Compte</span></Link>
+      {accountEnabled && <Link href="/compte" className={is(ACCOUNT.match)}><Icon name="user" /><span>Compte</span></Link>}
       <Link href="/infos" className={is(NAV[2].match)}><Icon name="pin" /><span>Infos</span></Link>
     </nav>
   );

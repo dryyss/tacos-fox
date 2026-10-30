@@ -1,3 +1,4 @@
+import { requireStaffPage } from '@/lib/admin';
 import Link from 'next/link';
 import type { OrderStatus, Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
@@ -9,6 +10,7 @@ export const metadata = { title: 'Historique' };
 const PAGE = 50;
 
 export default async function HistoryPage({ searchParams }: { searchParams: Promise<{ q?: string; statut?: string; page?: string }> }) {
+  await requireStaffPage('history');
   const sp = await searchParams;
   const q = sp.q?.trim() ?? '';
   const page = Math.max(1, Number.parseInt(sp.page ?? '1', 10) || 1);

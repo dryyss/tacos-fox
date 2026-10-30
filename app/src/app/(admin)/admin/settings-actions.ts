@@ -3,13 +3,14 @@
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { requireStaff } from '@/lib/admin';
+import type { AdminFeature } from '@/lib/features';
 import { prisma } from '@/lib/prisma';
 import { parisLocalToDate } from '@/lib/hours';
 
 export interface Result { ok: boolean; error?: string }
 
-async function wrap(adminOnly: boolean, fn: () => Promise<Result | void>): Promise<Result> {
-  await requireStaff(adminOnly);
+async function wrap(feature: AdminFeature, fn: () => Promise<Result | void>): Promise<Result> {
+  await requireStaff(feature);
   try {
     const r = await fn();
     revalidatePath('/', 'layout');
@@ -34,7 +35,7 @@ const zoneSchema = z.object({
 });
 
 export async function saveZone(id: string | null, input: z.input<typeof zoneSchema>) {
-  return wrap(true, async () => {
+  return wrap('delivery', async () => {
     const data = zoneSchema.parse(input);
     if (id) await prisma.deliveryZone.update({ where: { id }, data });
     else await prisma.deliveryZone.create({ data: { ...data, sortOrder: await prisma.deliveryZone.count() } });
@@ -42,7 +43,7 @@ export async function saveZone(id: string | null, input: z.input<typeof zoneSche
 }
 
 export async function deleteZone(id: string) {
-  return wrap(true, async () => { await prisma.deliveryZone.delete({ where: { id } }); });
+  return wrap('delivery', async () => { await prisma.deliveryZone.delete({ where: { id } }); });
 }
 
 /* ---------- Codes promo ---------- */
@@ -60,7 +61,7 @@ const promoSchema = z.object({
 });
 
 export async function savePromo(id: string | null, input: z.input<typeof promoSchema>) {
-  return wrap(false, async () => {
+  return wrap('promos', async () => {
     const d = promoSchema.parse(input);
     if (d.type === 'PERCENT' && d.value > 100) return { ok: false, error: 'Un pourcentage ne peut pas dépasser 100.' };
     const data = { ...d, startsAt: d.startsAt ? parisLocalToDate(d.startsAt) : null, endsAt: d.endsAt ? parisLocalToDate(d.endsAt) : null };
@@ -71,7 +72,7 @@ export async function savePromo(id: string | null, input: z.input<typeof promoSc
 }
 
 export async function deletePromo(id: string) {
-  return wrap(false, async () => { await prisma.promoCode.delete({ where: { id } }); });
+  return wrap('promos', async () => { await prisma.promoCode.delete({ where: { id } }); });
 }
 
 /* ---------- Horaires ---------- */
@@ -79,7 +80,7 @@ export async function deletePromo(id: string) {
 const hoursSchema = z.array(z.object({ dayOfWeek: z.number().int().min(0).max(6), isOpen: z.boolean(), open: hm, close: hm })).length(7);
 
 export async function saveHours(input: z.input<typeof hoursSchema>) {
-  return wrap(true, async () => {
+  return wrap('settings', async () => {
     const days = hoursSchema.parse(input);
     for (const d of days) {
       if (d.isOpen && d.close !== '00:00' && d.close <= d.open) return { ok: false, error: 'La fermeture doit suivre l\'ouverture (00:00 = minuit).' };
@@ -118,7 +119,7 @@ const settingsSchema = z.object({
 export type SettingsInput = z.input<typeof settingsSchema>;
 
 export async function saveSettings(input: SettingsInput) {
-  return wrap(true, async () => {
+  return wrap('settings', async () => {
     const data = settingsSchema.parse(input);
     if (!data.acceptCard && !data.acceptOnsite) return { ok: false, error: 'Gardez au moins un moyen de paiement.' };
     if (!data.modeSurplace && !data.modeEmporter && !data.modeLivraison) return { ok: false, error: 'Gardez au moins un mode de commande.' };
@@ -128,5 +129,5 @@ export async function saveSettings(input: SettingsInput) {
 
 /* Interrupteur rapide « commandes en ligne ouvertes / suspendues » (accessible à l'équipe) */
 export async function setOrderingEnabled(enabled: boolean) {
-  return wrap(false, async () => { await prisma.settings.update({ where: { id: 'main' }, data: { orderingEnabled: enabled } }); });
+  return wrap('orders', async () => { await prisma.settings.update({ where: { id: 'main' }, data: { orderingEnabled: enabled } }); });
 }

@@ -5,7 +5,7 @@ import { ZonesEditor } from './ZonesEditor';
 export const metadata = { title: 'Livraison' };
 
 export default async function DeliveryPage() {
-  await requireStaffPage(true);
+  await requireStaffPage('delivery');
   const zones = await prisma.deliveryZone.findMany({ orderBy: { sortOrder: 'asc' } });
   return (
     <>

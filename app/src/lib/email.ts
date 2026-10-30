@@ -4,6 +4,7 @@ import { prisma } from './prisma';
 import { getSettings } from './catalog';
 import { formatPrice } from './money';
 import { appUrl } from './url';
+import { publicFeatures } from './features';
 
 const MODE_LABELS = { SURPLACE: 'Sur place', EMPORTER: 'À emporter', LIVRAISON: 'Livraison' } as const;
 
@@ -57,6 +58,8 @@ export async function notifyOrderConfirmed(orderId: string) {
 }
 
 export async function notifyOrderStatus(orderId: string, message: string) {
+  // E-mails « commande prête », « annulée »… : option O9 (la confirmation, elle, est incluse)
+  if (!publicFeatures((await getSettings()).enabledOptions).statusEmails) return;
   const order = await prisma.order.findUnique({ where: { id: orderId } });
   if (!order) return;
   const num = `TF-${String(order.number).padStart(4, '0')}`;

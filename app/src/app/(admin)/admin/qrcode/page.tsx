@@ -1,9 +1,11 @@
+import { requireStaffPage } from '@/lib/admin';
 import { appUrl } from '@/lib/url';
 import { QrSheet } from './QrSheet';
 
 export const metadata = { title: 'QR code' };
 
-export default function QrPage() {
+export default async function QrPage() {
+  await requireStaffPage('qrcodes');
   return (
     <>
       <div className="admin-head no-print">

@@ -8,6 +8,7 @@ import { getSettings } from './catalog';
 import { getStripe, paymentSimulated, stripeEnabled } from './stripe';
 import { appUrl } from './url';
 import { notifyOrderConfirmed } from './email';
+import { publicFeatures } from './features';
 
 const phoneRe = /^(\+33|0)[1-9](\d{2}){4}$/;
 
@@ -38,6 +39,7 @@ export async function createOrder(input: CheckoutInput, userId: string | null): 
   if (input.promoCode && !quote.promo?.valid) throw new CheckoutError(quote.promo?.message ?? 'Code promo invalide.');
 
   const settings = await getSettings();
+  const features = publicFeatures(settings.enabledOptions);
   if (input.payment === 'CARD' && !settings.acceptCard) throw new CheckoutError('Le paiement par carte est indisponible.');
   if (input.payment === 'ONSITE' && (!settings.acceptOnsite || input.mode === 'LIVRAISON')) throw new CheckoutError('Le paiement sur place n\'est pas possible pour cette commande.');
   if (input.payment === 'CARD' && !stripeEnabled() && !paymentSimulated()) throw new CheckoutError('Le paiement par carte n\'est pas encore configuré.');
@@ -52,8 +54,8 @@ export async function createOrder(input: CheckoutInput, userId: string | null): 
   const { totals } = quote;
 
   const order = await prisma.$transaction(async tx => {
-    // Décrément des stocks suivis, refus si insuffisant
-    for (const l of lines) {
+    // Décrément des stocks suivis (option O2), refus si insuffisant
+    if (features.stock) for (const l of lines) {
       const res = await tx.product.updateMany({ where: { id: l.productId, stock: { gte: l.qty } }, data: { stock: { decrement: l.qty } } });
       if (res.count === 0) {
         const p = await tx.product.findUnique({ where: { id: l.productId }, select: { stock: true, name: true } });
@@ -64,7 +66,7 @@ export async function createOrder(input: CheckoutInput, userId: string | null): 
 
     return tx.order.create({
       data: {
-        userId,
+        userId: features.customerAccount ? userId : null, // compte client = option O7
         mode: input.mode,
         status: input.payment === 'CARD' ? 'PENDING_PAYMENT' : 'RECEIVED',
         asap: input.slot === 'asap',
@@ -154,6 +156,9 @@ export async function cancelUnpaidOrder(orderId: string, reason: string) {
 }
 
 export async function restock(tx: Prisma.TransactionClient, items: { productId: string | null; qty: number }[]) {
+  // Sans l'option O2 les stocks ne sont pas décomptés : rien à restituer
+  const settings = await tx.settings.findUnique({ where: { id: 'main' }, select: { enabledOptions: true } });
+  if (!publicFeatures(settings?.enabledOptions ?? []).stock) return;
   for (const i of items) {
     if (i.productId) await tx.product.updateMany({ where: { id: i.productId, stock: { not: null } }, data: { stock: { increment: i.qty } } });
   }

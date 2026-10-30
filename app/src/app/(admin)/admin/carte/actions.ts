@@ -10,7 +10,7 @@ export interface Result { ok: boolean; error?: string; id?: string }
 const refresh = () => { revalidatePath('/', 'layout'); };
 
 async function wrap(fn: () => Promise<Result | void>): Promise<Result> {
-  await requireStaff();
+  await requireStaff('menu');
   try {
     const r = await fn();
     refresh();
@@ -155,7 +155,7 @@ export async function moveCategory(id: string, dir: -1 | 1) {
 const MAX_IMAGE = 1.5 * 1024 * 1024;
 
 export async function uploadImage(form: FormData): Promise<Result & { url?: string }> {
-  await requireStaff();
+  await requireStaff('menu');
   const file = form.get('file');
   if (!(file instanceof File)) return { ok: false, error: 'Aucun fichier.' };
   if (!['image/webp', 'image/jpeg', 'image/png'].includes(file.type)) return { ok: false, error: 'Format accepté : JPG, PNG ou WebP.' };
@@ -167,7 +167,7 @@ export async function uploadImage(form: FormData): Promise<Result & { url?: stri
 /* Copie un groupe d'options (par sa clé) sur tous les produits de la même catégorie.
    Les choix sont rapprochés par libellé pour garder leurs identifiants (paniers en cours). */
 export async function applyGroupToCategory(productId: string, groupKey: string): Promise<Result & { count?: number }> {
-  await requireStaff();
+  await requireStaff('menu');
   try {
     const source = await prisma.product.findUnique({
       where: { id: productId },

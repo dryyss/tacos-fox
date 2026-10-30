@@ -1,3 +1,4 @@
+import { requireStaffPage } from '@/lib/admin';
 import { prisma } from '@/lib/prisma';
 import { dateToParisLocal } from '@/lib/hours';
 import { PromosEditor } from './PromosEditor';
@@ -5,6 +6,7 @@ import { PromosEditor } from './PromosEditor';
 export const metadata = { title: 'Promotions' };
 
 export default async function PromosPage() {
+  await requireStaffPage('promos');
   const promos = await prisma.promoCode.findMany({ orderBy: { createdAt: 'desc' } });
   const iso = (d: Date | null) => (d ? dateToParisLocal(d) : null);
   return (

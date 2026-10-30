@@ -9,7 +9,7 @@ export const metadata = { title: 'Comptabilité' };
 const isDay = (s?: string) => !!s && /^\d{4}-\d{2}-\d{2}$/.test(s);
 
 export default async function AccountingPage({ searchParams }: { searchParams: Promise<{ du?: string; au?: string }> }) {
-  await requireStaffPage(true);
+  await requireStaffPage('accounting');
   const sp = await searchParams;
   const today = parisDay(new Date());
   const monthStart = `${today.slice(0, 8)}01`;

@@ -1,3 +1,4 @@
+import { requireStaffPage } from '@/lib/admin';
 import { prisma } from '@/lib/prisma';
 import { dateToParisLocal } from '@/lib/hours';
 import { VitrineEditor, type SlideRow } from './VitrineEditor';
@@ -5,6 +6,7 @@ import { VitrineEditor, type SlideRow } from './VitrineEditor';
 export const metadata = { title: 'Vitrine' };
 
 export default async function VitrinePage() {
+  await requireStaffPage('menu');
   const slides = await prisma.promoSlide.findMany({ orderBy: [{ placement: 'asc' }, { sortOrder: 'asc' }, { createdAt: 'asc' }] });
   const rows: SlideRow[] = slides.map(s => ({
     id: s.id,

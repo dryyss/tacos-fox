@@ -55,7 +55,10 @@ export async function getHours(): Promise<DayHours[]> {
   return prisma.openingHours.findMany({ orderBy: { dayOfWeek: 'asc' } });
 }
 
+/* Zones de livraison : vides tant que l'option O5 (livraison) n'est pas achetée */
 export async function getZones() {
+  const settings = await getSettings();
+  if (!settings.enabledOptions.includes('O5')) return [];
   return prisma.deliveryZone.findMany({ where: { isActive: true }, orderBy: { sortOrder: 'asc' } });
 }
 
