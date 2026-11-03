@@ -22,7 +22,7 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pro
       </p>
       {!stripeEnabled() && <p className="pill">Clé Stripe absente : paiement simulé en développement.</p>}
       {stripeTestMode() && <p className="admin-sub"><b>Mode test.</b> Tant qu&apos;un restaurant n&apos;a pas de compte actif, ses paiements d&apos;essai passent par le compte de test de la plateforme. En production, sa commande en ligne reste fermée jusqu&apos;à l&apos;activation de son compte.</p>}
-      <div className="table-wrap">
+      <div className="table-wrap" tabIndex={0}>
         <table className="table">
           <thead><tr><th>Restaurant</th><th>Société</th><th>Compte Stripe</th><th>État</th><th>Actions</th></tr></thead>
           <tbody>

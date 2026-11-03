@@ -113,7 +113,8 @@ export function MenuBrowser({ catalog, initialCat }: { catalog: Catalog; initial
         <div className="grid grid--1"><ProductCard product={tacos} onOpen={p => openProduct(p)} onQuickAdd={quickAdd} /></div>
         <div className="sizes-row">
           {tacos.sizes.map(s => (
-            <button key={s.code} className="size-chip" onClick={() => openProduct(tacos, s.code)} aria-label={`Composer un tacos ${s.label}`} disabled={!tacos.isAvailable}>
+            <button key={s.code} className="size-chip" onClick={() => openProduct(tacos, s.code)} disabled={!tacos.isAvailable}>
+              <span className="sr-only">Composer un tacos </span>
               <b>{s.label}</b><small>{s.hint}</small><span className="price">{formatPrice(s.price)}</span>
             </button>
           ))}

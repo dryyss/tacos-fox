@@ -84,7 +84,7 @@ export function RestaurantEditor({ id, initial, hours, products }: { id: string;
       <div>
         <div className="panel" style={{ marginTop: 0 }}>
           <div className="panel__title">Horaires d&apos;ouverture</div>
-          <div className="table-wrap"><table className="table"><tbody>
+          <div className="table-wrap" tabIndex={0}><table className="table"><tbody>
             {h.map((d, i) => (
               <tr key={d.dayOfWeek}>
                 <td><b>{DAY_NAMES[d.dayOfWeek]}</b></td>
@@ -103,7 +103,7 @@ export function RestaurantEditor({ id, initial, hours, products }: { id: string;
             <div className="panel__title">Carte de ce restaurant</div>
             <p className="small muted">Décochez un produit pour le masquer dans ce seul restaurant (rupture, absent de sa carte). Un prix propre remplace celui de la carte commune ; vide = prix commun.</p>
             <input type="search" placeholder="Rechercher un produit" value={filter} onChange={e => setFilter(e.target.value)} style={{ margin: '8px 0', width: '100%' }} />
-            <div className="table-wrap" style={{ maxHeight: 560, overflow: 'auto' }}><table className="table"><tbody>
+            <div className="table-wrap" tabIndex={0} style={{ maxHeight: 560, overflow: 'auto' }}><table className="table"><tbody>
               {shown.map(p => (
                 <tr key={p.id} style={p.isHidden ? { opacity: .5 } : undefined}>
                   <td><Toggle on={!p.isHidden} label={`${p.name} disponible`} disabled={pending} onChange={v => updateProduct(p, { isHidden: !v })} /></td>

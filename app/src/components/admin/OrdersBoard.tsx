@@ -205,7 +205,7 @@ export function OrdersBoard({ initial, restaurants, selected, allowAll }: { init
       {done.length > 0 && (
         <section style={{ marginTop: 24 }}>
           <h2 style={{ fontSize: '1.6rem', marginBottom: 10 }}>Terminées récemment</h2>
-          <div className="table-wrap"><table className="table"><tbody>
+          <div className="table-wrap" tabIndex={0}><table className="table"><tbody>
             {done.map(o => (
               <tr key={o.id}>
                 <td><Link className="link" href={`/admin/commandes/${o.id}`}>{orderNumberLabel(o.number)}</Link></td>

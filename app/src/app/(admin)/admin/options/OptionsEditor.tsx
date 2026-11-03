@@ -14,7 +14,7 @@ export function OptionsEditor({ options }: { options: Row[] }) {
   const toast = useToast();
   const [pending, start] = useTransition();
   return (
-    <div className="table-wrap">
+    <div className="table-wrap" tabIndex={0}>
       <table className="table">
         <thead><tr><th>Option</th><th className="num">Prix</th><th>État</th><th>Active</th></tr></thead>
         <tbody>

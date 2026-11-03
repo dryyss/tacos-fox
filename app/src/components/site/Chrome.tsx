@@ -22,13 +22,14 @@ export function Header({ name, tagline, userName, accountEnabled, isStaff }: { n
   const split = name.replace(/\s/g, '').toUpperCase();
   return (
     <header className="header">
-      <Link className="brand" href="/" aria-label={`${name}, accueil`}>
+      <Link className="brand" href="/">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="brand__logo" src="/logo.png" alt="" width={52} height={52} />
         <span className="brand__text">
           <span className="brand__name">{split.replace(/FOX$/, '')}<span>FOX</span></span>
           <span className="brand__sub">{tagline}</span>
         </span>
+        <span className="sr-only">, accueil</span>
       </Link>
       <nav className="nav" aria-label="Navigation principale">
         {NAV.map(n => <Link key={n.href} href={n.href} className={n.match(path) ? 'is-active' : ''}>{n.label}</Link>)}
@@ -42,8 +43,9 @@ export function Header({ name, tagline, userName, accountEnabled, isStaff }: { n
           <Link className="account-link hide-mobile" href="/admin"><Icon name="user" />Gestion</Link>
         )}
         <Link className="btn btn--primary btn--sm hide-mobile" href="/carte">Commander</Link>
-        <Link className="cart-btn" href="/panier" aria-label="Voir le panier">
+        <Link className="cart-btn" href="/panier">
           <Icon name="bag" />
+          <span className="sr-only">Panier{ready && count > 0 ? `, ${count} article${count > 1 ? "s" : ""}` : ", vide"} </span>
           {ready && count > 0 && <span className="cart-btn__count">{count}</span>}
           <span className="cart-btn__total hide-mobile">{formatPrice(ready ? subtotal : 0)}</span>
         </Link>

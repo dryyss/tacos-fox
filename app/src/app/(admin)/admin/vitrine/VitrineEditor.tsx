@@ -136,7 +136,7 @@ export function VitrineEditor({ slides }: { slides: SlideRow[] }) {
           <section key={g.id} style={{ marginTop: 28 }}>
             <h2 className="panel__title">{PLACEMENT_LABEL[g.id]}</h2>
             <p className="small muted" style={{ marginBottom: 10 }}>{g.help}</p>
-            <div className="table-wrap">
+            <div className="table-wrap" tabIndex={0}>
               <table className="table">
                 <thead><tr><th>Visuel</th><th>Période</th><th>Publié</th><th>Actions</th></tr></thead>
                 <tbody>

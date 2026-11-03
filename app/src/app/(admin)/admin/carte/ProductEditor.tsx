@@ -117,7 +117,7 @@ export function ProductEditor({ product, categories }: { product: EditorProduct 
         {p.sizes.length > 0 && (
           <div className="panel">
             <div className="panel__title">Tailles</div>
-            <div className="table-wrap"><table className="table"><thead><tr><th>Taille</th><th>Précision</th><th className="num">Prix €</th>{p.kind === 'PIZZA' && <th>2e offerte</th>}</tr></thead><tbody>
+            <div className="table-wrap" tabIndex={0}><table className="table"><thead><tr><th>Taille</th><th>Précision</th><th className="num">Prix €</th>{p.kind === 'PIZZA' && <th>2e offerte</th>}</tr></thead><tbody>
               {p.sizes.map((s, i) => (
                 <tr key={s.code}>
                   <td><input value={s.label} onChange={e => set('sizes', p.sizes.map((x, k) => (k === i ? { ...x, label: e.target.value } : x)))} /></td>

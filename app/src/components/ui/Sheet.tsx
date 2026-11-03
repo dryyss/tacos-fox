@@ -7,20 +7,31 @@ import { Icon } from '@/components/Icons';
 export function Sheet({ title, sub, onClose, children, foot }: { title: string; sub?: string; onClose: () => void; children: ReactNode; foot: ReactNode }) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const touchY = useRef<number | null>(null);
+  const boxRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     document.body.classList.add('is-locked');
+    const opener = document.activeElement as HTMLElement | null; // rendu du focus à la fermeture
     const t = setTimeout(() => closeRef.current?.focus({ preventScroll: true }), 50);
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') return onClose();
+      // Tab reste dans la fenêtre (le reste de la page est inactif tant qu'elle est ouverte)
+      if (e.key !== 'Tab' || !boxRef.current) return;
+      const f = [...boxRef.current.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])')].filter(el => el.offsetParent !== null);
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
     document.addEventListener('keydown', onKey);
-    return () => { document.body.classList.remove('is-locked'); clearTimeout(t); document.removeEventListener('keydown', onKey); };
+    return () => { document.body.classList.remove('is-locked'); clearTimeout(t); document.removeEventListener('keydown', onKey); opener?.focus?.({ preventScroll: true }); };
   }, [onClose]);
 
   return (
     <>
       <div className="sheet-backdrop" onClick={onClose} />
       <section
-        className="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"
+        ref={boxRef} className="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"
         onTouchStart={e => { if ((e.target as HTMLElement).closest('.sheet__handle, .sheet__head')) touchY.current = e.touches[0].clientY; }}
         onTouchEnd={e => { if (touchY.current !== null && e.changedTouches[0].clientY - touchY.current > 80) onClose(); touchY.current = null; }}
       >

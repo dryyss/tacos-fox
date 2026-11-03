@@ -30,7 +30,7 @@ export function PromosEditor({ promos }: { promos: Promo[] }) {
 
   return (
     <>
-      <div className="table-wrap">
+      <div className="table-wrap" tabIndex={0}>
         <table className="table">
           <thead><tr><th>Code</th><th>Remise</th><th>Conditions</th><th className="num">Utilisations</th><th>Actif</th><th /></tr></thead>
           <tbody>

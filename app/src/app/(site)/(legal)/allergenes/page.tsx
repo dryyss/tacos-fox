@@ -23,7 +23,8 @@ export default async function AllergensPage() {
         return (
           <section key={c.slug}>
             <h2>{c.label}</h2>
-            <div style={{ overflowX: 'auto' }}>
+            {/* Tableau défilant sur téléphone : atteignable au clavier (flèches) et nommé pour les lecteurs d'écran */}
+            <div style={{ overflowX: 'auto' }} tabIndex={0} role="region" aria-label={`Allergènes, ${c.label}`}>
               <table>
                 <thead><tr><th>Plat</th>{ALLERGENS.map(a => <th key={a} style={{ fontSize: '.7rem', writingMode: 'vertical-rl', transform: 'rotate(180deg)', whiteSpace: 'nowrap' }}>{a}</th>)}</tr></thead>
                 <tbody>

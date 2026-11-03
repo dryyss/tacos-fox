@@ -34,7 +34,7 @@ export function Footer({ settings, accountEnabled, restaurants }: { settings: Re
         <Link href="/allergenes">Allergènes</Link>
         <span>Prix TTC, service compris</span>
         <Link href="/connexion?retour=/admin">Espace équipe</Link>
-        <a className="footer__credit" href="https://magar-developpement.fr" target="_blank" rel="noopener" aria-label="Site réalisé par MAGAR Développement">
+        <a className="footer__credit" href="https://magar-developpement.fr" target="_blank" rel="noopener">
           <span>Site réalisé par</span>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/magar-dev-mark.svg" alt="" width={28} height={20} />

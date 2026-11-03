@@ -25,7 +25,7 @@ export function ZonesEditor({ zones }: { zones: Zone[] }) {
 
   return (
     <>
-      <div className="table-wrap">
+      <div className="table-wrap" tabIndex={0}>
         <table className="table">
           <thead><tr><th>Ville</th><th>Code postal</th><th className="num">Frais €</th><th className="num">Offerte dès €</th><th className="num">Minimum €</th><th>Active</th><th /></tr></thead>
           <tbody>

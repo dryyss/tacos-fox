@@ -51,7 +51,7 @@ export function MenuAdmin({ categories }: { categories: Cat[] }) {
                 <button className="btn btn--ghost btn--sm" disabled={pending || ci === categories.length - 1} onClick={() => run(() => moveCategory(c.id, 1))} aria-label="Descendre">↓</button>
               </div>
             </div>
-            <div className="table-wrap">
+            <div className="table-wrap" tabIndex={0}>
               <table className="table">
                 <thead><tr><th>Produit</th><th className="num">Prix €</th><th>Dispo</th><th>Visible</th><th>Incontournable</th><th>Stock</th><th /></tr></thead>
                 <tbody>

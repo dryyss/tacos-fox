@@ -71,7 +71,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
         <button className="btn btn--dark btn--sm">Rechercher</button>
         <span className="small muted">{total} commande{total > 1 ? 's' : ''}</span>
       </form>
-      <div className="table-wrap">
+      <div className="table-wrap" tabIndex={0}>
         <table className="table">
           <thead><tr><th>N°</th><th>Date</th><th>Restaurant</th><th>Client</th><th>Mode</th><th>Statut</th><th>Paiement</th><th>Facture</th><th className="num">Total</th></tr></thead>
           <tbody>

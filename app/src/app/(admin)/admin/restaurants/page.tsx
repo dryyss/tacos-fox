@@ -11,7 +11,7 @@ export default async function RestaurantsAdminPage() {
     <>
       <h1 className="admin-title">Restaurants</h1>
       <p className="admin-sub">Coordonnées, horaires, délai de préparation, société qui encaisse, et carte propre à chaque restaurant (ruptures, carte spécifique du 5e). Sans l&apos;option O1, ces changements sont faits par MAGAR Développement sur simple message.</p>
-      <div className="table-wrap">
+      <div className="table-wrap" tabIndex={0}>
         <table className="table">
           <thead><tr><th>Restaurant</th><th>Société</th><th>Téléphone</th><th>Délai</th><th>Commande en ligne</th><th>Paiement</th><th>Ajustements de carte</th></tr></thead>
           <tbody>
