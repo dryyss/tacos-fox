@@ -1,4 +1,5 @@
 import 'server-only';
+import { Prisma } from '@prisma/client';
 import { prisma } from './prisma';
 import type { Catalog, CatalogProduct } from './catalog-types';
 import type { DayHours } from './hours';
@@ -29,22 +30,49 @@ function toCatalogProduct(p: ProductRow): CatalogProduct {
   };
 }
 
-/* Carte publique : catégories visibles et produits non masqués */
-export async function getCatalog(): Promise<Catalog> {
-  const [categories, rows] = await Promise.all([
-    prisma.category.findMany({ where: { isVisible: true }, orderBy: { sortOrder: 'asc' } }),
-    loadRows({ isHidden: false, category: { isVisible: true } }),
-  ]);
+/* Produits visibles. Avec un restaurant (C3) : carte commune + produits réservés à ce restaurant,
+   sans ceux qu'il a masqués (rupture, carte spécifique). */
+function visibleWhere(restaurantId?: string): Prisma.ProductWhereInput {
+  const base: Prisma.ProductWhereInput = { isHidden: false, category: { isVisible: true } };
+  if (!restaurantId) return { ...base, restaurants: { none: {} } };
   return {
-    categories: categories.map(c => ({ slug: c.slug, label: c.label, description: c.description })),
-    products: rows.map(toCatalogProduct),
+    ...base,
+    OR: [{ restaurants: { none: {} } }, { restaurants: { some: { id: restaurantId } } }],
+    overrides: { none: { restaurantId, isHidden: true } },
   };
 }
 
-/* Produits demandés par un panier (y compris la pizza offerte), pour le recalcul serveur */
-export async function getProductsForPricing(ids: string[]): Promise<CatalogProduct[]> {
-  const rows = await loadRows({ id: { in: [...new Set(ids)] }, isHidden: false, category: { isVisible: true } });
-  return rows.map(toCatalogProduct);
+/* Prix propres au restaurant (carte spécifique du 5e) appliqués au produit */
+async function withRestaurantPrices(products: CatalogProduct[], restaurantId?: string): Promise<CatalogProduct[]> {
+  if (!restaurantId) return products;
+  const overrides = await prisma.productOverride.findMany({ where: { restaurantId, OR: [{ price: { not: null } }, { sizePrices: { not: Prisma.AnyNull } }] } });
+  if (!overrides.length) return products;
+  const byId = new Map(overrides.map(o => [o.productId, o]));
+  return products.map(p => {
+    const o = byId.get(p.id);
+    if (!o) return p;
+    const sizePrices = (o.sizePrices ?? {}) as Record<string, number>;
+    const sizes = p.sizes.map(sz => (Number.isInteger(sizePrices[sz.code]) ? { ...sz, price: sizePrices[sz.code] } : sz));
+    return { ...p, price: o.price ?? (sizes.length ? Math.min(...sizes.map(sz => sz.price)) : p.price), sizes };
+  });
+}
+
+/* Carte publique d'un restaurant (sans restaurant : la carte commune, pour l'accueil et les allergènes) */
+export async function getCatalog(restaurantId?: string): Promise<Catalog> {
+  const [categories, rows] = await Promise.all([
+    prisma.category.findMany({ where: { isVisible: true }, orderBy: { sortOrder: 'asc' } }),
+    loadRows(visibleWhere(restaurantId)),
+  ]);
+  return {
+    categories: categories.map(c => ({ slug: c.slug, label: c.label, description: c.description })),
+    products: await withRestaurantPrices(rows.map(toCatalogProduct), restaurantId),
+  };
+}
+
+/* Produits demandés par un panier (y compris la pizza offerte), au prix du restaurant, pour le recalcul serveur */
+export async function getProductsForPricing(ids: string[], restaurantId: string): Promise<CatalogProduct[]> {
+  const rows = await loadRows({ id: { in: [...new Set(ids)] }, ...visibleWhere(restaurantId) });
+  return withRestaurantPrices(rows.map(toCatalogProduct), restaurantId);
 }
 
 export async function getSettings() {

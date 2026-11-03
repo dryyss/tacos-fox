@@ -9,7 +9,7 @@ import { formatPrice } from '@/lib/money';
 const NAV = [
   { href: '/', label: 'Accueil', match: (p: string) => p === '/' },
   { href: '/carte', label: 'La carte', match: (p: string) => p.startsWith('/carte') },
-  { href: '/infos', label: 'Infos pratiques', match: (p: string) => p.startsWith('/infos') },
+  { href: '/restaurants', label: 'Nos restaurants', match: (p: string) => p.startsWith('/restaurants') },
 ];
 const CHECKOUT = ['/panier', '/commande', '/paiement'];
 const ACCOUNT = { href: '/compte', match: (p: string) => p.startsWith('/compte') || p.startsWith('/connexion') || p.startsWith('/inscription') || p.startsWith('/suivi') };
@@ -65,7 +65,7 @@ export function TabBar({ accountEnabled }: { accountEnabled: boolean }) {
         <span>Panier</span>
       </Link>
       {accountEnabled && <Link href="/compte" className={is(ACCOUNT.match)}><Icon name="user" /><span>Compte</span></Link>}
-      <Link href="/infos" className={is(NAV[2].match)}><Icon name="pin" /><span>Infos</span></Link>
+      <Link href="/restaurants" className={is(NAV[2].match)}><Icon name="pin" /><span>Restos</span></Link>
     </nav>
   );
 }

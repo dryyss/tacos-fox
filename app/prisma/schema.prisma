@@ -153,6 +153,7 @@ model Product {
   favorites    Favorite[]
   orderItems   OrderItem[]
   restaurants  Restaurant[]  @relation("ProductRestaurants") // vide = carte commune (tous les restaurants)
+  overrides    ProductOverride[]
 
   @@index([categoryId])
 }
@@ -262,6 +263,7 @@ model Order {
   refundedAmount        Int           @default(0)
   stripeSessionId       String?       @unique
   stripePaymentIntentId String?
+  stripeAccountId       String? // compte Stripe Connect qui a encaissé (null = compte plateforme, mode test)
   invoiceNumber         String?       @unique
   invoicedAt            DateTime?
   trackingToken         String        @unique @default(cuid())
@@ -342,6 +344,24 @@ model Restaurant {
   hours    RestaurantHours[]
   orders   Order[]
   products Product[]         @relation("ProductRestaurants")
+  overrides ProductOverride[]
+}
+
+/* Carte d'un restaurant (C3) : produit masqué dans ce seul restaurant (rupture, carte spécifique du 5e)
+   ou prix qui lui est propre. Saisi par MAGAR Développement sur demande (sans l'option O1). */
+model ProductOverride {
+  restaurantId String
+  productId    String
+  isHidden     Boolean  @default(false)
+  price        Int? // prix de base propre au restaurant, en centimes
+  sizePrices   Json? // prix par taille propres au restaurant : { "senior": 1090 }
+  updatedAt    DateTime @updatedAt
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([restaurantId, productId])
+  @@index([productId])
 }
 
 model RestaurantHours {

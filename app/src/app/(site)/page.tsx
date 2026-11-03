@@ -5,29 +5,27 @@ import { Featured } from '@/components/menu/Featured';
 import { ModeLinks } from '@/components/site/ModeLinks';
 import { PromoBanner, PromoCarousel, PromoPanels } from '@/components/site/Slides';
 import { getCatalog, getRestaurant } from '@/lib/catalog';
-import { hmLabel, openStatus, parisClock } from '@/lib/hours';
+import { openStatus } from '@/lib/hours';
 import { formatAmount, formatPrice } from '@/lib/money';
-import { mapsSearchUrl, phoneHref } from '@/lib/format';
 import { modeInfos } from '@/lib/site';
-import { JsonLd, restaurantJsonLd } from '@/lib/seo';
+import { getCurrentRestaurant, getRestaurants, restaurantTitle } from '@/lib/restaurants';
+import { RestaurantCard } from '@/components/restaurants/RestaurantCard';
 import { getPublicSlides } from '@/lib/slides';
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const [catalog, restaurant, spots] = await Promise.all([getCatalog(), getRestaurant(), getPublicSlides()]);
-  const { settings, hours } = restaurant;
-  const status = openStatus(hours);
-  const today = hours.find(h => h.dayOfWeek === parisClock().day);
+  const [current, restaurants, restaurant, spots] = await Promise.all([getCurrentRestaurant(), getRestaurants(), getRestaurant(), getPublicSlides()]);
+  const catalog = await getCatalog(current?.id);
+  const { settings } = restaurant;
+  const status = current ? openStatus(current.hours) : null;
   const featured = catalog.products.filter(p => p.isFeatured).slice(0, 8);
   const pizzas = catalog.products.filter(p => p.kind === 'PIZZA');
   const tacos = catalog.products.find(p => p.kind === 'TACOS');
   const bogoSizes = pizzas[0]?.sizes.filter(s => s.bogo) ?? [];
-  const address = [settings.addressLine1, `${settings.postalCode} ${settings.city}`].filter(Boolean).join(', ');
 
   return (
     <div className="page">
-      <JsonLd data={restaurantJsonLd(restaurant)} />
       <section className="hero">
         <div className="hero__inner">
           <div className="hero__copy">
@@ -36,15 +34,15 @@ export default async function HomePage() {
               <span className="badge hero__badge-direct">Commande directe, sans appli</span>
             </div>
             <h1 className="hero__title">La meilleure excuse pour <em>ne pas cuisiner</em> ce soir</h1>
-            <p className="hero__text">Tacos généreux, burgers XXL, pizzas, bowls et Crousty Fox. Préparés à {settings.city}, prêts en {settings.prepMinutes} minutes, au prix de la carte.</p>
+            <p className="hero__text">Tacos généreux, burgers XXL, pizzas, bowls et Crousty Fox. Préparés dans nos {restaurants.length} restaurants de Stains, Dugny et Le Blanc-Mesnil. Commandez en ligne, récupérez au créneau choisi, au prix de la carte.</p>
             <div className="hero__cta">
               <Link className="btn btn--primary btn--xl" href="/carte">Commander</Link>
-              <div className="hero__sub"><span className={`dot ${status.open ? '' : 'is-closed'}`} />{status.label}</div>
+              {current && status && <div className="hero__sub"><span className={`dot ${status.open ? '' : 'is-closed'}`} />{restaurantTitle(current)} : {status.label}</div>}
             </div>
             <ul className="hero__facts">
-              <li><strong>{settings.prepMinutes} min</strong>de préparation</li>
+              <li><strong>{restaurants.length}</strong>restaurants</li>
               <li><strong>0 €</strong>de commission</li>
-              <li><strong>{hours.every(h => h.isOpen) ? '7j/7' : 'Aujourd\'hui'}</strong>{today?.isOpen ? `${hmLabel(today.open)} à ${hmLabel(today.close)}` : 'fermé'}</li>
+              <li><strong>À emporter</strong>au créneau choisi</li>
             </ul>
           </div>
           <div className="hero__visual">
@@ -61,7 +59,7 @@ export default async function HomePage() {
             <span className="promo__kicker">Offre pizza</span>
             <div className="promo__title">1 pizza achetée <span>= 1 offerte</span></div>
           </div>
-          <p className="promo__text">Sur les tailles {bogoSizes.map(s => s.label).join(' et ')}, sur place et à emporter. {bogoSizes.map(s => `Deux ${s.label} pour ${formatPrice(s.price)}`).join(', ')}.</p>
+          <p className="promo__text">Sur les tailles {bogoSizes.map(s => s.label).join(' et ')}, à emporter. {bogoSizes.map(s => `Deux ${s.label} pour ${formatPrice(s.price)}`).join(', ')}.</p>
           <span className="btn btn--dark promo__cta">Voir les pizzas</span>
         </Link>
       )}
@@ -105,14 +103,9 @@ export default async function HomePage() {
       </section>
 
       <section className="section">
-        <div className="section__head"><h2 className="section__title">On vous <em>attend</em></h2><Link className="section__link" href="/infos">Infos pratiques <Icon name="chevron" /></Link></div>
-        <div className="info-card">
-          <div className="info-row"><Icon name="clock" /><div><strong>{today?.isOpen ? `Aujourd'hui ${hmLabel(today.open)} à ${hmLabel(today.close)}` : 'Fermé aujourd\'hui'}</strong><span className={`open-pill ${status.open ? '' : 'is-closed'}`}>{status.label}</span></div></div>
-          <div className="info-row"><Icon name="pin" /><div><strong>{settings.addressLine1}</strong><span>{settings.postalCode} {settings.city}</span></div></div>
-          <div className="info-card__actions">
-            {settings.phone && <a className="btn btn--light" href={phoneHref(settings.phone)}><Icon name="phone" /> Appeler</a>}
-            <a className="btn btn--light" href={mapsSearchUrl(address)} target="_blank" rel="noopener"><Icon name="route" /> Itinéraire</a>
-          </div>
+        <div className="section__head"><h2 className="section__title">Nos <em>restaurants</em></h2><Link className="section__link" href="/restaurants">Tous les restaurants <Icon name="chevron" /></Link></div>
+        <div className="resto-grid">
+          {restaurants.map(r => <RestaurantCard key={r.id} r={r} current={r.id === current?.id} />)}
         </div>
       </section>
     </div>

@@ -1,15 +1,19 @@
 import type { Metadata } from 'next';
 import { MenuBrowser } from '@/components/menu/MenuBrowser';
-import { QueryMode } from '@/components/menu/QueryMode';
+import { redirect } from 'next/navigation';
 import { getCatalog } from '@/lib/catalog';
+import { getCurrentRestaurant } from '@/lib/restaurants';
 
 export const metadata: Metadata = {
   title: 'La carte',
-  description: 'Tacos à composer, burgers, pizzas (1 achetée = 1 offerte), sandwichs, bowls, Crousty Fox et desserts. Commande en ligne à Stains.',
+  description: 'Tacos à composer, burgers, pizzas (1 achetée = 1 offerte), sandwichs, bowls, Crousty Fox et desserts. Commande en ligne à emporter à Stains, Dugny et Le Blanc-Mesnil.',
 };
 export const dynamic = 'force-dynamic';
 
-export default async function MenuPage({ searchParams }: { searchParams: Promise<{ cat?: string; mode?: string; table?: string }> }) {
-  const [{ cat, mode, table }, catalog] = await Promise.all([searchParams, getCatalog()]);
-  return <><QueryMode mode={mode} table={table} /><MenuBrowser catalog={catalog} initialCat={cat} /></>;
+/* C3 : carte du restaurant choisi. Sans restaurant, le client le choisit d'abord (C2). */
+export default async function MenuPage({ searchParams }: { searchParams: Promise<{ cat?: string }> }) {
+  const [{ cat }, restaurant] = await Promise.all([searchParams, getCurrentRestaurant()]);
+  if (!restaurant) redirect(`/restaurants?next=${encodeURIComponent(cat ? `/carte?cat=${cat}` : '/carte')}`);
+  const catalog = await getCatalog(restaurant.id);
+  return <MenuBrowser catalog={catalog} initialCat={cat} />;
 }

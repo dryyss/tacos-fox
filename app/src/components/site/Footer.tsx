@@ -1,9 +1,8 @@
 import Link from 'next/link';
 import { Icon } from '@/components/Icons';
 import type { Restaurant } from '@/lib/catalog';
-import { phoneHref } from '@/lib/format';
 
-export function Footer({ settings, accountEnabled }: { settings: Restaurant['settings']; accountEnabled: boolean }) {
+export function Footer({ settings, accountEnabled, restaurants }: { settings: Restaurant['settings']; accountEnabled: boolean; restaurants: { slug: string; title: string; street: string }[] }) {
   return (
     <footer className="footer">
       <div className="footer__grid">
@@ -20,10 +19,8 @@ export function Footer({ settings, accountEnabled }: { settings: Restaurant['set
           {accountEnabled && <Link href="/compte">Mon compte</Link>}
         </div>
         <div className="footer__links">
-          <strong>Le restaurant</strong>
-          <Link href="/infos">Horaires et accès</Link>
-          {settings.phone && <a href={phoneHref(settings.phone)}>{settings.phone}</a>}
-          <span>{settings.addressLine1}, {settings.postalCode} {settings.city}</span>
+          <strong>Nos restaurants</strong>
+          {restaurants.map(r => <Link key={r.slug} href={`/restaurants/${r.slug}`}>{r.title}, {r.street}</Link>)}
         </div>
       </div>
       <div className="footer__legal">

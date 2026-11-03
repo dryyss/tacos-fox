@@ -1265,3 +1265,21 @@ body.is-locked { overflow: hidden; }
 .menu-cart__thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
 .menu-cart__thumb > .ico { width: 26px; height: 26px; }
 .menu-cart__thumb .qty-badge { position: absolute; top: 3px; left: 3px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; font-size: .72rem; box-shadow: 0 1px 4px rgba(0,0,0,.35); }
+
+/* ---------- Restaurants (C2 choix, C8 pages restaurant) ---------- */
+.resto-bar { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--grey); border-bottom: 1px solid var(--grey-2); font-size: .88rem; color: var(--ink-2); }
+.resto-bar svg { width: 16px; height: 16px; flex: none; color: var(--red); }
+.resto-bar span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.resto-bar strong { color: var(--ink); }
+.resto-bar a { margin-left: auto; flex: none; font-weight: 700; color: var(--red); text-decoration: underline; }
+.resto-grid { display: grid; gap: 14px; max-width: var(--max); margin-inline: auto; }
+.resto-card { position: relative; background: var(--white); border: 2px solid var(--grey-2); border-radius: var(--radius); padding: 16px; }
+.resto-card.is-current { border-color: var(--red); }
+.resto-card__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.resto-card__title { font-size: 1.15rem; margin: 0; }
+.resto-card__addr, .resto-card__hours { display: flex; align-items: center; gap: 6px; margin: 8px 0 0; color: var(--ink-2); font-size: .92rem; }
+.resto-card__addr svg, .resto-card__hours svg { width: 16px; height: 16px; flex: none; }
+.resto-card .actions-row { margin-top: 14px; }
+.resto-card__current { position: absolute; top: -11px; left: 14px; background: var(--red); color: #fff; font-size: .72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+@media (min-width: 720px) { .resto-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1100px) { .resto-grid { grid-template-columns: repeat(3, 1fr); } }
