@@ -97,6 +97,7 @@ export function OrdersBoard({ initial, restaurants, selected, allowAll }: { init
   const [offline, setOffline] = useState(false);
   const seen = useRef(new Set(initial.map(o => o.id)));
   const unlocked = useKitchenPermissions();
+  const now = useNow();
 
   useEffect(() => {
     try {
@@ -133,14 +134,18 @@ export function OrdersBoard({ initial, restaurants, selected, allowAll }: { init
   }, [refresh]);
 
   // R3 : tant qu'une commande est « à préparer », le son revient et l'onglet clignote
-  const waiting = orders.filter(o => o.status === 'RECEIVED').length;
+  // Une commande pour plus tard ne fait sonner qu'à son arrivée, puis de nouveau quand il faut la lancer
+  const waiting = orders.filter(o => o.status === 'RECEIVED' && new Date(o.startAt).getTime() <= now).length;
+  // Commande en retard : délai de préparation (15 min) ou heure choisie dépassé, sans être passée « prête »
+  const overdue = orders.filter(o => (o.status === 'RECEIVED' || o.status === 'PREPARING') && now > new Date(o.dueAt).getTime()).length;
   useEffect(() => {
-    if (!waiting) { document.title = 'Commandes · Gestion Tacos Fox'; return; }
+    if (!waiting && !overdue) { document.title = 'Commandes · Gestion Tacos Fox'; return; }
+    const label = overdue ? `(${overdue}) Commande en retard !` : `(${waiting}) Nouvelle commande !`;
     let on = false;
-    const blink = setInterval(() => { on = !on; document.title = on ? `(${waiting}) Nouvelle commande !` : 'Commandes · Gestion Tacos Fox'; }, 1000);
+    const blink = setInterval(() => { on = !on; document.title = on ? label : 'Commandes · Gestion Tacos Fox'; }, 1000);
     const again = soundOn ? setInterval(ring, REPEAT_MS) : null;
     return () => { clearInterval(blink); if (again) clearInterval(again); };
-  }, [waiting, soundOn]);
+  }, [waiting, overdue, soundOn]);
 
   const act = (fn: () => Promise<AdminResult>, ok?: string) => start(async () => {
     const r = await fn();
@@ -182,6 +187,7 @@ export function OrdersBoard({ initial, restaurants, selected, allowAll }: { init
       {/* Le navigateur bloque le son tant que personne n'a touché l'écran : un appui n'importe où le débloque */}
       {soundOn && !unlocked && <button className="btn btn--primary btn--xl btn--block" style={{ marginBottom: 14 }} onClick={ring}>Touchez l&apos;écran pour activer la sonnerie</button>}
       {!soundOn && <button className="btn btn--ghost btn--block" style={{ marginBottom: 14 }} onClick={toggleSound}>Sonnerie coupée : appuyez pour la réactiver</button>}
+      {overdue > 0 && <p className="alert alert--error" style={{ marginTop: 0, marginBottom: 14 }}>{overdue} commande{overdue > 1 ? 's' : ''} en retard : passez-la{overdue > 1 ? 's' : ''} en « Prête » dès que possible. La sonnerie revient toutes les 10 secondes.</p>}
 
       <div className="board">
         {cols.map(c => {
@@ -190,7 +196,7 @@ export function OrdersBoard({ initial, restaurants, selected, allowAll }: { init
             <section key={c.title} className="board__col">
               <div className="board__title">{c.title}<span className="board__count">{list.length}</span></div>
               {!list.length && <p className="small muted" style={{ padding: '0 6px 8px' }}>Rien pour le moment.</p>}
-              {list.map(o => <OrderTicket key={o.id} o={o} pending={pending} act={act} showRestaurant={!selected} />)}
+              {list.map(o => <OrderTicket key={o.id} o={o} pending={pending} act={act} showRestaurant={!selected} now={now} />)}
             </section>
           );
         })}
@@ -215,22 +221,46 @@ export function OrdersBoard({ initial, restaurants, selected, allowAll }: { init
   );
 }
 
-function OrderTicket({ o, pending, act, showRestaurant }: { o: BoardOrder; pending: boolean; act: (fn: () => Promise<AdminResult>, ok?: string) => void; showRestaurant: boolean }) {
+/* « à l'instant », « 12 min », « 1 h 05 » */
+function elapsed(ms: number) {
+  const m = Math.max(0, Math.floor(ms / 60_000));
+  if (m < 1) return 'à l\'instant';
+  if (m < 60) return `${m} min`;
+  return `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, '0')}`;
+}
+
+/* Heure courante rafraîchie toutes les 20 s, pour le temps écoulé affiché sur chaque commande */
+function useNow(stepMs = 20_000) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => { const t = setInterval(() => setNow(Date.now()), stepMs); return () => clearInterval(t); }, [stepMs]);
+  return now;
+}
+
+function OrderTicket({ o, pending, act, showRestaurant, now }: { o: BoardOrder; pending: boolean; act: (fn: () => Promise<AdminResult>, ok?: string) => void; showRestaurant: boolean; now: number }) {
   const due = o.scheduledFor ? new Date(o.scheduledFor) : null;
-  const late = due ? Date.now() > due.getTime() : Date.now() - new Date(o.createdAt).getTime() > 30 * 60 * 1000;
+  const waited = now - new Date(o.createdAt).getTime();
+  // En retard : heure choisie dépassée, ou « dès que possible » au-delà du délai de préparation
+  const late = due ? now > due.getTime() : waited > o.prepMinutes * 60_000;
+  const later = !!due && now < new Date(o.startAt).getTime(); // commande pour plus tard, pas encore à lancer
   const unpaid = o.paymentStatus === 'UNPAID';
   const next = o.status === 'RECEIVED' ? { s: 'PREPARING' as const, l: 'Lancer' } : o.status === 'PREPARING' ? (o.mode === 'LIVRAISON' ? { s: 'OUT_FOR_DELIVERY' as const, l: 'Partie en livraison' } : { s: 'READY' as const, l: 'Prête' }) : { s: 'COMPLETED' as const, l: 'Remise au client' };
 
   return (
-    <article className={`ticket ${o.status === 'RECEIVED' ? 'is-new' : ''} ${late && o.status !== 'RECEIVED' ? 'is-late' : ''}`}>
+    <article className={`ticket ${o.status === 'RECEIVED' && !later ? 'is-new' : ''} ${later ? 'is-later' : ''} ${late && o.status !== 'RECEIVED' ? 'is-late' : ''}`}>
       <div className="ticket__head">
         <Link href={`/admin/commandes/${o.id}`} className="ticket__num">{orderNumberLabel(o.number)}</Link>
         <span className="pill pill--dark">{MODE_LABELS[o.mode]}</span>
       </div>
+      {/* Heure de la commande en gros + temps écoulé (rouge au-delà du délai de préparation) */}
+      <div className="ticket__time">
+        <span className="ticket__clock">{hm(o.createdAt)}</span>
+        {o.status !== 'COMPLETED' && o.status !== 'CANCELLED' && <span className={`ticket__since ${late ? 'is-late' : ''}`}>il y a {elapsed(waited)}</span>}
+      </div>
+      <div className="ticket__meta">
+        <span className={due ? 'pill pill--dark' : late ? 'pill pill--yellow' : 'pill'}>{due ? `Pour ${hm(o.scheduledFor!)}${later ? ` · à lancer à ${hm(o.startAt)}` : ''}` : `Dès que possible · prête vers ${hm(o.dueAt)}`}</span>
+      </div>
       <div className="ticket__meta">
         <span><b>{o.customerName}</b> · <a href={`tel:${o.customerPhone}`}>{o.customerPhone}</a></span>
-        <span>Reçue {hm(o.createdAt)}</span>
-        <span className={late ? 'pill pill--yellow' : ''}>{due ? `Pour ${hm(o.scheduledFor!)}` : `Dès que possible (vers ${hm(o.dueAt)})`}</span>
       </div>
       {showRestaurant && o.restaurant && <div className="ticket__meta"><span className="pill">{o.restaurant}</span></div>}
       {o.address && <div className="ticket__meta">{o.address}</div>}

@@ -931,6 +931,20 @@ body.is-locked { overflow: hidden; }
 .ticket__head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .ticket__num { font-family: var(--display); font-size: 1.5rem; letter-spacing: .04em; }
 .ticket__meta { font-size: .8rem; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 4px 10px; }
+/* Heure de la commande en gros et temps écoulé */
+.ticket__time { display: flex; align-items: baseline; gap: 10px; }
+.ticket__clock { font-family: var(--display); font-size: 2.3rem; line-height: 1; letter-spacing: .02em; color: var(--black); }
+.ticket__since { font-weight: 700; font-size: .9rem; padding: 3px 9px; border-radius: 999px; background: var(--grey); color: var(--ink-2); }
+.ticket__since.is-late { background: var(--red); color: #fff; }
+.ticket.is-later { border-left-style: dashed; opacity: .8; }
+/* Écran de gestion : logo TF en filigrane, derrière le contenu */
+.admin-main { position: relative; isolation: isolate; }
+.admin-main::before {
+  content: ""; position: fixed; z-index: -1; pointer-events: none;
+  right: -4vw; bottom: -6vh; width: min(62vw, 720px); aspect-ratio: 1;
+  background: url("/logo.png") no-repeat center / contain; opacity: .06; transform: rotate(-10deg);
+}
+@media print { .admin-main::before { display: none; } }
 .ticket__items { font-size: .9rem; display: grid; gap: 4px; }
 .ticket__items small { display: block; color: var(--ink-2); font-size: .78rem; }
 .ticket__note { background: var(--yellow); border-radius: 8px; padding: 6px 8px; font-size: .85rem; font-weight: 600; }

@@ -73,6 +73,23 @@ export async function notifyOrderConfirmed(orderId: string) {
     ${order.invoiceNumber ? `<p style="font-size:13px;margin-top:20px">Votre facture ${esc(order.invoiceNumber)} est jointe à cet e-mail (<a href="${appUrl()}/api/invoices/${order.trackingToken}">la télécharger</a>).</p>` : ''}
     ${phone ? `<p style="color:#5A5A5A;font-size:13px;margin-top:20px">Un souci ? Appelez le restaurant au ${esc(phone)}.</p>` : ''}`;
   await send(order.customerEmail, `Commande ${num} confirmée`, layout('Commande confirmée', body), attachments);
+  await notifyRestaurant(order, num, when, rows);
+}
+
+/* R1 : alerte immédiate au restaurant, en plus de l'écran cuisine (sonnerie). Utile si l'écran est
+   fermé ou la tablette éteinte. Envoyée à l'e-mail du restaurant (Gestion > Restaurants). */
+async function notifyRestaurant(order: { restaurant: { email: string } | null; customerName: string; customerPhone: string; total: number; note: string | null; mode: keyof typeof MODE_LABELS }, num: string, when: string, rows: string) {
+  const to = order.restaurant?.email?.trim();
+  if (!to) return;
+  const body = `
+    <p style="font-size:16px"><b>${MODE_LABELS[order.mode]}</b> · ${esc(when)}</p>
+    <p>${esc(order.customerName)} · <a href="tel:${esc(order.customerPhone)}">${esc(order.customerPhone)}</a></p>
+    <table style="width:100%;border-collapse:collapse;font-size:14px">${rows}
+      <tr><td style="padding-top:10px;border-top:2px dashed #E8E8E5"><b>Total payé</b></td><td style="padding-top:10px;border-top:2px dashed #E8E8E5;text-align:right"><b>${formatPrice(order.total)}</b></td></tr>
+    </table>
+    ${order.note ? `<p style="background:#FFF6D6;padding:10px 12px;border-radius:8px"><b>Note du client :</b> ${esc(order.note)}</p>` : ''}
+    <p style="margin-top:20px"><a href="${appUrl()}/admin" style="background:#D7261E;color:#fff;padding:12px 18px;border-radius:10px;text-decoration:none;font-weight:bold">Ouvrir l'écran cuisine</a></p>`;
+  await send(to, `Nouvelle commande ${num} · ${formatPrice(order.total)}`, layout(`Nouvelle commande ${num}`, body));
 }
 
 export async function notifyOrderStatus(orderId: string, message: string) {
