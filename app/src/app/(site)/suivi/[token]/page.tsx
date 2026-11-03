@@ -18,7 +18,7 @@ const time = (d?: Date | null) => d?.toLocaleTimeString('fr-FR', { hour: '2-digi
 export default async function TrackingPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
   const [order, settings] = await Promise.all([
-    prisma.order.findUnique({ where: { trackingToken: token }, include: { items: true, events: { orderBy: { createdAt: 'asc' } } } }),
+    prisma.order.findUnique({ where: { trackingToken: token }, include: { items: true, restaurant: true, events: { orderBy: { createdAt: 'asc' } } } }),
     getSettings(),
   ]);
   if (!order) notFound();
@@ -36,7 +36,7 @@ export default async function TrackingPage({ params }: { params: Promise<{ token
       ? { t: 'En livraison', d: `Le livreur est en route vers ${order.addressLine1 ?? 'votre adresse'}.` }
       : { t: 'Prête à récupérer', d: order.mode === 'SURPLACE' ? 'Présentez-vous au comptoir avec votre numéro.' : 'Passez au comptoir, votre sac vous attend.' },
   ];
-  const eta = !order.asap && order.scheduledFor ? time(order.scheduledFor) : `${delivery ? settings.deliveryMinutes : settings.prepMinutes} min`;
+  const eta = !order.asap && order.scheduledFor ? time(order.scheduledFor) : `${delivery ? settings.deliveryMinutes : order.restaurant?.prepMinutes ?? settings.prepMinutes} min`;
   const live = !['COMPLETED', 'CANCELLED'].includes(order.status);
   const active = !['CANCELLED', 'PENDING_PAYMENT'].includes(order.status);
 
@@ -97,6 +97,13 @@ export default async function TrackingPage({ params }: { params: Promise<{ token
           </>
         )}
 
+        {order.restaurant && !delivery && (
+          <div className="panel">
+            <div className="panel__title"><Icon name="pin" /> À récupérer chez</div>
+            <p><strong>{order.restaurant.name} {order.restaurant.city}</strong><br />{order.restaurant.addressLine1}, {order.restaurant.postalCode} {order.restaurant.city}</p>
+            <a className="section__link" href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${order.restaurant.addressLine1}, ${order.restaurant.postalCode} ${order.restaurant.city}, France`)}`} target="_blank" rel="noopener">Itinéraire</a>
+          </div>
+        )}
         <div className="recap panel">
           <div className="panel__title">Récapitulatif</div>
           <div className="recap__items">
@@ -114,12 +121,12 @@ export default async function TrackingPage({ params }: { params: Promise<{ token
           </div>
         </div>
         <div className="actions-row" style={{ maxWidth: 420, marginInline: 'auto' }}>
-          {settings.phone && <a className="btn btn--light" href={phoneHref(settings.phone)}><Icon name="phone" /> Appeler le resto</a>}
+          {(order.restaurant?.phone || settings.phone) && <a className="btn btn--light" href={phoneHref(order.restaurant?.phone || settings.phone)}><Icon name="phone" /> Appeler le resto</a>}
           {order.invoiceNumber
             ? <a className="btn btn--dark" href={`/api/invoices/${token}`}>Facture PDF</a>
             : features.customerAccount ? <Link className="btn btn--dark" href="/compte">Mes commandes</Link> : <Link className="btn btn--dark" href="/carte">Retour à la carte</Link>}
         </div>
-        <p className="small muted" style={{ margin: '18px auto 0', maxWidth: 420 }}>Un reçu a été envoyé à {order.customerEmail}. Un problème ? Appelez-nous, on règle ça tout de suite.</p>
+        <p className="small muted" style={{ margin: '18px auto 0', maxWidth: 420 }}>La confirmation et la facture ont été envoyées à {order.customerEmail}. Un problème ? Appelez-nous, on règle ça tout de suite.</p>
       </section>
       <div style={{ height: 32 }} />
     </div>
