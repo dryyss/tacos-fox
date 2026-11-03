@@ -124,7 +124,7 @@ export function ProductSheet({ product, pizzas, initialSize, onClose }: { produc
       {bogoActive && (
         <div className={`step ${errorKey === 'free' ? 'is-error' : ''}`}>
           <StepHead n={++n} title="Votre pizza offerte" hint="Même taille, recette au choix" count={{ text: pizzas.find(p => p.id === freePizzaId)?.name ?? product.name, cls: 'is-ok' }} />
-          <div className="bogo-note" style={{ margin: '0 0 10px' }}><Icon name="star" />1 {size!.label} achetée = 1 {size!.label} offerte, sur place et à emporter.</div>
+          <div className="bogo-note" style={{ margin: '0 0 10px' }}><Icon name="star" />1 {size!.label} achetée = 1 {size!.label} offerte, à emporter.</div>
           <div className="pick-grid">
             {pizzas.filter(p => p.isAvailable).map(p => (
               <button key={p.id} type="button" className={`pick ${freePizzaId === p.id ? 'is-selected' : ''}`} aria-pressed={freePizzaId === p.id} onClick={() => setFreePizzaId(p.id)}>

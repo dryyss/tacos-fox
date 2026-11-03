@@ -11,8 +11,8 @@ import './globals.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl()),
-  title: { default: 'TACOS FOX Stains : commande en ligne, sur place, à emporter, livraison', template: '%s · TACOS FOX Stains' },
-  description: 'Tacos, burgers, pizzas, bowls et Crousty Fox à Stains (93). Viande halal certifiée Achahada. Commandez en direct, sans appli de livraison.',
+  title: { default: 'TACOS FOX : commande en ligne à emporter, Stains, Dugny, Le Blanc-Mesnil', template: '%s · TACOS FOX' },
+  description: 'Tacos, burgers, pizzas, bowls et Crousty Fox dans nos 5 restaurants de Seine-Saint-Denis (Stains, Dugny, Le Blanc-Mesnil). Viande halal certifiée Achahada. Commandez en direct, à emporter.',
   openGraph: { type: 'website', locale: 'fr_FR', siteName: 'TACOS FOX' },
 };
 

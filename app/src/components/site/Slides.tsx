@@ -117,7 +117,8 @@ export function PromoCarousel({ slides }: { slides: SlideView[] }) {
                 {s.text && <p className="stage__text">{s.text}</p>}
                 {s.ctaLabel && <span className="stage__cta">{s.ctaLabel}</span>}
               </div>
-              {s.imageUrl && <div className="stage__media"><img src={s.imageUrl} alt="" /></div>}
+              {/* Photos de plats détourées (/menu/) : affichées entières, sans recadrage */}
+              {s.imageUrl && <div className={`stage__media ${s.imageUrl.startsWith('/menu/') ? 'stage__media--cutout' : ''}`}><img src={s.imageUrl} alt="" /></div>}
               {s.badge && <span className="stage__badge">{s.badge}</span>}
             </SlideLink>
           ))}

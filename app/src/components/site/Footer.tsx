@@ -7,7 +7,11 @@ export function Footer({ settings, accountEnabled, restaurants }: { settings: Re
     <footer className="footer">
       <div className="footer__grid">
         <div>
-          <div className="footer__brand">TACOS<span>FOX</span></div>
+          <div className="footer__brand">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="" width={56} height={54} />
+            <span className="footer__name">TACOS<span>FOX</span></span>
+          </div>
           <p className="small">{settings.tagline}. {settings.slogan}.</p>
           <p className="small" style={{ marginTop: 10, display: 'flex', gap: 6, alignItems: 'center' }}><Icon name="halal" /> {settings.halalLabel}</p>
         </div>

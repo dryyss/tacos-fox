@@ -91,3 +91,15 @@ Pour tester en préversion, créer un webhook distinct en mode test vers l'URL d
 ## 7. Photos
 
 Les photos sont stockées **en base** (table `Image`) et servies par `src/app/api` : rien n'est écrit sur le disque, ce qui convient au système de fichiers éphémère de Vercel. Aucun stockage externe n'est nécessaire.
+
+## Comptes de l'équipe (R8) et page de connexion
+
+Script `scripts/auth0-team.mjs` (lit `AUTH_AUTH0_ISSUER`, `auth0_m2m_id`, `auth0_m2m_key` dans `.env`). Il ne touche qu'aux rôles `tacosfox:*` et à l'application Tacos Fox, le tenant servant à d'autres projets.
+
+```
+node scripts/auth0-team.mjs roles                                   # crée tacosfox:superadmin et tacosfox:staff:<restaurant>
+node scripts/auth0-team.mjs add prenom@exemple.fr stains-marcel-cachin   # crée le compte, affiche le mot de passe
+node scripts/auth0-team.mjs grant moi@gmail.com superadmin          # rôle sur un compte existant (Google compris)
+node scripts/auth0-team.mjs list                                    # qui a quel rôle
+node scripts/auth0-team.mjs logo https://<site>/logo.png            # logo de la page de connexion Auth0
+```

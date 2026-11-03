@@ -30,7 +30,7 @@ const CATEGORY_SUBS: Record<string, string> = {
   tacos: 'Frites, sauce fromagère et boisson incluses. Taille S et M : 1 viande, L : 2, XL : 3, XXL : 4.',
   burgers: 'Tous nos burgers sont servis en menu avec frites et boisson.',
   sandwichs: 'Pain frais, viandes halal, crudités au choix. Menu frites et boisson inclus.',
-  pizzas: 'Pâte maison. 1 achetée = 1 offerte sur Senior et Mega, sur place et à emporter.',
+  pizzas: 'Pâte maison. 1 achetée = 1 offerte sur Senior et Mega, à emporter.',
   bowls: 'Frites, 4 fromages fondus, viande et sauce au choix. Boisson incluse.',
   crousty: 'La galette croustillante signature Tacos Fox.',
   assiettes: 'Viande, salade, tomate, oignon, frites. Boisson incluse.',
