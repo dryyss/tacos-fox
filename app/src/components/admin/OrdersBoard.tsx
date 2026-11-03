@@ -27,7 +27,10 @@ function beep() {
 
 const openTicket = (id: string) => window.open(`/admin/commandes/${id}/ticket?print=1`, `ticket-${id}`, 'width=420,height=700');
 
-export function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
+interface BoardRestaurant { id: string; slug: string; label: string }
+const REPEAT_MS = 10_000; // R3 : alerte répétée tant qu'une commande attend d'être prise en charge
+
+export function OrdersBoard({ initial, restaurants, selected, allowAll }: { initial: BoardOrder[]; restaurants: BoardRestaurant[]; selected: string | null; allowAll: boolean }) {
   const toast = useToast();
   const [orders, setOrders] = useState(initial);
   const [pending, start] = useTransition();
@@ -39,7 +42,7 @@ export function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
   useEffect(() => { try { setAutoPrint(localStorage.getItem(AUTO_PRINT_KEY) === '1'); } catch { /* ignoré */ } }, []);
 
   const refresh = useCallback(async () => {
-    const res = await fetch('/api/admin/orders', { cache: 'no-store' }).catch(() => null);
+    const res = await fetch(`/api/admin/orders${selected ? `?r=${selected}` : ''}`, { cache: 'no-store' }).catch(() => null);
     if (!res?.ok) { setOffline(true); return; }
     setOffline(false);
     const data: BoardOrder[] = await res.json();
@@ -51,12 +54,22 @@ export function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
       if (autoPrint) fresh.forEach(o => openTicket(o.id));
     }
     setOrders(data);
-  }, [soundOn, autoPrint, toast]);
+  }, [soundOn, autoPrint, toast, selected]);
 
   useEffect(() => {
     const t = setInterval(refresh, 4000);
     return () => clearInterval(t);
   }, [refresh]);
+
+  // R3 : tant qu'une commande est « à préparer », le son revient et l'onglet clignote
+  const waiting = orders.filter(o => o.status === 'RECEIVED').length;
+  useEffect(() => {
+    if (!waiting) { document.title = 'Commandes · Gestion Tacos Fox'; return; }
+    let on = false;
+    const blink = setInterval(() => { on = !on; document.title = on ? `(${waiting}) Nouvelle commande !` : 'Commandes · Gestion Tacos Fox'; }, 1000);
+    const ring = soundOn ? setInterval(beep, REPEAT_MS) : null;
+    return () => { clearInterval(blink); if (ring) clearInterval(ring); };
+  }, [waiting, soundOn]);
 
   const act = (fn: () => Promise<AdminResult>, ok?: string) => start(async () => {
     const r = await fn();
@@ -66,9 +79,9 @@ export function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
   });
 
   const cols = [
-    { title: 'Nouvelles', match: (o: BoardOrder) => o.status === 'RECEIVED' },
+    { title: 'À préparer', match: (o: BoardOrder) => o.status === 'RECEIVED' },
     { title: 'En préparation', match: (o: BoardOrder) => o.status === 'PREPARING' },
-    { title: 'Prêtes / en livraison', match: (o: BoardOrder) => o.status === 'READY' || o.status === 'OUT_FOR_DELIVERY' },
+    { title: 'Prêtes', match: (o: BoardOrder) => o.status === 'READY' || o.status === 'OUT_FOR_DELIVERY' },
   ];
   const done = orders.filter(o => o.status === 'COMPLETED' || o.status === 'CANCELLED').reverse();
 
@@ -87,6 +100,15 @@ export function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
         </div>
       </div>
 
+      {restaurants.length > 1 && (
+        <nav className="filters" aria-label="Restaurant affiché">
+          {allowAll && <Link className={`chip ${!selected ? 'is-selected' : ''}`} href="/admin">Tous</Link>}
+          {restaurants.map(r => <Link key={r.id} className={`chip ${selected === r.id ? 'is-selected' : ''}`} href={`/admin?r=${r.slug}`}>{r.label}</Link>)}
+        </nav>
+      )}
+      {!restaurants.length && <p className="alert alert--error">Aucun restaurant n&apos;est rattaché à votre compte. Demandez au gérant de vous ajouter le rôle de votre restaurant.</p>}
+      {!soundOn && <button className="btn btn--primary btn--block" style={{ marginBottom: 14 }} onClick={() => { setSoundOn(true); beep(); }}>Appuyez ici pour activer l&apos;alerte sonore</button>}
+
       <div className="board">
         {cols.map(c => {
           const list = orders.filter(c.match);
@@ -94,7 +116,7 @@ export function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
             <section key={c.title} className="board__col">
               <div className="board__title">{c.title}<span className="board__count">{list.length}</span></div>
               {!list.length && <p className="small muted" style={{ padding: '0 6px 8px' }}>Rien pour le moment.</p>}
-              {list.map(o => <OrderTicket key={o.id} o={o} pending={pending} act={act} />)}
+              {list.map(o => <OrderTicket key={o.id} o={o} pending={pending} act={act} showRestaurant={!selected} />)}
             </section>
           );
         })}
@@ -119,7 +141,7 @@ export function OrdersBoard({ initial }: { initial: BoardOrder[] }) {
   );
 }
 
-function OrderTicket({ o, pending, act }: { o: BoardOrder; pending: boolean; act: (fn: () => Promise<AdminResult>, ok?: string) => void }) {
+function OrderTicket({ o, pending, act, showRestaurant }: { o: BoardOrder; pending: boolean; act: (fn: () => Promise<AdminResult>, ok?: string) => void; showRestaurant: boolean }) {
   const due = o.scheduledFor ? new Date(o.scheduledFor) : null;
   const late = due ? Date.now() > due.getTime() : Date.now() - new Date(o.createdAt).getTime() > 30 * 60 * 1000;
   const unpaid = o.paymentStatus === 'UNPAID';
@@ -134,8 +156,9 @@ function OrderTicket({ o, pending, act }: { o: BoardOrder; pending: boolean; act
       <div className="ticket__meta">
         <span><b>{o.customerName}</b> · <a href={`tel:${o.customerPhone}`}>{o.customerPhone}</a></span>
         <span>Reçue {hm(o.createdAt)}</span>
-        <span className={late ? 'pill pill--yellow' : ''}>{due ? `Pour ${hm(o.scheduledFor!)}` : 'Dès que possible'}</span>
+        <span className={late ? 'pill pill--yellow' : ''}>{due ? `Pour ${hm(o.scheduledFor!)}` : `Dès que possible (vers ${hm(o.dueAt)})`}</span>
       </div>
+      {showRestaurant && o.restaurant && <div className="ticket__meta"><span className="pill">{o.restaurant}</span></div>}
       {o.address && <div className="ticket__meta">{o.address}</div>}
       <div className="ticket__items">
         {o.items.map(i => <div key={i.id}><b>{i.qty} x {i.name}</b>{i.details.length > 0 && <small>{i.details.join(' · ')}</small>}</div>)}

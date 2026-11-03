@@ -2,11 +2,11 @@ import NextAuth, { type DefaultSession } from 'next-auth';
 import Auth0 from 'next-auth/providers/auth0';
 import type { Role } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import { ROLES_CLAIM, roleFromClaim } from '@/lib/roles';
+import { restaurantsFromClaim, ROLES_CLAIM, roleFromClaim } from '@/lib/roles';
 
 declare module 'next-auth' {
   interface Session {
-    user: { id: string; role: Role } & DefaultSession['user'];
+    user: { id: string; role: Role; restaurants: string[] } & DefaultSession['user'];
   }
   interface User {
     role?: Role;
@@ -37,12 +37,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const email = String(profile.email ?? '').trim().toLowerCase();
         const verified = profile.email_verified === true;
         const role = roleFromClaim(profile[ROLES_CLAIM]);
+        const staffRestaurants = restaurantsFromClaim(profile[ROLES_CLAIM]);
         const name = typeof profile.given_name === 'string' ? profile.given_name : typeof profile.name === 'string' && !profile.name.includes('@') ? profile.name : null;
         const key = { provider: 'auth0', providerAccountId: account.providerAccountId };
         const linked = await prisma.account.findUnique({ where: { provider_providerAccountId: key }, select: { userId: true } });
         // Auth0 fait foi pour le rôle : recopié à chaque connexion, retrait de rôle compris
-        const data = { role, ...(verified ? { emailVerified: new Date() } : {}) };
-        const select = { id: true, name: true, role: true } as const;
+        const data = { role, staffRestaurants, ...(verified ? { emailVerified: new Date() } : {}) };
+        const select = { id: true, name: true, role: true, staffRestaurants: true } as const;
         const dbUser = linked
           ? await prisma.user.update({ where: { id: linked.userId }, data, select })
           : await prisma.user.upsert({ where: { email }, create: { email, name, ...data }, update: data, select });
@@ -50,6 +51,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.sub = dbUser.id;
         token.name = dbUser.name ?? name;
         token.role = dbUser.role;
+        token.restaurants = dbUser.staffRestaurants;
       } else if (trigger === 'update' && token.sub) {
         const fresh = await prisma.user.findUnique({ where: { id: token.sub }, select: { name: true } });
         if (fresh) token.name = fresh.name;
@@ -59,6 +61,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     session({ session, token }) {
       session.user.id = token.sub!;
       session.user.role = (token.role as Role) ?? 'CUSTOMER';
+      session.user.restaurants = Array.isArray(token.restaurants) ? (token.restaurants as string[]) : [];
       return session;
     },
   },

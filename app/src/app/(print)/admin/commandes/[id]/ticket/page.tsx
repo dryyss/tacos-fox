@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { requireStaffPage } from '@/lib/admin';
+import { requireStaffPage, restaurantScope } from '@/lib/admin';
 import { prisma } from '@/lib/prisma';
 import { getSettings } from '@/lib/catalog';
 import { formatPrice } from '@/lib/money';
@@ -15,10 +15,10 @@ const fmt = (d: Date, o: Intl.DateTimeFormatOptions) => d.toLocaleString('fr-FR'
 
 /* Ticket cuisine / client au format imprimante thermique 80 mm */
 export default async function TicketPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ print?: string }> }) {
-  await requireStaffPage();
+  const scope = await restaurantScope(await requireStaffPage());
   const [{ id }, { print }] = await Promise.all([params, searchParams]);
   const [order, settings] = await Promise.all([prisma.order.findUnique({ where: { id }, include: { items: true } }), getSettings()]);
-  if (!order) notFound();
+  if (!order || (scope && (!order.restaurantId || !scope.includes(order.restaurantId)))) notFound();
   if (!order.printedAt) await markPrinted(order.id);
 
   return (

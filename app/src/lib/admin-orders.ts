@@ -1,22 +1,32 @@
 import 'server-only';
 import { prisma } from './prisma';
+import { scopeWhere } from './admin';
 
-/* Commandes en cours + celles terminées dans les 3 dernières heures, pour le tableau du service */
-export async function getBoardOrders() {
+/* R1/R2 : commandes en cours + celles terminées dans les 3 dernières heures, pour l'écran cuisine.
+   scope : restaurants visibles (null = tous) ; restaurantId : un seul restaurant affiché.
+   Classées par heure de retrait, la plus urgente en premier. */
+export async function getBoardOrders(scope: string[] | null, restaurantId?: string | null) {
   const since = new Date(Date.now() - 3 * 3600 * 1000);
   const orders = await prisma.order.findMany({
     where: {
-      OR: [
-        { status: { in: ['RECEIVED', 'PREPARING', 'READY', 'OUT_FOR_DELIVERY'] } },
-        { status: { in: ['COMPLETED', 'CANCELLED'] }, updatedAt: { gte: since } },
+      AND: [
+        scopeWhere(scope),
+        restaurantId ? { restaurantId } : {},
+        { OR: [
+          { status: { in: ['RECEIVED', 'PREPARING', 'READY', 'OUT_FOR_DELIVERY'] } },
+          { status: { in: ['COMPLETED', 'CANCELLED'] }, updatedAt: { gte: since } },
+        ] },
       ],
     },
-    include: { items: true },
+    include: { items: true, restaurant: { select: { name: true, city: true, addressLine1: true, prepMinutes: true } } },
     orderBy: { createdAt: 'asc' },
   });
-  return orders.map(o => ({
+  const due = (o: (typeof orders)[number]) => (o.scheduledFor ?? new Date(o.createdAt.getTime() + (o.restaurant?.prepMinutes ?? 20) * 60_000)).getTime();
+  return orders.sort((a, b) => due(a) - due(b)).map(o => ({
     id: o.id, number: o.number, mode: o.mode, status: o.status, asap: o.asap,
-    scheduledFor: o.scheduledFor?.toISOString() ?? null, createdAt: o.createdAt.toISOString(), updatedAt: o.updatedAt.toISOString(),
+    scheduledFor: o.scheduledFor?.toISOString() ?? null, dueAt: new Date(due(o)).toISOString(),
+    createdAt: o.createdAt.toISOString(), updatedAt: o.updatedAt.toISOString(),
+    restaurant: o.restaurant ? `${o.restaurant.city}, ${o.restaurant.addressLine1}` : null,
     customerName: o.customerName, customerPhone: o.customerPhone,
     address: o.mode === 'LIVRAISON' ? [o.addressLine1, o.addressExtra, `${o.postalCode ?? ''} ${o.city ?? ''}`.trim()].filter(Boolean).join(', ') : null,
     note: o.note, total: o.total, paymentMethod: o.paymentMethod, paymentStatus: o.paymentStatus, printedAt: o.printedAt?.toISOString() ?? null,
@@ -24,3 +34,9 @@ export async function getBoardOrders() {
   }));
 }
 export type BoardOrder = Awaited<ReturnType<typeof getBoardOrders>>[number];
+
+/* Restaurants proposés dans les onglets de l'écran cuisine, selon le périmètre */
+export async function boardRestaurants(scope: string[] | null) {
+  const rows = await prisma.restaurant.findMany({ where: scope ? { id: { in: scope } } : {}, orderBy: { sortOrder: 'asc' }, select: { id: true, slug: true, name: true, city: true, addressLine1: true } });
+  return rows.map(r => ({ id: r.id, slug: r.slug, label: `${r.city}, ${r.addressLine1}` }));
+}

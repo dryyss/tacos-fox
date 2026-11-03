@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
+import { requireStaffPage, restaurantScope } from '@/lib/admin';
 import { formatPrice } from '@/lib/money';
 import { MODE_LABELS, orderNumberLabel, STATUS_LABELS } from '@/lib/format';
 import { OrderActions } from './OrderActions';
@@ -13,8 +14,10 @@ const PAYMENT = { UNPAID: 'Non payée', PAID: 'Payée', PARTIALLY_REFUNDED: 'Rem
 
 export default async function AdminOrderPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const order = await prisma.order.findUnique({ where: { id }, include: { items: true, events: { orderBy: { createdAt: 'asc' } }, user: { select: { email: true } } } });
-  if (!order) notFound();
+  const scope = await restaurantScope(await requireStaffPage());
+  const order = await prisma.order.findUnique({ where: { id }, include: { items: true, restaurant: true, events: { orderBy: { createdAt: 'asc' } }, user: { select: { email: true } } } });
+  // R8 : une commande d'un autre restaurant n'existe pas pour l'équipier
+  if (!order || (scope && (!order.restaurantId || !scope.includes(order.restaurantId)))) notFound();
 
   return (
     <>
@@ -25,7 +28,8 @@ export default async function AdminOrderPage({ params }: { params: Promise<{ id:
           <p className="admin-sub" style={{ margin: 0 }}>
             <span className="pill pill--dark">{MODE_LABELS[order.mode]}</span>{' '}
             <span className={`pill ${order.status === 'CANCELLED' ? 'pill--red' : order.status === 'COMPLETED' ? 'pill--green' : 'pill--yellow'}`}>{STATUS_LABELS[order.status]}</span>{' '}
-            <span className="pill">{order.paymentMethod === 'CARD' ? 'CB en ligne' : 'Sur place'} · {PAYMENT[order.paymentStatus]}</span>
+            <span className="pill">{order.paymentMethod === 'CARD' ? 'CB en ligne' : 'Sur place'} · {PAYMENT[order.paymentStatus]}</span>{' '}
+            {order.restaurant && <span className="pill">{order.restaurant.name} {order.restaurant.city}, {order.restaurant.addressLine1}</span>}
           </p>
         </div>
         <OrderActions order={{ id: order.id, status: order.status, mode: order.mode, paymentMethod: order.paymentMethod, paymentStatus: order.paymentStatus, refundable: order.total - order.refundedAmount, invoiceToken: order.invoiceNumber ? order.trackingToken : null }} />
