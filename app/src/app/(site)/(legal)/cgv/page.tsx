@@ -5,6 +5,7 @@ import { publicFeatures } from '@/lib/features';
 import { availableModes } from '@/lib/restaurants';
 import { MODE_LABELS } from '@/lib/format';
 import { orTodo } from '../todo';
+import { Companies } from '../Companies';
 
 export const metadata: Metadata = { title: 'Conditions générales de vente' };
 export const dynamic = 'force-dynamic';
@@ -20,7 +21,8 @@ export default async function TermsPage() {
   return (
     <article className="page legal">
       <h1>Conditions générales de vente</h1>
-      <p>Les présentes conditions s&apos;appliquent aux commandes passées sur ce site auprès des restaurants Tacos Fox. Le vendeur est la société qui exploite le restaurant choisi lors de la commande ; ses coordonnées (raison sociale, adresse, SIRET) figurent sur la confirmation et la facture. Siège : {orTodo(s.legalName, 'raison sociale')}, {orTodo(s.addressLine1, 'adresse')}, {s.postalCode} {s.city}, SIRET {orTodo(s.siret, 'SIRET')}.</p>
+      <p>Les présentes conditions s&apos;appliquent aux commandes passées sur ce site auprès des restaurants Tacos Fox. Le vendeur est la société qui exploite le restaurant choisi lors de la commande ; ses coordonnées figurent sur la confirmation et la facture. Les vendeurs sont :</p>
+      <Companies />
 
       {h('Commande')}
       <p>Le client choisit son restaurant, compose sa commande sur le site, choisit le mode ({modeList}) et un créneau de retrait, puis valide. La commande est confirmée par l&apos;affichage d&apos;un numéro et par e-mail. Le restaurant peut refuser ou annuler une commande en cas de rupture ou d&apos;anomalie ; le client est alors prévenu et remboursé intégralement.</p>
@@ -29,7 +31,7 @@ export default async function TermsPage() {
       <p>Les prix sont indiqués en euros toutes taxes comprises. Le prix facturé est celui affiché au moment de la validation, recalculé par le site. Aucun frais de service n&apos;est ajouté. Les offres (« 1 pizza achetée = 1 offerte »{f.promoCodes ? ', codes promo' : ''}) s&apos;appliquent selon les conditions affichées et ne sont pas cumulables sauf mention contraire.</p>
 
       {h('Paiement')}
-      <p>Le paiement s&apos;effectue en ligne par carte bancaire via notre prestataire sécurisé Stripe (3-D Secure){s.acceptOnsite ? ', ou au restaurant lorsque cette possibilité est proposée' : ''}. Le montant est encaissé par le restaurant qui prépare la commande. Aucune donnée bancaire n&apos;est conservée par le restaurant ni par le site.</p>
+      <p>Le paiement s&apos;effectue en ligne par carte bancaire via notre prestataire sécurisé Stripe (3-D Secure). Le montant est encaissé par le restaurant qui prépare la commande. Aucune donnée bancaire n&apos;est conservée par le restaurant ni par le site.</p>
 
       {f.delivery && zones.length > 0 && (
         <>

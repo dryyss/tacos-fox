@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getSettings } from '@/lib/catalog';
 import { appUrl } from '@/lib/url';
 import { orTodo } from '../todo';
+import { Companies } from '../Companies';
 
 export const metadata: Metadata = { title: 'Mentions légales' };
 export const dynamic = 'force-dynamic';
@@ -13,14 +14,17 @@ export default async function LegalNoticePage() {
       <h1>Mentions légales</h1>
       <h2>Éditeur du site</h2>
       <p>
-        {orTodo(s.legalName, 'raison sociale')}, exploitant le restaurant {s.name}<br />
+        {orTodo(s.legalName, 'raison sociale')}, pour le réseau {s.name}<br />
         {orTodo(s.addressLine1, 'adresse')}, {s.postalCode} {s.city}<br />
         SIRET : {orTodo(s.siret, 'SIRET')}{s.vatNumber && <><br />TVA intracommunautaire : {s.vatNumber}</>}<br />
         Téléphone : {orTodo(s.phone, 'téléphone')}{s.email && <><br />E-mail : {s.email}</>}
       </p>
       <p>Directeur de la publication : le gérant de {orTodo(s.legalName, 'raison sociale')}.</p>
+      <h2>Les restaurants</h2>
+      <p>Chaque restaurant est exploité par sa propre société, qui vend et facture les commandes passées chez lui :</p>
+      <Companies />
       <h2>Hébergement</h2>
-      <p>Clever Cloud SAS, 3 rue de l&apos;Allier, 44000 Nantes, France. Données hébergées en Europe.</p>
+      <p>Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis, serveurs en région Europe. Base de données : Neon (Databricks), hébergée à Francfort (Allemagne).</p>
       <h2>Conception et réalisation</h2>
       <p>MAGAR Développement, Garges-lès-Gonesse (95). SIRET 908 058 092 00028.</p>
       <h2>Propriété intellectuelle</h2>

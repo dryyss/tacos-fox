@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getCatalog, getSettings } from '@/lib/catalog';
+import { getCurrentRestaurant } from '@/lib/restaurants';
 import { ALLERGENS } from '@/lib/allergens';
 import { orTodo } from '../todo';
 
@@ -7,7 +8,9 @@ export const metadata: Metadata = { title: 'Allergènes', description: 'Liste de
 export const dynamic = 'force-dynamic';
 
 export default async function AllergensPage() {
-  const [catalog, s] = await Promise.all([getCatalog(), getSettings()]);
+  // Carte du restaurant choisi (carte spécifique du 5e comprise), sinon carte commune
+  const current = await getCurrentRestaurant();
+  const [catalog, s] = await Promise.all([getCatalog(current?.id), getSettings()]);
   const filled = catalog.products.filter(p => p.allergens.length);
   return (
     <article className="page legal" style={{ maxWidth: 1100 }}>
