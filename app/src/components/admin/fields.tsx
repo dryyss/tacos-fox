@@ -13,7 +13,7 @@ export function Euro({ value, onChange, label, nullable }: { value: number | nul
   const [text, setText] = useState(show(value));
   useEffect(() => { setText(t => (parse(t) === value ? t : show(value))); }, [value]);
   return (
-    <input className="price-input" inputMode="decimal" aria-label={label} value={text} placeholder={nullable ? '—' : '0,00'}
+    <input className="price-input" inputMode="decimal" aria-label={label} value={text} placeholder={nullable ? '-' : '0,00'}
       onChange={e => {
         setText(e.target.value);
         const c = parse(e.target.value);

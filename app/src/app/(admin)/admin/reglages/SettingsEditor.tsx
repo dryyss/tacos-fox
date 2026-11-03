@@ -4,17 +4,15 @@ import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { useToast } from '@/components/ui/Toast';
 import { Toggle } from '@/components/admin/fields';
-import { DAY_NAMES, type DayHours } from '@/lib/hours';
-import { saveHours, saveSettings, setOrderingEnabled, type SettingsInput } from '../settings-actions';
+import type { DayHours } from '@/lib/hours';
+import { saveSettings, setOrderingEnabled, type SettingsInput } from '../settings-actions';
 
-export function SettingsEditor({ settings, hours, services }: { settings: SettingsInput; hours: DayHours[]; services: { stripe: boolean; email: boolean } }) {
+export function SettingsEditor({ settings, services }: { settings: SettingsInput; hours?: DayHours[]; services: { stripe: boolean; email: boolean } }) {
   const router = useRouter();
   const toast = useToast();
   const [pending, start] = useTransition();
   const [s, setS] = useState(settings);
-  const [h, setH] = useState(hours);
   const set = <K extends keyof SettingsInput>(k: K, v: SettingsInput[K]) => setS(x => ({ ...x, [k]: v }));
-  const setDay = (i: number, patch: Partial<DayHours>) => setH(x => x.map((d, k) => (k === i ? { ...d, ...patch } : d)));
 
   const run = (fn: () => Promise<{ ok: boolean; error?: string }>, ok: string) => start(async () => {
     const r = await fn();
@@ -45,27 +43,13 @@ export function SettingsEditor({ settings, hours, services }: { settings: Settin
           <p className="small muted" style={{ marginTop: 8 }}>Effet immédiat. Suspendre bloque les nouvelles commandes sans masquer la carte.</p>
         </div>
 
-        <div className="panel">
-          <div className="panel__title">Horaires d&apos;ouverture</div>
-          <div className="table-wrap"><table className="table"><tbody>
-            {h.map((d, i) => (
-              <tr key={d.dayOfWeek}>
-                <td><b>{DAY_NAMES[d.dayOfWeek]}</b></td>
-                <td><Toggle on={d.isOpen} label="Ouvert" onChange={v => setDay(i, { isOpen: v })} /></td>
-                <td><input type="time" value={d.open} disabled={!d.isOpen} onChange={e => setDay(i, { open: e.target.value })} aria-label={`Ouverture ${DAY_NAMES[d.dayOfWeek]}`} /></td>
-                <td><input type="time" value={d.close} disabled={!d.isOpen} onChange={e => setDay(i, { close: e.target.value })} aria-label={`Fermeture ${DAY_NAMES[d.dayOfWeek]}`} /></td>
-              </tr>
-            ))}
-          </tbody></table></div>
-          <p className="small muted" style={{ marginTop: 8 }}>Fermeture à 00:00 = minuit.</p>
-          <button className="btn btn--primary btn--sm" style={{ marginTop: 10 }} disabled={pending} onClick={() => run(() => saveHours(h), 'Horaires enregistrés')}>Enregistrer les horaires</button>
-        </div>
+        <p className="small muted">Les horaires, délais et téléphones se règlent par restaurant, dans Gestion &gt; Restaurants.</p>
 
         <div className="panel">
           <div className="panel__title">Modes, délais et paiement</div>
-          <div className="filters" style={{ gap: 16 }}>{sw('modeSurplace', 'Sur place')}{sw('modeEmporter', 'À emporter')}{sw('modeLivraison', 'Livraison')}</div>
+          <div className="filters" style={{ gap: 16 }}>{sw('modeLivraison', 'Livraison (option O5)')}</div>
           <div className="filters" style={{ gap: 16 }}>
-            {sw('acceptCard', 'Carte en ligne')}{sw('acceptOnsite', 'Paiement sur place')}
+            {sw('acceptCard', 'Carte en ligne')}
           </div>
           {!services.stripe && <p className="alert alert--info"><span>Stripe n&apos;est pas encore configuré : le paiement carte est indisponible en production.</span></p>}
           <div className="form-grid">

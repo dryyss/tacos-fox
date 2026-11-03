@@ -1,20 +1,23 @@
-import { requireStaffPage } from '@/lib/admin';
+import { requireStaffPage, restaurantScope } from '@/lib/admin';
+import { prisma } from '@/lib/prisma';
 import { appUrl } from '@/lib/url';
 import { QrSheet } from './QrSheet';
 
-export const metadata = { title: 'QR code' };
+export const metadata = { title: 'QR codes' };
 
+/* R7 : un QR code par restaurant, qui ouvre directement sa carte (tables, vitrine, flyers) */
 export default async function QrPage() {
-  await requireStaffPage('qrcodes');
+  const scope = await restaurantScope(await requireStaffPage('qrcodes'));
+  const restaurants = await prisma.restaurant.findMany({ where: { isActive: true, ...(scope ? { id: { in: scope } } : {}) }, orderBy: { sortOrder: 'asc' } });
   return (
     <>
       <div className="admin-head no-print">
         <div>
-          <h1 className="admin-title">QR code de la carte</h1>
-          <p className="admin-sub" style={{ margin: 0 }}>Pour la vitrine, les flyers et les tables. Le QR « table » présélectionne le mode sur place.</p>
+          <h1 className="admin-title">QR codes</h1>
+          <p className="admin-sub" style={{ margin: 0 }}>Un QR code par restaurant : il ouvre directement la carte de ce restaurant. À imprimer pour les tables, la vitrine et les flyers.</p>
         </div>
       </div>
-      <QrSheet url={`${appUrl()}/carte`} />
+      <QrSheet restaurants={restaurants.map(r => ({ slug: r.slug, title: `${r.name} ${r.city}`, street: r.addressLine1, url: `${appUrl()}/r/${r.slug}` }))} />
     </>
   );
 }
