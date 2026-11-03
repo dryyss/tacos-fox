@@ -103,3 +103,12 @@ node scripts/auth0-team.mjs grant moi@gmail.com superadmin          # rôle sur 
 node scripts/auth0-team.mjs list                                    # qui a quel rôle
 node scripts/auth0-team.mjs logo https://<site>/logo.png            # logo de la page de connexion Auth0
 ```
+
+## Sécurité en place
+
+- En-têtes HTTP sur toutes les pages (`next.config.ts`) : CSP (scripts et styles du site seulement, plan Google Maps, redirections Auth0 et Stripe), HSTS 2 ans, `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, pas d'en-tête `X-Powered-By`. `/admin` et `/suivi` : jamais en cache, `noindex`.
+- Limite de requêtes par adresse IP (`src/lib/rate-limit.ts`) : 10 commandes / 10 min, 120 recalculs de panier / min, 30 factures / min. En mémoire, par instance Vercel : un frein contre les robots, pas un quota exact.
+- Lien de suivi et facture : jeton aléatoire de 192 bits par commande.
+- Prix toujours recalculés côté serveur ; paiement vérifié par webhook signé (compte, montant, session) ; aucune donnée de carte sur le site.
+- Équipe : Auth0 uniquement, rôles par restaurant ; un équipier ne voit et ne modifie que les commandes de son restaurant.
+- Dépendances : Next.js 15.5.28 (faille critique corrigée). Restent signalées par `npm audit`, sans exposition sur le site en ligne : l'outil en ligne de commande Prisma (corrigé en Prisma 7) et le PostCSS interne de Next (corrigé en Next 16), utilisés seulement à la compilation.

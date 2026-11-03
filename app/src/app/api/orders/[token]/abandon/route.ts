@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
+import { limited } from '@/lib/rate-limit';
 import { prisma } from '@/lib/prisma';
 import { cancelUnpaidOrder } from '@/lib/orders';
 import { getStripe, onAccount, stripeEnabled } from '@/lib/stripe';
 
 /* Retour « annuler » depuis Stripe : on expire la session et on libère stock et code promo */
-export async function POST(_req: Request, { params }: { params: Promise<{ token: string }> }) {
+export async function POST(req: Request, { params }: { params: Promise<{ token: string }> }) {
+  const tooMany = limited(req, 'abandon');
+  if (tooMany) return tooMany;
   const { token } = await params;
   const order = await prisma.order.findUnique({ where: { trackingToken: token }, select: { id: true, status: true, stripeSessionId: true, stripeAccountId: true } });
   if (!order || order.status !== 'PENDING_PAYMENT') return NextResponse.json({ ok: true });

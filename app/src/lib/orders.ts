@@ -1,4 +1,5 @@
 import 'server-only';
+import { randomBytes } from 'node:crypto';
 import { z } from 'zod';
 import type { Order, OrderStatus, Prisma } from '@prisma/client';
 import { prisma } from './prisma';
@@ -72,6 +73,8 @@ export async function createOrder(input: CheckoutInput, userId: string | null, r
 
     return tx.order.create({
       data: {
+        // Jeton du lien de suivi et de la facture : 192 bits aléatoires, impossible à deviner
+        trackingToken: randomBytes(24).toString('base64url'),
         restaurantId: restaurant.id,
         stripeAccountId: payTo.account,
         userId: features.customerAccount ? userId : null, // compte client = option O7

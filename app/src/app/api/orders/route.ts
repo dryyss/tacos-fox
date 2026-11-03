@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server';
+import { limited } from '@/lib/rate-limit';
 import { auth } from '@/auth';
 import { checkoutSchema, CheckoutError, createOrder } from '@/lib/orders';
 import { getCurrentRestaurant } from '@/lib/restaurants';
 
 export async function POST(req: Request) {
+  const tooMany = limited(req, 'order');
+  if (tooMany) return tooMany;
   const parsed = checkoutSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
     const issue = parsed.error.issues[0];
