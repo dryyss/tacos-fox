@@ -11,18 +11,75 @@ import { cancel, changeStatus, collectOnsite, type AdminResult } from '@/app/(ad
 const TZ = 'Europe/Paris';
 const hm = (iso: string) => new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: TZ }).replace(':', 'h');
 const AUTO_PRINT_KEY = 'tfx_admin_autoprint';
+const SOUND_KEY = 'tfx_admin_sound';
 
-/* Bip court via Web Audio (aucun fichier à charger) */
-function beep() {
+/* R3 : sonnerie de cuisine via Web Audio (aucun fichier à charger).
+   Un seul contexte audio pour la page : le navigateur le laisse « suspendu » tant que personne
+   n'a touché l'écran, d'où le déblocage au premier appui (voir useKitchenPermissions). */
+let audioCtx: AudioContext | null = null;
+function audio(): AudioContext | null {
+  try { return (audioCtx ??= new AudioContext()); } catch { return null; }
+}
+const audioReady = () => audio()?.state === 'running';
+
+function ring() {
+  const ctx = audio();
+  if (!ctx) return;
+  if (ctx.state !== 'running') void ctx.resume();
+  // Deux séries de « ding-dong » montants, bien audibles dans une cuisine bruyante (~2 s)
+  const notes = [988, 784, 988, 784, 1175, 988, 1175, 988];
+  notes.forEach((freq, i) => {
+    const t = ctx.currentTime + i * 0.22 + (i >= 4 ? 0.35 : 0);
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.type = 'triangle'; o.frequency.value = freq;
+    o.connect(g); g.connect(ctx.destination);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.6, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+    o.start(t); o.stop(t + 0.21);
+  });
+}
+
+/* Autorisations de la tablette ou du navigateur, demandées au premier appui sur l'écran :
+   son (déblocage audio), notifications système (onglet en arrière-plan), écran toujours allumé. */
+function useKitchenPermissions() {
+  const [unlocked, setUnlocked] = useState(false);
+  useEffect(() => {
+    let wake: { release: () => Promise<void> } | null = null;
+    const keepAwake = async () => {
+      try {
+        const wl = (navigator as Navigator & { wakeLock?: { request: (t: 'screen') => Promise<{ release: () => Promise<void> }> } }).wakeLock;
+        if (wl && document.visibilityState === 'visible') wake = await wl.request('screen');
+      } catch { /* refusé ou non pris en charge */ }
+    };
+    const unlock = () => {
+      const ctx = audio();
+      if (ctx && ctx.state !== 'running') void ctx.resume().then(() => setUnlocked(audioReady()));
+      else setUnlocked(audioReady());
+      try { if ('Notification' in window && Notification.permission === 'default') void Notification.requestPermission(); } catch { /* ignoré */ }
+      void keepAwake();
+    };
+    setUnlocked(audioReady());
+    void keepAwake();
+    const onVisible = () => { if (document.visibilityState === 'visible') void keepAwake(); };
+    window.addEventListener('pointerdown', unlock);
+    window.addEventListener('keydown', unlock);
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      window.removeEventListener('pointerdown', unlock);
+      window.removeEventListener('keydown', unlock);
+      document.removeEventListener('visibilitychange', onVisible);
+      void wake?.release().catch(() => {});
+    };
+  }, []);
+  return unlocked;
+}
+
+function notify(o: BoardOrder) {
   try {
-    const ctx = new AudioContext();
-    [0, 0.25].forEach(t => {
-      const o = ctx.createOscillator(); const g = ctx.createGain();
-      o.frequency.value = 880; o.connect(g); g.connect(ctx.destination);
-      g.gain.setValueAtTime(0.25, ctx.currentTime + t); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.2);
-      o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.2);
-    });
-  } catch { /* audio indisponible */ }
+    if (!('Notification' in window) || Notification.permission !== 'granted' || document.visibilityState === 'visible') return;
+    new Notification(`Nouvelle commande ${orderNumberLabel(o.number)}`, { body: `${o.items.length} article${o.items.length > 1 ? 's' : ''} · ${formatPrice(o.total)}`, tag: o.id, requireInteraction: true });
+  } catch { /* ignoré */ }
 }
 
 const openTicket = (id: string) => window.open(`/admin/commandes/${id}/ticket?print=1`, `ticket-${id}`, 'width=420,height=700');
@@ -35,11 +92,24 @@ export function OrdersBoard({ initial, restaurants, selected, allowAll }: { init
   const [orders, setOrders] = useState(initial);
   const [pending, start] = useTransition();
   const [autoPrint, setAutoPrint] = useState(false);
-  const [soundOn, setSoundOn] = useState(false);
+  // Son activé par défaut ; seul un « Couper le son » volontaire est mémorisé
+  const [soundOn, setSoundOn] = useState(true);
   const [offline, setOffline] = useState(false);
   const seen = useRef(new Set(initial.map(o => o.id)));
+  const unlocked = useKitchenPermissions();
 
-  useEffect(() => { try { setAutoPrint(localStorage.getItem(AUTO_PRINT_KEY) === '1'); } catch { /* ignoré */ } }, []);
+  useEffect(() => {
+    try {
+      setAutoPrint(localStorage.getItem(AUTO_PRINT_KEY) === '1');
+      setSoundOn(localStorage.getItem(SOUND_KEY) !== '0');
+    } catch { /* ignoré */ }
+  }, []);
+  const toggleSound = () => {
+    const v = !soundOn;
+    setSoundOn(v);
+    try { localStorage.setItem(SOUND_KEY, v ? '1' : '0'); } catch { /* ignoré */ }
+    if (v) ring();
+  };
 
   const refresh = useCallback(async () => {
     const res = await fetch(`/api/admin/orders${selected ? `?r=${selected}` : ''}`, { cache: 'no-store' }).catch(() => null);
@@ -49,7 +119,8 @@ export function OrdersBoard({ initial, restaurants, selected, allowAll }: { init
     const fresh = data.filter(o => !seen.current.has(o.id) && o.status === 'RECEIVED');
     data.forEach(o => seen.current.add(o.id));
     if (fresh.length) {
-      if (soundOn) beep();
+      if (soundOn) ring();
+      fresh.forEach(notify);
       toast(`${fresh.length} nouvelle${fresh.length > 1 ? 's' : ''} commande${fresh.length > 1 ? 's' : ''}`, 'bag');
       if (autoPrint) fresh.forEach(o => openTicket(o.id));
     }
@@ -67,8 +138,8 @@ export function OrdersBoard({ initial, restaurants, selected, allowAll }: { init
     if (!waiting) { document.title = 'Commandes · Gestion Tacos Fox'; return; }
     let on = false;
     const blink = setInterval(() => { on = !on; document.title = on ? `(${waiting}) Nouvelle commande !` : 'Commandes · Gestion Tacos Fox'; }, 1000);
-    const ring = soundOn ? setInterval(beep, REPEAT_MS) : null;
-    return () => { clearInterval(blink); if (ring) clearInterval(ring); };
+    const again = soundOn ? setInterval(ring, REPEAT_MS) : null;
+    return () => { clearInterval(blink); if (again) clearInterval(again); };
   }, [waiting, soundOn]);
 
   const act = (fn: () => Promise<AdminResult>, ok?: string) => start(async () => {
@@ -93,7 +164,8 @@ export function OrdersBoard({ initial, restaurants, selected, allowAll }: { init
           <p className="admin-sub" style={{ margin: 0 }}>Mise à jour automatique toutes les 4 secondes{offline && <span className="pill pill--red" style={{ marginLeft: 8 }}>Connexion perdue</span>}</p>
         </div>
         <div className="filters" style={{ margin: 0 }}>
-          <button className={`btn btn--sm ${soundOn ? 'btn--dark' : 'btn--ghost'}`} onClick={() => { setSoundOn(v => !v); if (!soundOn) beep(); }}>{soundOn ? 'Son activé' : 'Activer le son'}</button>
+          <button className={`btn btn--sm ${soundOn ? 'btn--dark' : 'btn--ghost'}`} onClick={toggleSound} aria-pressed={soundOn}>{soundOn ? 'Sonnerie : oui' : 'Sonnerie : coupée'}</button>
+          {soundOn && <button className="btn btn--sm btn--ghost" onClick={ring}>Tester la sonnerie</button>}
           <button className={`btn btn--sm ${autoPrint ? 'btn--dark' : 'btn--ghost'}`} onClick={() => { const v = !autoPrint; setAutoPrint(v); try { localStorage.setItem(AUTO_PRINT_KEY, v ? '1' : '0'); } catch { /* ignoré */ } toast(v ? 'Impression auto activée : autorisez les fenêtres pop-up' : 'Impression auto désactivée'); }}>
             {autoPrint ? 'Impression auto : oui' : 'Impression auto : non'}
           </button>
@@ -107,7 +179,9 @@ export function OrdersBoard({ initial, restaurants, selected, allowAll }: { init
         </nav>
       )}
       {!restaurants.length && <p className="alert alert--error">Aucun restaurant n&apos;est rattaché à votre compte. Demandez au gérant de vous ajouter le rôle de votre restaurant.</p>}
-      {!soundOn && <button className="btn btn--primary btn--block" style={{ marginBottom: 14 }} onClick={() => { setSoundOn(true); beep(); }}>Appuyez ici pour activer l&apos;alerte sonore</button>}
+      {/* Le navigateur bloque le son tant que personne n'a touché l'écran : un appui n'importe où le débloque */}
+      {soundOn && !unlocked && <button className="btn btn--primary btn--xl btn--block" style={{ marginBottom: 14 }} onClick={ring}>Touchez l&apos;écran pour activer la sonnerie</button>}
+      {!soundOn && <button className="btn btn--ghost btn--block" style={{ marginBottom: 14 }} onClick={toggleSound}>Sonnerie coupée : appuyez pour la réactiver</button>}
 
       <div className="board">
         {cols.map(c => {
