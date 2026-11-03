@@ -17,33 +17,33 @@ export interface ExampleSlide {
 /* Visuels de départ, pour que l'accueil ait déjà un rythme avant les photos du client */
 export const EXAMPLE_SLIDES: ExampleSlide[] = [
   {
-    placement: 'CAROUSEL', tone: 'RED', kicker: 'Signature', sortOrder: 0, badge: 'XXL',
-    title: 'Le tacos qui calme une faim de loup', highlight: 'faim de loup',
-    text: 'Frites, sauce fromagère et boisson incluses. De la taille S au XXL.',
+    placement: 'CAROUSEL', tone: 'RED', kicker: 'Tacos', sortOrder: 0, badge: 'XXL',
+    title: 'Tacos de S à XXL', highlight: 'S à XXL',
+    text: 'Frites, sauce fromagère et boisson incluses. Jusqu’à 4 viandes.',
     ctaLabel: 'Composer', ctaHref: '/carte?cat=tacos', imageUrl: '/menu/photos/tacos-a-composer.png',
   },
   {
-    placement: 'CAROUSEL', tone: 'YELLOW', kicker: 'Offre pizza', sortOrder: 1, badge: '2x',
+    placement: 'CAROUSEL', tone: 'YELLOW', kicker: 'Pizzas', sortOrder: 1, badge: '2x',
     title: '1 achetée = 1 offerte', highlight: '= 1 offerte',
-    text: 'Sur les tailles Senior et Mega, à emporter.',
+    text: 'Sur les tailles Senior et Mega.',
     ctaLabel: 'Voir les pizzas', ctaHref: '/carte?cat=pizzas', imageUrl: '/menu/photos/pizzas-pizza-fox.png',
   },
   {
-    placement: 'CAROUSEL', tone: 'DARK', kicker: 'Sans appli', sortOrder: 2, badge: '0 €',
-    title: 'Les prix de la carte, rien de plus', highlight: 'rien de plus',
-    text: 'Zéro commission. Votre commande arrive directement en cuisine.',
-    ctaLabel: 'Commander', ctaHref: '/carte', imageUrl: '/menu/photos/burgers-le-magnificos.png',
+    placement: 'CAROUSEL', tone: 'DARK', kicker: 'Burgers', sortOrder: 2, badge: '',
+    title: 'Seul ou en menu', highlight: 'en menu',
+    text: 'Le menu comprend frites et boisson.',
+    ctaLabel: 'Voir les burgers', ctaHref: '/carte?cat=burgers', imageUrl: '/menu/photos/burgers-le-magnificos.png',
   },
   {
-    placement: 'BANNER', tone: 'YELLOW', kicker: 'Cette semaine', sortOrder: 0, badge: '2x',
+    placement: 'BANNER', tone: 'YELLOW', kicker: 'Offre pizza', sortOrder: 0, badge: '2x',
     title: '1 pizza achetée = 1 offerte', highlight: '= 1 offerte',
     text: 'Senior et Mega, à emporter.',
     ctaLabel: 'Voir les pizzas', ctaHref: '/carte?cat=pizzas',
   },
   {
-    placement: 'BANNER', tone: 'DARK', kicker: 'Direct cuisine', sortOrder: 1, badge: '0 €',
-    title: 'Les prix de la carte, rien de plus', highlight: 'rien de plus',
-    text: 'Pas de commission, pas de frais cachés.',
+    placement: 'BANNER', tone: 'DARK', kicker: 'En ligne', sortOrder: 1, badge: '',
+    title: 'Commandez, payez, récupérez', highlight: 'récupérez',
+    text: 'Paiement par carte, retrait à l’heure choisie.',
     ctaLabel: 'Commander', ctaHref: '/carte',
   },
   {

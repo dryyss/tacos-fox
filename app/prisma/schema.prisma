@@ -325,7 +325,7 @@ model Restaurant {
   intro                String   @default("") // texte de la page locale (référencement)
   isActive             Boolean  @default(true) // visible et commandable
   orderingEnabled      Boolean  @default(true) // interrupteur rush / fermeture exceptionnelle
-  prepMinutes          Int      @default(20)
+  prepMinutes          Int      @default(15)
   slotInterval         Int      @default(15)
   tables               Int      @default(0) // nombre de QR codes de table
   legalName            String   @default("") // société qui exploite et encaisse (factures)
@@ -459,7 +459,7 @@ model PromoSlide {
 model Settings {
   id               String  @id @default("main")
   name             String  @default("TACOS FOX")
-  tagline          String  @default("by Paris, since 1998")
+  tagline          String  @default("Stains · Dugny · Le Blanc-Mesnil")
   slogan           String  @default("La meilleure excuse pour ne pas cuisiner ce soir")
   halalLabel       String  @default("Viande halal certifiée Achahada")
   phone            String  @default("")
@@ -477,7 +477,7 @@ model Settings {
   modeSurplace     Boolean @default(true)
   modeEmporter     Boolean @default(true)
   modeLivraison    Boolean @default(true)
-  prepMinutes      Int     @default(20)
+  prepMinutes      Int     @default(15)
   deliveryMinutes  Int     @default(35)
   slotInterval     Int     @default(15)
   enabledOptions   String[] @default([]) // options du devis activées : O1 (gestion carte), O5 (livraison), O7 (espace client)…

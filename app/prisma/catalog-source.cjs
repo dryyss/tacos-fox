@@ -7,7 +7,7 @@
 
 const RESTAURANT = {
   name: 'TACOSFOX',
-  tagline: 'by Paris, since 1998',
+  tagline: 'Stains · Dugny · Le Blanc-Mesnil',
   slogan: 'La meilleure excuse pour ne pas cuisiner ce soir',
   halal: 'Viande halal certifiée Achahada',
   phone: '', // pas de coordonnées provisoires : chaque restaurant a les siennes (Gestion > Restaurants)

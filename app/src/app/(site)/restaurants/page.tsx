@@ -16,7 +16,7 @@ export default async function RestaurantsPage({ searchParams }: { searchParams: 
     <div className="page">
       <section className="section" style={{ paddingBottom: 0 }}>
         <div className="section__head" style={{ maxWidth: 'var(--max)', marginInline: 'auto' }}>
-          <div><span className="kicker">Nos restaurants</span><h1 className="section__title">Choisissez votre <em>Tacos Fox</em></h1></div>
+          <div><span className="kicker">Nos restaurants</span><h1 className="section__title">Choisissez votre restaurant</h1></div>
         </div>
         <p className="muted" style={{ maxWidth: 'var(--max)', marginInline: 'auto' }}>Votre commande est préparée dans le restaurant choisi, à emporter au créneau de votre choix. Vous pourrez en changer avant de payer.</p>
       </section>

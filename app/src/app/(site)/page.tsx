@@ -23,6 +23,7 @@ export default async function HomePage() {
   const pizzas = catalog.products.filter(p => p.kind === 'PIZZA');
   const tacos = catalog.products.find(p => p.kind === 'TACOS');
   const bogoSizes = pizzas[0]?.sizes.filter(s => s.bogo) ?? [];
+  const modes = modeInfos(restaurant);
 
   return (
     <div className="page">
@@ -31,18 +32,18 @@ export default async function HomePage() {
           <div className="hero__copy">
             <div className="hero__badges">
               <span className="badge badge--halal"><Icon name="halal" />{settings.halalLabel}</span>
-              <span className="badge hero__badge-direct">Commande directe, sans appli</span>
+              <span className="badge hero__badge-direct">À emporter</span>
             </div>
             <h1 className="hero__title">La meilleure excuse pour <em>ne pas cuisiner</em> ce soir</h1>
-            <p className="hero__text">Tacos généreux, burgers XXL, pizzas, bowls et Crousty Fox. Préparés dans nos {restaurants.length} restaurants de Stains, Dugny et Le Blanc-Mesnil. Commandez en ligne, récupérez au créneau choisi, au prix de la carte.</p>
+            <p className="hero__text">Tacos, burgers, pizzas, bowls et Crousty Fox. Commandez en ligne dans l&apos;un de nos {restaurants.length} restaurants (Stains, Dugny, Le Blanc-Mesnil) et passez la récupérer à l&apos;heure choisie.</p>
             <div className="hero__cta">
               <Link className="btn btn--primary btn--xl" href="/carte">Commander</Link>
               {current && status && <div className="hero__sub"><span className={`dot ${status.open ? '' : 'is-closed'}`} />{restaurantTitle(current)} : {status.label}</div>}
             </div>
             <ul className="hero__facts">
               <li><strong>{restaurants.length}</strong>restaurants</li>
-              <li><strong>0 €</strong>de commission</li>
-              <li><strong>À emporter</strong>au créneau choisi</li>
+              {current && <li><strong>{current.prepMinutes} min</strong>de préparation</li>}
+              <li><strong>Carte</strong>bancaire</li>
             </ul>
           </div>
           <div className="hero__visual">
@@ -66,14 +67,14 @@ export default async function HomePage() {
 
       {spots.carousel.length > 0 && (
         <section className="section" aria-label="À l'affiche">
-          <div className="section__head"><h2 className="section__title">À l&apos;<em>affiche</em></h2></div>
+          <div className="section__head"><h2 className="section__title">À l&apos;affiche</h2></div>
           <PromoCarousel slides={spots.carousel} />
         </section>
       )}
 
       {spots.panels.length > 0 && (
         <section className="section section--white">
-          <div className="section__head"><h2 className="section__title">Les <em>bons plans</em></h2></div>
+          <div className="section__head"><h2 className="section__title">Bons plans</h2></div>
           <PromoPanels slides={spots.panels} />
         </section>
       )}
@@ -81,29 +82,23 @@ export default async function HomePage() {
       {featured.length > 0 && (
         <section className="section">
           <div className="section__head">
-            <h2 className="section__title">Les <em>incontournables</em></h2>
+            <h2 className="section__title">Les plus commandés</h2>
             <Link className="section__link" href="/carte">Toute la carte <Icon name="chevron" /></Link>
           </div>
           <Featured products={featured} pizzas={pizzas} />
         </section>
       )}
 
-      <section className="section section--white">
-        <div className="section__head"><h2 className="section__title">Comme vous <em>voulez</em></h2></div>
-        <ModeLinks modes={modeInfos(restaurant)} />
-      </section>
-
-      <section className="section why">
-        <div className="section__head"><h2 className="section__title">Pourquoi commander ici plutôt que sur une appli ?</h2></div>
-        <ul className="why__list">
-          <li><span className="num">01</span><div><strong>Les prix de la carte, rien de plus</strong><span>Pas de majoration, pas de frais de service cachés.</span></div></li>
-          <li><span className="num">02</span><div><strong>Votre commande arrive direct en cuisine</strong><span>Moins d&apos;attente, moins d&apos;erreurs, suivi en temps réel.</span></div></li>
-          <li><span className="num">03</span><div><strong>Vous soutenez le resto du quartier</strong><span>100 % de ce que vous payez revient à Tacos Fox.</span></div></li>
-        </ul>
-      </section>
+      {/* Plusieurs modes seulement si la livraison (option O5) est achetée */}
+      {modes.length > 1 && (
+        <section className="section section--white">
+          <div className="section__head"><h2 className="section__title">Votre commande</h2></div>
+          <ModeLinks modes={modes} />
+        </section>
+      )}
 
       <section className="section">
-        <div className="section__head"><h2 className="section__title">Nos <em>restaurants</em></h2><Link className="section__link" href="/restaurants">Tous les restaurants <Icon name="chevron" /></Link></div>
+        <div className="section__head"><h2 className="section__title">Nos restaurants</h2><Link className="section__link" href="/restaurants">Tous les restaurants <Icon name="chevron" /></Link></div>
         <div className="resto-grid">
           {restaurants.map(r => <RestaurantCard key={r.id} r={r} current={r.id === current?.id} />)}
         </div>

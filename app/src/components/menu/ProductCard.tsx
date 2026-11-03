@@ -45,7 +45,7 @@ export function ProductCard({ product, onOpen, onQuickAdd }: { product: CatalogP
         <div className="card__foot">
           {seulMenu ? (
             // Burger ou sandwich : les deux prix, seul et en menu (frites + boisson)
-            <div style={{ display: 'flex', gap: 14 }}>
+            <div className="card__prices">
               {product.sizes.map(s => <div key={s.code} className="card__price"><small>{s.label}</small><span className="price">{formatPrice(s.price)}</span></div>)}
             </div>
           ) : (
