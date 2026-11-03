@@ -13,7 +13,6 @@ export const metadata: Metadata = {
   metadataBase: new URL(appUrl()),
   title: { default: 'TACOS FOX Stains : commande en ligne, sur place, à emporter, livraison', template: '%s · TACOS FOX Stains' },
   description: 'Tacos, burgers, pizzas, bowls et Crousty Fox à Stains (93). Viande halal certifiée Achahada. Commandez en direct, sans appli de livraison.',
-  icons: { icon: '/logo.svg' },
   openGraph: { type: 'website', locale: 'fr_FR', siteName: 'TACOS FOX' },
 };
 

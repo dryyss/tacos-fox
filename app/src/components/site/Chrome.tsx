@@ -24,7 +24,7 @@ export function Header({ name, tagline, userName, accountEnabled, isStaff }: { n
     <header className="header">
       <Link className="brand" href="/" aria-label={`${name}, accueil`}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="brand__logo" src="/logo.svg" alt="" width={40} height={50} />
+        <img className="brand__logo" src="/logo.png" alt="" width={46} height={45} />
         <span className="brand__text">
           <span className="brand__name">{split.replace(/FOX$/, '')}<span>FOX</span></span>
           <span className="brand__sub">{tagline}</span>

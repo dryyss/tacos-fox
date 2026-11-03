@@ -23,7 +23,7 @@ export function AuthCard({ mode, retour, error, staffOnly = false }: { mode: 'lo
       <div className="auth-card">
         <div className="auth-card__head">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.svg" alt="" width={56} height={70} />
+          <img src="/logo.png" alt="" width={72} height={70} />
           <h1 className="page-title">{mode === 'login' ? 'Connexion' : 'Créer un compte'}</h1>
           <p className="page-sub">{mode === 'login' ? 'Retrouvez vos commandes, vos adresses et recommandez en un clic.' : 'Suivez vos commandes, enregistrez vos adresses et recommandez en un clic.'}</p>
         </div>
@@ -60,7 +60,7 @@ function StaffCard({ retour, error }: { retour?: string; error?: string }) {
       <div className="auth-card">
         <div className="auth-card__head">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.svg" alt="" width={56} height={70} />
+          <img src="/logo.png" alt="" width={72} height={70} />
           <h1 className="page-title">Espace équipe</h1>
           <p className="page-sub">Connexion réservée à l&apos;équipe Tacos Fox : écran cuisine, commandes et historique.</p>
         </div>

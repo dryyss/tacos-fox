@@ -124,7 +124,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   padding: 0 var(--page-x);
 }
 .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.brand__logo { width: 40px; height: 50px; flex: none; }
+.brand__logo { width: 46px; height: 45px; flex: none; object-fit: contain; }
 .brand__text { display: flex; flex-direction: column; line-height: 1; }
 .brand__name { font-family: var(--display); font-size: 1.55rem; letter-spacing: .08em; color: var(--black); }
 .brand__name span { color: var(--red); }
@@ -761,7 +761,7 @@ body.is-locked { overflow: hidden; }
   .cta-sticky .btn { box-shadow: 0 6px 0 var(--red-dark); }
 
   .header { padding: 0 var(--page-x); gap: 36px; }
-  .brand__logo { width: 48px; height: 60px; }
+  .brand__logo { width: 56px; height: 54px; }
   .brand__name { font-size: 1.8rem; }
   .nav { display: flex; gap: 6px; margin-left: 8px; }
   .nav a { padding: 10px 14px; border-radius: 10px; font-weight: 600; color: var(--ink-2); font-size: 1rem; }
