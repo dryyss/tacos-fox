@@ -43,6 +43,7 @@ export default async function RestaurantPage({ params }: { params: Promise<{ slu
           {r.orderingEnabled
             ? <Link className="btn btn--primary btn--xl" href={`/r/${r.slug}`} prefetch={false}>Commander à {r.city}</Link>
             : <span className="btn btn--ghost is-disabled" aria-disabled="true">Commande en ligne bientôt disponible</span>}
+          <Link className="btn btn--ghost btn--xl" href="/restaurants">Changer de restaurant</Link>
         </div>
       </section>
       <section className="section infos-grid" style={{ paddingTop: 12 }}>
