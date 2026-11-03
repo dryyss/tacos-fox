@@ -46,7 +46,7 @@ export async function notifyOrderConfirmed(orderId: string) {
   ]);
   if (!order) return;
   const r = order.restaurant;
-  const phone = r?.phone || settings.phone;
+  const phone = r ? r.phone : settings.phone;
   let attachments: Attachment[] | undefined;
   if (order.invoiceNumber) {
     try {

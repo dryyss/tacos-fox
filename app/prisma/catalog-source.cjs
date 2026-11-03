@@ -10,9 +10,9 @@ const RESTAURANT = {
   tagline: 'by Paris, since 1998',
   slogan: 'La meilleure excuse pour ne pas cuisiner ce soir',
   halal: 'Viande halal certifiée Achahada',
-  phone: '01 48 00 00 00',
-  phoneHref: 'tel:+33148000000',
-  address: { line1: 'Adresse à confirmer', city: '93240 Stains' },
+  phone: '', // pas de coordonnées provisoires : chaque restaurant a les siennes (Gestion > Restaurants)
+  phoneHref: '',
+  address: { line1: '', city: '93240 Stains' },
   mapsQuery: '93240 Stains, France',
   hours: [
     { day: 'Lundi',    open: '11:00', close: '23:00' },

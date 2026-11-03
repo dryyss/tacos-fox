@@ -121,7 +121,7 @@ export default async function TrackingPage({ params }: { params: Promise<{ token
           </div>
         </div>
         <div className="actions-row" style={{ maxWidth: 420, marginInline: 'auto' }}>
-          {(order.restaurant?.phone || settings.phone) && <a className="btn btn--light" href={phoneHref(order.restaurant?.phone || settings.phone)}><Icon name="phone" /> Appeler le resto</a>}
+          {(order.restaurant ? order.restaurant.phone : settings.phone) && <a className="btn btn--light" href={phoneHref(order.restaurant ? order.restaurant.phone : settings.phone)}><Icon name="phone" /> Appeler le resto</a>}
           {order.invoiceNumber
             ? <a className="btn btn--dark" href={`/api/invoices/${token}`}>Facture PDF</a>
             : features.customerAccount ? <Link className="btn btn--dark" href="/compte">Mes commandes</Link> : <Link className="btn btn--dark" href="/carte">Retour à la carte</Link>}
