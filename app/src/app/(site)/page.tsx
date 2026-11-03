@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Icon } from '@/components/Icons';
 import { Photo } from '@/components/menu/ProductCard';
@@ -11,7 +12,9 @@ import { modeInfos } from '@/lib/site';
 import { getCurrentRestaurant, getRestaurants, restaurantTitle } from '@/lib/restaurants';
 import { RestaurantCard } from '@/components/restaurants/RestaurantCard';
 import { getPublicSlides } from '@/lib/slides';
+import { JsonLd, siteJsonLd } from '@/lib/seo';
 
+export const metadata: Metadata = { alternates: { canonical: '/' } };
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
@@ -27,6 +30,7 @@ export default async function HomePage() {
 
   return (
     <div className="page">
+      <JsonLd data={siteJsonLd(restaurants, settings)} />
       <section className="hero">
         <div className="hero__inner">
           <div className="hero__copy">

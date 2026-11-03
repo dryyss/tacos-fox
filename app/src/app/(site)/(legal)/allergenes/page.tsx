@@ -4,7 +4,7 @@ import { getCurrentRestaurant } from '@/lib/restaurants';
 import { ALLERGENS } from '@/lib/allergens';
 import { orTodo } from '../todo';
 
-export const metadata: Metadata = { title: 'Allergènes', description: 'Liste des allergènes présents dans les plats de Tacos Fox à Stains.' };
+export const metadata: Metadata = { title: 'Allergènes', description: 'Les 14 allergènes majeurs présents dans les plats des restaurants Tacos Fox (Stains, Dugny, Le Blanc-Mesnil).', alternates: { canonical: '/allergenes' } };
 export const dynamic = 'force-dynamic';
 
 export default async function AllergensPage() {

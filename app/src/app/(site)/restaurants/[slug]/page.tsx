@@ -6,7 +6,7 @@ import { getSettings } from '@/lib/catalog';
 import { DAY_NAMES, hmLabel, openStatus, parisClock } from '@/lib/hours';
 import { phoneHref } from '@/lib/format';
 import { getRestaurantBySlug, restaurantAddress, restaurantTitle } from '@/lib/restaurants';
-import { JsonLd, restaurantPageJsonLd } from '@/lib/seo';
+import { breadcrumbJsonLd, JsonLd, restaurantPageJsonLd } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,6 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: `${restaurantTitle(r)}, ${r.addressLine1}`,
     description: `Tacos, burgers, pizzas, bowls et Crousty Fox à emporter à ${r.city} (${r.postalCode}), ${r.addressLine1}. Commandez en ligne et récupérez au créneau choisi.`,
     alternates: { canonical: `/restaurants/${r.slug}` },
+    openGraph: { title: `${restaurantTitle(r)} · commande en ligne à emporter`, url: `/restaurants/${r.slug}` },
   };
 }
 
@@ -32,6 +33,7 @@ export default async function RestaurantPage({ params }: { params: Promise<{ slu
   return (
     <div className="page">
       <JsonLd data={restaurantPageJsonLd(r, settings)} />
+      <JsonLd data={breadcrumbJsonLd([{ name: 'Accueil', path: '/' }, { name: 'Nos restaurants', path: '/restaurants' }, { name: restaurantTitle(r), path: `/restaurants/${r.slug}` }])} />
       <section className="section" style={{ paddingBottom: 0 }}>
         <div className="section__head" style={{ maxWidth: 'var(--max)', marginInline: 'auto' }}>
           <div><span className="kicker">Tacos Fox à {r.city}</span><h1 className="section__title">{restaurantTitle(r)}</h1></div>

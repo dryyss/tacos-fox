@@ -7,7 +7,7 @@ import { MODE_LABELS } from '@/lib/format';
 import { orTodo } from '../todo';
 import { Companies } from '../Companies';
 
-export const metadata: Metadata = { title: 'Conditions générales de vente' };
+export const metadata: Metadata = { title: 'Conditions générales de vente', alternates: { canonical: '/cgv' } };
 export const dynamic = 'force-dynamic';
 
 /* Les CGV ne décrivent que ce que le site propose réellement (formule et options achetées) */

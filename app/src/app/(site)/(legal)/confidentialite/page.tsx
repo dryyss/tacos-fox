@@ -3,7 +3,7 @@ import { getSettings } from '@/lib/catalog';
 import { publicFeatures } from '@/lib/features';
 import { orTodo } from '../todo';
 
-export const metadata: Metadata = { title: 'Politique de confidentialité' };
+export const metadata: Metadata = { title: 'Politique de confidentialité', alternates: { canonical: '/confidentialite' } };
 export const dynamic = 'force-dynamic';
 
 export default async function PrivacyPage() {

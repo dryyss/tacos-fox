@@ -5,6 +5,7 @@ import { getCurrentRestaurant, getRestaurants } from '@/lib/restaurants';
 
 export const metadata: Metadata = {
   title: 'Nos restaurants',
+  alternates: { canonical: '/restaurants' },
   description: 'Les 5 restaurants Tacos Fox à Stains, Dugny et Le Blanc-Mesnil : choisissez le vôtre et commandez à emporter.',
 };
 export const dynamic = 'force-dynamic';

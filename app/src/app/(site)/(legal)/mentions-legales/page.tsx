@@ -4,7 +4,7 @@ import { appUrl } from '@/lib/url';
 import { orTodo } from '../todo';
 import { Companies } from '../Companies';
 
-export const metadata: Metadata = { title: 'Mentions légales' };
+export const metadata: Metadata = { title: 'Mentions légales', alternates: { canonical: '/mentions-legales' } };
 export const dynamic = 'force-dynamic';
 
 export default async function LegalNoticePage() {

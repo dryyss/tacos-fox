@@ -6,6 +6,7 @@ import { getCurrentRestaurant } from '@/lib/restaurants';
 
 export const metadata: Metadata = {
   title: 'La carte',
+  alternates: { canonical: '/carte' },
   description: 'Tacos à composer, burgers, pizzas (1 achetée = 1 offerte), sandwichs, bowls, Crousty Fox et desserts. Commande en ligne à emporter à Stains, Dugny et Le Blanc-Mesnil.',
 };
 export const dynamic = 'force-dynamic';
