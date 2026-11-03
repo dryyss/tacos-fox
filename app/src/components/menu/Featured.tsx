@@ -18,7 +18,7 @@ export function Featured({ products, pizzas }: { products: CatalogProduct[]; piz
   };
   return (
     <>
-      <div className="rail">
+      <div className={`rail ${products.length > 1 ? 'has-arrows' : ''}`}>
         <button type="button" className="rail__btn rail__btn--prev" aria-label="Plats précédents" onClick={() => scroll(-1)}><Icon name="back" /></button>
         <div className="scroller" ref={scroller}>{products.map(p => <ProductCard key={p.id} product={p} onOpen={p => openProduct(p)} onQuickAdd={quickAdd} />)}</div>
         <button type="button" className="rail__btn rail__btn--next" aria-label="Plats suivants" onClick={() => scroll(1)}><Icon name="chevron" /></button>

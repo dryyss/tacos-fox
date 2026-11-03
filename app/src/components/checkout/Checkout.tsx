@@ -126,7 +126,8 @@ export function Checkout({ step, ctx }: { step: Step; ctx: CheckoutContext }) {
   const blocking = quote?.errors ?? [];
   const zoneMissing = effectiveMode === 'LIVRAISON' && !zone;
   const minMissing = quote?.totals.minimumMissing ?? 0;
-  const canContinue = !!quote && !loading && !blocking.length && ctx.orderingEnabled;
+  // Hors horaires, la commande est fermée (CDC) : le bouton de paiement est grisé
+  const canContinue = !!quote && !loading && !blocking.length && ctx.orderingEnabled && win?.status.open !== false;
   const total = quote?.totals.total ?? cart.subtotal;
 
   const modePanel = (
@@ -233,7 +234,7 @@ export function Checkout({ step, ctx }: { step: Step; ctx: CheckoutContext }) {
       setErrors(e);
       const bad = Object.entries(e).find(([, v]) => v);
       if (bad) { toast('Vérifiez les champs en rouge'); document.querySelector<HTMLElement>('.field.is-invalid input, .field.is-invalid select')?.focus(); return false; }
-      if (!win?.status.open && checkout.slot === 'asap') { toast('Le restaurant est fermé, choisissez un créneau'); return false; }
+      if (!win?.status.open) { toast('Le restaurant est fermé : les commandes en ligne reprennent à l\'ouverture.'); return false; }
       return true;
     };
     const field = (k: keyof CheckoutInfo) => ({ value: checkout[k] as string, onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => { updateCheckout({ [k]: e.target.value }); if (errors[k]) setErrors(x => ({ ...x, [k]: false })); } });
@@ -272,7 +273,7 @@ export function Checkout({ step, ctx }: { step: Step; ctx: CheckoutContext }) {
                 ))}
               </div>
             )}
-            {win && !win.status.open && <p className="mode-note"><Icon name="clock" /><span>{win.status.label}. {win.slots.length ? 'Vous pouvez précommander pour plus tard.' : 'Les commandes rouvrent à l\'ouverture.'}</span></p>}
+            {win && !win.status.open && <p className="alert alert--error" style={{ marginTop: 0 }}><Icon name="clock" /><span>{win.status.label}. Les commandes en ligne reprennent à l&apos;ouverture.</span></p>}
           </div>
 
           {effectiveMode === 'LIVRAISON' && (

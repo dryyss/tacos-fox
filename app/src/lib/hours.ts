@@ -36,7 +36,14 @@ export interface OpenStatus {
   label: string;
 }
 
+/* Tests hors horaires : TEST_IGNORE_HOURS=1 (fichier .env.local) ouvre tous les restaurants.
+   Actif seulement avec une clé Stripe de test, jamais sur le site en production réelle. */
+export function hoursIgnoredForTests(): boolean {
+  return typeof window === 'undefined' && process.env.TEST_IGNORE_HOURS === '1' && !!process.env.STRIPE_SECRET_KEY?.startsWith('sk_test_');
+}
+
 export function openStatus(hours: DayHours[], now: Date = new Date()): OpenStatus {
+  if (hoursIgnoredForTests()) return { open: true, label: 'Ouvert (mode test, horaires ignorés)' };
   const { day, minutes } = parisClock(now);
   const today = hours.find(h => h.dayOfWeek === day);
   if (today?.isOpen) {
@@ -54,7 +61,7 @@ export function openStatus(hours: DayHours[], now: Date = new Date()): OpenStatu
 /* Créneaux du jour (heure de Paris, "HH:MM"), à partir de maintenant + délai de préparation */
 export function timeSlots(hours: DayHours[], leadMinutes: number, interval = 15, now: Date = new Date(), limit = 12): string[] {
   const { day, minutes } = parisClock(now);
-  const today = hours.find(h => h.dayOfWeek === day);
+  const today = hoursIgnoredForTests() ? { isOpen: true, open: '00:00', close: '00:00' } : hours.find(h => h.dayOfWeek === day);
   if (!today?.isOpen) return [];
   const o = toMinutes(today.open), c = toMinutes(today.close, true);
   let start = Math.ceil((minutes + leadMinutes) / interval) * interval;

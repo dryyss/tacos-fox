@@ -51,14 +51,16 @@ export async function availableModes(): Promise<Mode[]> {
   return modes;
 }
 
-/* Fenêtre de commande d'un restaurant : ouvert maintenant, créneaux du jour, délai */
+/* Fenêtre de commande d'un restaurant : ouvert maintenant, créneaux du jour, délai.
+   CDC : hors horaires, la commande est fermée pour ce restaurant (pas de précommande). */
 export async function restaurantWindow(r: RestaurantWithHours, mode: Mode) {
   const settings = await getSettings();
   const lead = mode === 'LIVRAISON' ? settings.deliveryMinutes : r.prepMinutes;
+  const status = openStatus(r.hours);
   return {
     enabled: acceptsOrders(r) && settings.orderingEnabled,
-    status: openStatus(r.hours),
-    slots: timeSlots(r.hours, lead, r.slotInterval),
+    status,
+    slots: status.open ? timeSlots(r.hours, lead, r.slotInterval) : [],
     lead,
   };
 }

@@ -99,6 +99,8 @@ ul { margin: 0; padding: 0; list-style: none; }
 .btn--xl { min-height: 60px; padding: 0 28px; font-size: 1.6rem; border-radius: 12px; }
 .btn--block { width: 100%; }
 .btn[disabled], .btn[aria-disabled="true"], .btn.is-disabled { opacity: .45; pointer-events: none; }
+/* Bouton grisé sur fond noir (accueil) : reste lisible */
+.hero .btn.is-disabled { opacity: 1; color: rgba(255,255,255,.75); border-color: rgba(255,255,255,.3); background: rgba(255,255,255,.06); }
 .btn--text { font-family: var(--text); text-transform: none; letter-spacing: 0; font-weight: 600; font-size: 1rem; min-height: 44px; color: var(--red); }
 
 /* ---------- Bandeau de confiance ---------- */
@@ -1097,6 +1099,16 @@ body.is-locked { overflow: hidden; }
 .rail__btn--next { right: 0; }
 /* Écran tactile ou téléphone : on fait défiler au doigt, les flèches masqueraient les cartes */
 @media (hover: none), (max-width: 719px) { .rail__btn { display: none; } }
+/* Avec une souris : les flèches dans les marges, jamais sur les cartes, et les cartes centrées */
+@media (min-width: 720px) and (hover: hover) {
+  .rail.has-arrows { padding: 0 56px; }
+  .rail.has-arrows > .scroller, .rail.has-arrows > .offer-rail { margin: 0; padding-left: 0; padding-right: 0; scroll-padding-inline: 0; }
+  .rail.has-arrows > .scroller > *, .rail.has-arrows > .offer-rail > * { scroll-snap-align: center; }
+  .rail__btn { top: 50%; transform: translateY(-50%); }
+}
+.rail:not(.has-arrows) .rail__btn { display: none; }
+/* Un seul visuel : pleine largeur, pas de défilement */
+.offer-rail--single > * { flex-basis: 100% !important; }
 /* Burger seul / menu : deux prix côte à côte, plus petits pour tenir dans une carte étroite */
 .card__prices { display: flex; gap: 10px; min-width: 0; }
 .card__prices .price { font-size: 1.2rem; }
@@ -1345,3 +1357,21 @@ body.is-locked { overflow: hidden; }
 .nearest__item { display: grid; gap: 6px; align-content: start; }
 .nearest__dist { justify-self: start; font-size: .8rem; font-weight: 700; color: var(--ink-2); background: var(--white); border: 1px solid var(--grey-2); border-radius: 999px; padding: 3px 10px; }
 .nearest__dist.is-first { background: var(--black); color: #fff; border-color: var(--black); }
+
+/* ---------- Chargement : squelettes ---------- */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.sk { display: inline-block; vertical-align: middle; background: linear-gradient(90deg, var(--grey-2) 0%, #f1f1ee 40%, var(--grey-2) 80%); background-size: 300% 100%; }
+@media (prefers-reduced-motion: no-preference) { .sk { animation: skShine 1.3s ease-in-out infinite; } }
+@keyframes skShine { from { background-position: 100% 0; } to { background-position: 0 0; } }
+.sk-wrap { max-width: var(--max); margin-inline: auto; display: grid; justify-items: start; }
+.sk-wrap > .sk-grid, .sk-wrap > .resto-grid { width: 100%; }
+.sk-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.sk-card { background: var(--white); border-radius: var(--radius); overflow: hidden; }
+.sk-panel { background: var(--white); border-radius: var(--radius); padding: 14px; display: grid; gap: 10px; }
+.sk-menu { padding: 16px var(--page-x) 0; display: grid; gap: 16px; }
+.sk-menu__side { display: none; }
+@media (min-width: 720px) { .sk-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1024px) {
+  .sk-menu { max-width: 1320px; margin-inline: auto; grid-template-columns: 220px minmax(0, 1fr); gap: 24px; padding-top: 20px; }
+  .sk-menu__side { display: grid; gap: 10px; align-content: start; }
+}

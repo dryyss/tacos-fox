@@ -37,7 +37,10 @@ export default async function HomePage() {
             <h1 className="hero__title">La meilleure excuse pour <em>ne pas cuisiner</em> ce soir</h1>
             <p className="hero__text">Tacos, burgers, pizzas, bowls et Crousty Fox. Commandez en ligne dans l&apos;un de nos {restaurants.length} restaurants (Stains, Dugny, Le Blanc-Mesnil) et passez la récupérer à l&apos;heure choisie.</p>
             <div className="hero__cta">
-              <Link className="btn btn--primary btn--xl" href="/carte">Commander</Link>
+              {/* Restaurant choisi fermé : bouton grisé (la carte reste consultable dans le menu) */}
+              {current && status && !status.open
+                ? <span className="btn btn--ghost btn--xl is-disabled" aria-disabled="true">Fermé pour le moment</span>
+                : <Link className="btn btn--primary btn--xl" href="/carte">Commander</Link>}
               {current && status && <div className="hero__sub"><span className={`dot ${status.open ? '' : 'is-closed'}`} />{restaurantTitle(current)} : {status.label}</div>}
             </div>
             <ul className="hero__facts">

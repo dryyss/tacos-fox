@@ -60,17 +60,16 @@ function Dots({ slides, index, onPick, label }: { slides: SlideView[]; index: nu
   );
 }
 
-/* Grand diaporama : défilement auto, swipe, pause au survol */
+/* Grand diaporama : défilement auto, swipe, pause au survol, au toucher et au focus clavier */
 export function PromoCarousel({ slides }: { slides: SlideView[] }) {
   const [i, setI] = useState(0);
   const [hover, setHover] = useState(false);
-  const [userPaused, setUserPaused] = useState(false);
   const reduce = useReducedMotion();
   const startX = useRef(0);
   const dragged = useRef(false);
   const count = slides.length;
   const index = count ? ((i % count) + count) % count : 0;
-  const paused = hover || userPaused;
+  const paused = hover; // pause au survol, au doigt et au clavier (le bouton pause a été retiré)
 
   useEffect(() => {
     if (paused || reduce || count < 2) return;
@@ -99,8 +98,9 @@ export function PromoCarousel({ slides }: { slides: SlideView[] }) {
     >
       <div
         className="stage__viewport"
-        onTouchStart={e => { startX.current = e.touches[0].clientX; dragged.current = false; }}
+        onTouchStart={e => { startX.current = e.touches[0].clientX; dragged.current = false; setHover(true); }}
         onTouchEnd={e => {
+          window.setTimeout(() => setHover(false), 5000); // reprend 5 s après le toucher
           const dx = e.changedTouches[0].clientX - startX.current;
           if (Math.abs(dx) < 48) return;
           dragged.current = true;
@@ -129,7 +129,6 @@ export function PromoCarousel({ slides }: { slides: SlideView[] }) {
           <button type="button" className="stage__nav" aria-label="Offre précédente" onClick={() => go(-1)}><Icon name="back" /></button>
           <Dots slides={slides} index={index} onPick={setI} label="Offres à l'affiche" />
           <button type="button" className="stage__nav" aria-label="Offre suivante" onClick={() => go(1)}><Icon name="chevron" /></button>
-          <button type="button" className="stage__pause" aria-pressed={userPaused} onClick={() => setUserPaused(v => !v)}>{userPaused ? 'Lecture' : 'Pause'}</button>
         </div>
       )}
       {count > 1 && !reduce && !paused && <div className="stage__progress" aria-hidden="true"><span key={index} /></div>}
@@ -180,10 +179,11 @@ export function PromoPanels({ slides }: { slides: SlideView[] }) {
     el.scrollBy({ left: dir * Math.max(220, el.clientWidth * 0.8), behavior });
   };
   if (!slides.length) return null;
+  const single = slides.length === 1; // un seul visuel : pas de carrousel
   return (
-    <div className="rail">
+    <div className={`rail ${single ? '' : 'has-arrows'}`}>
       <button type="button" className="rail__btn rail__btn--prev" aria-label="Offres précédentes" onClick={() => scroll(-1)}><Icon name="back" /></button>
-      <div className="offer-rail" ref={ref}>
+      <div className={`offer-rail ${single ? 'offer-rail--single' : ''}`} ref={ref}>
         {slides.map(s => (
           <SlideLink key={s.id} href={s.ctaHref} className={`offer tone-${s.tone.toLowerCase()} ${s.imageUrl ? 'offer--photo' : ''}`}>
             {s.imageUrl && <img className="offer__img" src={s.imageUrl} alt="" />}

@@ -53,7 +53,7 @@ export async function createOrder(input: CheckoutInput, userId: string | null, r
 
   const window = await restaurantWindow(restaurant, input.mode);
   if (!window.enabled) throw new CheckoutError('Les commandes en ligne sont suspendues pour le moment.');
-  if (input.slot === 'asap' && !window.status.open) throw new CheckoutError('Le restaurant est fermé, choisissez un créneau.');
+  if (!window.status.open) throw new CheckoutError(`Le restaurant est fermé (${window.status.label.replace(/^Fermé, ?/, '')}). Les commandes en ligne reprennent à l'ouverture.`);
   if (input.slot !== 'asap' && !window.slots.includes(input.slot)) throw new CheckoutError('Ce créneau n\'est plus disponible, choisissez-en un autre.');
   if (input.mode === 'LIVRAISON' && !input.address) throw new CheckoutError('Indiquez votre adresse de livraison.');
 

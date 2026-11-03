@@ -17,9 +17,12 @@ export function RestaurantCard({ r, current, next }: { r: RestaurantWithHours; c
       <p className="resto-card__addr"><Icon name="pin" /> {r.addressLine1}, {r.postalCode} {r.city}</p>
       <p className="resto-card__hours"><Icon name="clock" /> Aujourd&apos;hui : {today?.isOpen ? `${hmLabel(today.open)} à ${hmLabel(today.close)}` : 'fermé'}</p>
       <div className="actions-row">
-        {r.orderingEnabled
-          ? <Link className="btn btn--primary" href={order} prefetch={false}>{current ? 'Continuer ici' : 'Commander ici'}</Link>
-          : <span className="btn btn--ghost is-disabled" aria-disabled="true">Commande en ligne bientôt</span>}
+        {!r.orderingEnabled
+          ? <span className="btn btn--ghost is-disabled" aria-disabled="true">Commande en ligne bientôt</span>
+          : !status.open
+            // Hors horaires : commande fermée (CDC), bouton grisé avec l'heure de réouverture
+            ? <span className="btn btn--ghost is-disabled" aria-disabled="true">{status.label}</span>
+            : <Link className="btn btn--primary" href={order} prefetch={false}>{current ? 'Continuer ici' : 'Commander ici'}</Link>}
         <Link className="btn btn--dark" href={`/restaurants/${r.slug}`}>Infos et accès</Link>
       </div>
       {current && <span className="resto-card__current">Votre restaurant</span>}

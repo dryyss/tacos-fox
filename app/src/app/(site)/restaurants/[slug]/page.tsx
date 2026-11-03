@@ -40,9 +40,11 @@ export default async function RestaurantPage({ params }: { params: Promise<{ slu
           {r.intro || `Tacos à composer, burgers, pizzas (1 achetée = 1 offerte), bowls et Crousty Fox, préparés au ${r.addressLine1} à ${r.city}. Commandez en ligne, payez par carte et récupérez votre commande au créneau choisi.`}
         </p>
         <div className="actions-row" style={{ maxWidth: 'var(--max)', marginInline: 'auto', marginTop: 14 }}>
-          {r.orderingEnabled
-            ? <Link className="btn btn--primary btn--xl" href={`/r/${r.slug}`} prefetch={false}>Commander à {r.city}</Link>
-            : <span className="btn btn--ghost is-disabled" aria-disabled="true">Commande en ligne bientôt disponible</span>}
+          {!r.orderingEnabled
+            ? <span className="btn btn--ghost btn--xl is-disabled" aria-disabled="true">Commande en ligne bientôt disponible</span>
+            : !status.open
+              ? <span className="btn btn--ghost btn--xl is-disabled" aria-disabled="true">{status.label}</span>
+              : <Link className="btn btn--primary btn--xl" href={`/r/${r.slug}`} prefetch={false}>Commander à {r.city}</Link>}
           <Link className="btn btn--ghost btn--xl" href="/restaurants">Changer de restaurant</Link>
         </div>
       </section>
