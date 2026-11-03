@@ -4,7 +4,7 @@ import type { CatalogGroup, CatalogProduct } from './catalog-types';
 
 const choice = (id: string, price = 0, isAvailable = true) => ({ id, label: id, price, isAvailable });
 const group = (key: string, o: Partial<CatalogGroup>): CatalogGroup => ({
-  id: key, key, label: key, hint: null, min: 0, max: 1, maxFromSize: false, allowRepeat: false, choices: [], ...o,
+  id: key, key, label: key, hint: null, min: 0, max: 1, maxFromSize: false, allowRepeat: false, sizeCodes: [], choices: [], ...o,
 });
 const product = (o: Partial<CatalogProduct>): CatalogProduct => ({
   id: 'p', slug: 'p', categorySlug: 'c', kind: 'STANDARD', name: 'Produit', description: '', formula: null, range: null,
@@ -120,5 +120,43 @@ describe('computeTotals', () => {
     expect(computeTotals([{ lineTotal: 2000 }], 'EMPORTER', null, { code: 'A', type: 'PERCENT', value: 10, minSubtotal: 0 }).total).toBe(1800);
     expect(computeTotals([{ lineTotal: 300 }], 'EMPORTER', null, { code: 'B', type: 'FIXED', value: 500, minSubtotal: 0 }).total).toBe(0);
     expect(computeTotals([{ lineTotal: 1000 }], 'EMPORTER', null, { code: 'C', type: 'FIXED', value: 500, minSubtotal: 1500 }).discount).toBe(0);
+  });
+});
+
+describe('burger seul ou en menu', () => {
+  const burger = product({
+    id: 'petit-fox', name: 'Petit Fox', price: 330, formula: 'Seul ou menu',
+    sizes: [
+      { code: 'seul', label: 'Seul', hint: null, price: 330, includedQty: 1, bogo: false },
+      { code: 'menu', label: 'Menu', hint: null, price: 580, includedQty: 1, bogo: false },
+    ],
+    groups: [
+      group('sauces', { max: 2, choices: [choice('Biggy')] }),
+      group('side', { min: 1, sizeCodes: ['menu'], choices: [choice('Frites')] }),
+      group('drink', { min: 1, sizeCodes: ['menu'], choices: [choice('Coca-Cola'), choice('Fanta')] }),
+    ],
+  });
+
+  it('seul : pas de boisson demandée, prix seul', () => {
+    const l = priceLine(burger, { productId: 'petit-fox', qty: 1, sizeCode: 'seul', selections: { sauces: ['Biggy'] } });
+    expect(l.unitPrice).toBe(330);
+    expect(l.details).toEqual(['Seul', 'Biggy']);
+  });
+
+  it('menu : accompagnement et boisson obligatoires', () => {
+    expect(() => priceLine(burger, { productId: 'petit-fox', qty: 1, sizeCode: 'menu', selections: { side: ['Frites'] } })).toThrow(PricingError);
+    const l = priceLine(burger, { productId: 'petit-fox', qty: 2, sizeCode: 'menu', selections: { side: ['Frites'], drink: ['Fanta'] } });
+    expect(l.lineTotal).toBe(1160);
+    expect(l.details).toEqual(['Menu', 'Sans sauce', 'Frites', 'Fanta']);
+  });
+
+  it('la boisson choisie avant de passer en « seul » est retirée de la commande', () => {
+    const l = priceLine(burger, { productId: 'petit-fox', qty: 1, sizeCode: 'seul', selections: { side: ['Frites'], drink: ['Coca-Cola'] } });
+    expect(l.details).toEqual(['Seul', 'Sans sauce']);
+    expect(l.config.selections).toEqual({});
+  });
+
+  it('refuse une commande sans formule', () => {
+    expect(() => priceLine(burger, { productId: 'petit-fox', qty: 1 })).toThrow(PricingError);
   });
 });

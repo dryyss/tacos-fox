@@ -25,6 +25,14 @@ export function effectiveMax(group: CatalogGroup, size: CatalogSize | undefined)
   return group.maxFromSize && size ? size.includedQty : group.max;
 }
 
+/* Groupe proposé pour la taille ou formule choisie (ex. la boisson n'est demandée qu'en « Menu ») */
+export function groupApplies(group: Pick<CatalogGroup, 'sizeCodes'>, size: CatalogSize | undefined): boolean {
+  return !group.sizeCodes?.length || (!!size && group.sizeCodes.includes(size.code));
+}
+
+/* Burger ou sandwich vendu seul ou en menu (formules « seul » et « menu ») */
+export const isSeulMenu = (p: Pick<CatalogProduct, 'sizes'>) => p.sizes.some(s => s.code === 'menu') && p.sizes.some(s => s.code === 'seul');
+
 /* « Kebab, Kebab, Escalope » -> « Kebab x2, Escalope » */
 function describe(labels: string[]): string {
   const counts = new Map<string, number>();
@@ -64,13 +72,15 @@ export function priceLine(
   const details: string[] = [];
   if (size && product.kind !== 'TACOS') details.push(size.label);
 
-  const selections = input.selections ?? {};
   const known = new Set(product.groups.map(g => g.key));
-  for (const key of Object.keys(selections)) {
+  for (const key of Object.keys(input.selections ?? {})) {
     if (!known.has(key)) throw new PricingError(`Option inconnue pour ${product.name}.`);
   }
+  // Les choix d'un groupe qui ne vaut pas pour cette formule (boisson d'un burger pris seul) sont retirés
+  const groups = product.groups.filter(g => groupApplies(g, size));
+  const selections = Object.fromEntries(Object.entries(input.selections ?? {}).filter(([k]) => groups.some(g => g.key === k)));
 
-  for (const group of product.groups) {
+  for (const group of groups) {
     const ids = selections[group.key] ?? [];
     const max = effectiveMax(group, size);
     if (ids.length < group.min) throw new PricingError(`Il manque un choix : ${group.label.toLowerCase()}.`, group.key);
@@ -96,7 +106,7 @@ export function priceLine(
     details.push('Pizza offerte : ' + free.name);
   }
 
-  if (!product.sizes.length && !product.groups.length && product.formula) details.push(product.formula);
+  if (!product.sizes.length && !groups.length && product.formula) details.push(product.formula);
 
   return {
     productId: product.id,

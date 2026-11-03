@@ -24,7 +24,7 @@ function toCatalogProduct(p: ProductRow): CatalogProduct {
     isAvailable: p.isAvailable && (p.stock === null || p.stock > 0),
     sizes: p.sizes.map(s => ({ code: s.code, label: s.label, hint: s.hint, price: s.price, includedQty: s.includedQty, bogo: s.bogo })),
     groups: p.optionGroups.map(g => ({
-      id: g.id, key: g.key, label: g.label, hint: g.hint, min: g.min, max: g.max, maxFromSize: g.maxFromSize, allowRepeat: g.allowRepeat,
+      id: g.id, key: g.key, label: g.label, hint: g.hint, min: g.min, max: g.max, maxFromSize: g.maxFromSize, allowRepeat: g.allowRepeat, sizeCodes: g.sizeCodes,
       choices: g.choices.map(c => ({ id: c.id, label: c.label, price: c.price, isAvailable: c.isAvailable })),
     })),
   };

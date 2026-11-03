@@ -6,7 +6,7 @@ import { Qty, Sheet } from '@/components/ui/Sheet';
 import { useToast } from '@/components/ui/Toast';
 import { useCart } from '@/components/cart/CartProvider';
 import type { CatalogGroup, CatalogProduct } from '@/lib/catalog-types';
-import { effectiveMax, MAX_QTY, priceLine, PricingError } from '@/lib/pricing';
+import { effectiveMax, groupApplies, isSeulMenu, MAX_QTY, priceLine, PricingError } from '@/lib/pricing';
 import { formatPrice } from '@/lib/money';
 import { Photo } from './ProductCard';
 import { FavoriteButton } from './Favorites';
@@ -27,7 +27,8 @@ function StepHead({ n, title, hint, count }: { n: number; title: string; hint?: 
 export function ProductSheet({ product, pizzas, initialSize, onClose }: { product: CatalogProduct; pizzas: CatalogProduct[]; initialSize?: string; onClose: () => void }) {
   const { add } = useCart();
   const toast = useToast();
-  const defaultSize = initialSize ?? (product.kind === 'TACOS' ? 'M' : (product.sizes.find(s => s.bogo) ?? product.sizes[0])?.code);
+  const seulMenu = isSeulMenu(product);
+  const defaultSize = initialSize ?? (product.kind === 'TACOS' ? 'M' : seulMenu ? 'menu' : (product.sizes.find(s => s.bogo) ?? product.sizes[0])?.code);
   const [sizeCode, setSizeCode] = useState<string | undefined>(product.sizes.some(s => s.code === defaultSize) ? defaultSize : product.sizes[0]?.code);
   // Choix obligatoire à option unique (accompagnement « Frites ») : présélectionné
   const [selections, setSelections] = useState<Selections>(() => Object.fromEntries(
@@ -40,12 +41,14 @@ export function ProductSheet({ product, pizzas, initialSize, onClose }: { produc
   const size = product.sizes.find(s => s.code === sizeCode);
   const isTacos = product.kind === 'TACOS';
   const bogoActive = product.kind === 'PIZZA' && !!size?.bogo;
+  // Groupes de la formule choisie : en « Seul », pas d'accompagnement ni de boisson
+  const groups = useMemo(() => product.groups.filter(g => groupApplies(g, size)), [product, size]);
 
   const unit = useMemo(() => {
     let u = size ? size.price : product.price;
-    for (const g of product.groups) for (const id of selections[g.key] ?? []) u += g.choices.find(c => c.id === id)?.price ?? 0;
+    for (const g of groups) for (const id of selections[g.key] ?? []) u += g.choices.find(c => c.id === id)?.price ?? 0;
     return u;
-  }, [product, size, selections]);
+  }, [product, size, groups, selections]);
 
   const setGroup = (key: string, ids: string[]) => {
     setSelections(s => ({ ...s, [key]: ids }));
@@ -85,7 +88,7 @@ export function ProductSheet({ product, pizzas, initialSize, onClose }: { produc
   };
 
   let n = 0;
-  const sub = isTacos ? 'Prix mis à jour en direct' : [product.description, product.formula].filter(Boolean).join(' · ') + (product.tbc ? ' · Prix à confirmer' : '');
+  const sub = isTacos ? 'Prix mis à jour en direct' : [product.description, seulMenu ? null : product.formula].filter(Boolean).join(' · ') + (product.tbc ? ' · Prix à confirmer' : '');
 
   return (
     <Sheet
@@ -107,7 +110,7 @@ export function ProductSheet({ product, pizzas, initialSize, onClose }: { produc
 
       {product.sizes.length > 0 && (
         <div className="step">
-          <StepHead n={++n} title="La taille" hint={isTacos ? product.description.split('.')[0] : bogoActive || product.sizes.some(s => s.bogo) ? 'Senior et Mega : la 2e pizza est offerte' : null}
+          <StepHead n={++n} title={seulMenu ? 'Seul ou menu' : 'La taille'} hint={seulMenu ? 'Le menu comprend frites et boisson' : isTacos ? product.description.split('.')[0] : bogoActive || product.sizes.some(s => s.bogo) ? 'Senior et Mega : la 2e pizza est offerte' : null}
             count={{ text: size ? (isTacos ? `${size.label} · ${size.hint ?? ''}` : size.label) : 'À choisir', cls: size ? 'is-ok' : 'is-need' }} />
           <div className="sizes" style={isTacos ? undefined : { gridTemplateColumns: `repeat(${product.sizes.length},1fr)` }}>
             {product.sizes.map(s => (
@@ -140,7 +143,7 @@ export function ProductSheet({ product, pizzas, initialSize, onClose }: { produc
         </div>
       )}
 
-      {product.groups.map(g => {
+      {groups.map(g => {
         n++;
         const sel = selections[g.key] ?? [];
         const max = effectiveMax(g, size);
@@ -200,7 +203,7 @@ export function ProductSheet({ product, pizzas, initialSize, onClose }: { produc
         );
       })}
 
-      {!product.sizes.length && !product.groups.length && (
+      {!product.sizes.length && !groups.length && (
         <div className="step"><p className="muted">{product.formula ? product.formula + '. ' : ''}Ajoutez directement au panier, ou précisez une demande au moment de commander.</p></div>
       )}
     </Sheet>

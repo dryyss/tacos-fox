@@ -3,6 +3,7 @@
 import { Icon, type IconName } from '@/components/Icons';
 import type { CatalogProduct } from '@/lib/catalog-types';
 import { formatPrice } from '@/lib/money';
+import { isSeulMenu } from '@/lib/pricing';
 
 const BADGES: Record<string, { label: string; icon: IconName }> = {
   best: { label: 'Best-seller', icon: 'star' },
@@ -33,19 +34,27 @@ export function Badges({ product }: { product: CatalogProduct }) {
 
 export function ProductCard({ product, onOpen, onQuickAdd }: { product: CatalogProduct; onOpen: (p: CatalogProduct) => void; onQuickAdd: (p: CatalogProduct) => void }) {
   if (product.kind === 'TACOS') return <TacosCard product={product} onOpen={onOpen} />;
+  const seulMenu = isSeulMenu(product);
   return (
     <article className="card" data-unavailable={product.isAvailable ? undefined : ''} onClick={() => onOpen(product)}>
       <div className="card__media"><Photo src={product.imageUrl} alt={product.name} /><div className="card__badges"><Badges product={product} /></div></div>
       <div className="card__body">
         <h3 className="card__name">{product.name}</h3>
         <p className="card__desc">{product.description}</p>
-        {product.formula && <span className="card__formula">{product.formula}</span>}
+        {product.formula && !seulMenu && <span className="card__formula">{product.formula}</span>}
         <div className="card__foot">
-          <div className="card__price">
-            {product.priceFrom && <small>dès</small>}
-            <span className="price">{formatPrice(product.price)}</span>
-            {product.tbc && <small>prix à confirmer</small>}
-          </div>
+          {seulMenu ? (
+            // Burger ou sandwich : les deux prix, seul et en menu (frites + boisson)
+            <div style={{ display: 'flex', gap: 14 }}>
+              {product.sizes.map(s => <div key={s.code} className="card__price"><small>{s.label}</small><span className="price">{formatPrice(s.price)}</span></div>)}
+            </div>
+          ) : (
+            <div className="card__price">
+              {product.priceFrom && <small>dès</small>}
+              <span className="price">{formatPrice(product.price)}</span>
+              {product.tbc && <small>prix à confirmer</small>}
+            </div>
+          )}
           <button className="add" onClick={e => { e.stopPropagation(); onQuickAdd(product); }} aria-label={`Ajouter ${product.name}`} disabled={!product.isAvailable}><Icon name="plus" /></button>
         </div>
       </div>

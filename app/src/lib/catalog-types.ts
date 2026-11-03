@@ -18,6 +18,7 @@ export interface CatalogGroup {
   max: number;
   maxFromSize: boolean;
   allowRepeat: boolean;
+  sizeCodes: string[]; // groupe proposé seulement pour ces tailles ou formules ; vide = toujours
   choices: CatalogChoice[];
 }
 

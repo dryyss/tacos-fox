@@ -2,7 +2,18 @@
    (pics/Carte_Tacos_Fox.xlsx). Prix en euros. Le gérant les ajuste ensuite dans la gestion. */
 
 export type PresetChoice = { label: string; price?: number; isAvailable?: boolean };
-export type PresetGroup = { key: string; label: string; hint?: string; min: number; max: number; choices: PresetChoice[] };
+export type PresetGroup = { key: string; label: string; hint?: string; min: number; max: number; sizeCodes?: string[]; choices: PresetChoice[] };
+
+/* Burgers et sandwichs vendus seuls ou en menu. Le relevé donne le prix menu ; seul = menu − 2,50 € (décision du 03/11/2026, à confirmer par le client). */
+export const MENU_SUPPLEMENT = 2.5;
+export const isMenuFormula = (formula: string | null | undefined) => /frites/i.test(formula ?? '');
+export const SEUL_MENU_FORMULA = 'Seul ou menu';
+export function formulaSizes(menuPrice: number) {
+  return [
+    { code: 'seul', label: 'Seul', hint: 'Sans frites ni boisson', price: Math.round((menuPrice - MENU_SUPPLEMENT) * 100) / 100 },
+    { code: 'menu', label: 'Menu', hint: 'Frites + boisson', price: menuPrice },
+  ];
+}
 
 const SAUCES = ['Algérienne', 'Andalouse', 'Barbecue', 'Biggy', 'Cheezy', 'Chili thaï', 'Curry', 'Fish', 'Harissa', 'Ketchup', 'Mayonnaise', 'Poivre', 'Samouraï', 'Sauce blanche', 'Yopie'];
 
@@ -26,7 +37,7 @@ const DRINKS = ['Coca-Cola', 'Coca-Cola Zéro', 'Fanta', 'Sprite', 'Oasis Tropic
 
 /* Groupes à proposer pour un sandwich ou un burger selon sa description et sa formule */
 export function sandwichGroups(p: { description: string; formula: string | null }): PresetGroup[] {
-  const isMenu = /frites/i.test(p.formula ?? '');
+  const isMenu = isMenuFormula(p.formula) || p.formula === SEUL_MENU_FORMULA;
   const groups: PresetGroup[] = [];
   if (/crudit/i.test(p.description)) {
     groups.push({ key: 'crudites', label: 'Vos crudités', hint: 'Laissez vide pour sans crudités', min: 0, max: 3, choices: [{ label: 'Salade' }, { label: 'Tomate' }, { label: 'Oignon' }] });
@@ -38,9 +49,10 @@ export function sandwichGroups(p: { description: string; formula: string | null 
   );
   if (isMenu) {
     groups.push(
-      { key: 'side', label: 'Votre accompagnement', hint: 'Inclus dans le menu', min: 1, max: 1, choices: [{ label: 'Frites' }] },
-      { key: 'extras', label: 'En plus', hint: 'Optionnel', min: 0, max: 2, choices: [{ label: 'Frites supplémentaires', price: 1.5 }] },
-      { key: 'drink', label: 'Votre boisson', hint: 'Incluse dans le menu', min: 1, max: 1, choices: DRINKS.map(label => ({ label })) },
+      // Demandés seulement quand le client prend la formule « Menu »
+      { key: 'side', label: 'Votre accompagnement', hint: 'Inclus dans le menu', min: 1, max: 1, sizeCodes: ['menu'], choices: [{ label: 'Frites' }] },
+      { key: 'extras', label: 'En plus', hint: 'Optionnel', min: 0, max: 2, sizeCodes: ['menu'], choices: [{ label: 'Frites supplémentaires', price: 1.5 }] },
+      { key: 'drink', label: 'Votre boisson', hint: 'Incluse dans le menu', min: 1, max: 1, sizeCodes: ['menu'], choices: DRINKS.map(label => ({ label })) },
     );
   }
   return groups;

@@ -183,6 +183,7 @@ model OptionGroup {
   min         Int     @default(0)
   max         Int     @default(1)
   maxFromSize Boolean @default(false) // le maximum vient de ProductSize.includedQty
+  sizeCodes   String[] @default([]) // proposé seulement pour ces tailles ou formules (ex. boisson du « menu ») ; vide = toujours
   allowRepeat Boolean @default(false) // un même choix peut être pris plusieurs fois
   sortOrder   Int     @default(0)
 

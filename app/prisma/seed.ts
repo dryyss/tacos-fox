@@ -5,7 +5,7 @@ import { createRequire } from 'node:module';
 import { PrismaClient, ProductKind } from '@prisma/client';
 import { menuPhoto } from '../src/lib/menu-photos';
 import { EXAMPLE_SLIDES } from '../src/lib/slide-examples';
-import { SANDWICH_CATEGORIES, sandwichGroups } from './option-presets';
+import { formulaSizes, isMenuFormula, SANDWICH_CATEGORIES, SEUL_MENU_FORMULA, sandwichGroups } from './option-presets';
 import { ensureRestaurants } from './restaurant-presets';
 
 const require = createRequire(import.meta.url);
@@ -28,8 +28,8 @@ type SrcProduct = {
 
 const CATEGORY_SUBS: Record<string, string> = {
   tacos: 'Frites, sauce fromagère et boisson incluses. Taille S et M : 1 viande, L : 2, XL : 3, XXL : 4.',
-  burgers: 'Tous nos burgers sont servis en menu avec frites et boisson.',
-  sandwichs: 'Pain frais, viandes halal, crudités au choix. Menu frites et boisson inclus.',
+  burgers: 'Seul ou en menu avec frites et boisson.',
+  sandwichs: 'Pain frais, viandes halal, crudités au choix. Seul ou en menu avec frites et boisson.',
   pizzas: 'Pâte maison. 1 achetée = 1 offerte sur Senior et Mega, à emporter.',
   bowls: 'Frites, 4 fromages fondus, viande et sauce au choix. Boisson incluse.',
   crousty: 'La galette croustillante signature Tacos Fox.',
@@ -82,7 +82,12 @@ async function seedCatalog() {
   });
 
   const counters: Record<string, number> = {};
-  for (const p of src.PRODUCTS as SrcProduct[]) {
+  for (const src0 of src.PRODUCTS as SrcProduct[]) {
+    // Burgers et sandwichs en menu : vendus seuls ou en menu (seul = menu − 2,50 €)
+    const seulMenu = SANDWICH_CATEGORIES.includes(src0.cat) && !src0.sizes && isMenuFormula(src0.formula);
+    const p: SrcProduct = seulMenu
+      ? { ...src0, formula: SEUL_MENU_FORMULA, sizes: formulaSizes(src0.price).map(s => ({ id: s.code, label: s.label, hint: s.hint, price: s.price })) }
+      : src0;
     const order = (counters[p.cat] = (counters[p.cat] ?? 0) + 1);
     await upsertProduct({
       slug: p.id, categoryId: cats[p.cat], kind: p.cat === 'pizzas' ? ProductKind.PIZZA : ProductKind.STANDARD,
@@ -97,7 +102,7 @@ async function seedCatalog() {
   }
 }
 
-type GroupInput = { key: string; label: string; hint?: string; min: number; max: number; maxFromSize?: boolean; allowRepeat?: boolean; choices: Choice[] };
+type GroupInput = { key: string; label: string; hint?: string; min: number; max: number; maxFromSize?: boolean; allowRepeat?: boolean; sizeCodes?: string[]; choices: Choice[] };
 type ProductInput = {
   slug: string; categoryId: string; kind: ProductKind; name: string; description: string;
   formula?: string | null; range?: string | null; price: number; priceFrom?: boolean; badges: string[];
@@ -119,7 +124,7 @@ async function upsertProduct({ sizes, groups, ...data }: ProductInput) {
     await prisma.optionGroup.create({
       data: {
         productId: product.id, key: g.key, label: g.label, hint: g.hint ?? null, min: g.min, max: g.max,
-        maxFromSize: !!g.maxFromSize, allowRepeat: !!g.allowRepeat, sortOrder: i,
+        maxFromSize: !!g.maxFromSize, allowRepeat: !!g.allowRepeat, sizeCodes: g.sizeCodes ?? [], sortOrder: i,
         choices: { create: g.choices.map((c, j) => ({ label: c.label, price: cents(c.price ?? 0), isAvailable: c.isAvailable ?? true, sortOrder: j })) },
       },
     });

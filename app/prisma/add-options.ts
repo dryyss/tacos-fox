@@ -23,7 +23,7 @@ async function main() {
       if (dry) continue;
       await prisma.optionGroup.create({
         data: {
-          productId: p.id, key: g.key, label: g.label, hint: g.hint ?? null, min: g.min, max: g.max, sortOrder: next + i,
+          productId: p.id, key: g.key, label: g.label, hint: g.hint ?? null, min: g.min, max: g.max, sizeCodes: g.sizeCodes ?? [], sortOrder: next + i,
           choices: { create: g.choices.map((c, j) => ({ label: c.label, price: cents(c.price ?? 0), isAvailable: c.isAvailable ?? true, sortOrder: j })) },
         },
       });
