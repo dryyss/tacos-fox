@@ -34,7 +34,7 @@ export default async function RestaurantPage({ params }: { params: Promise<{ slu
       <JsonLd data={restaurantPageJsonLd(r, settings)} />
       <section className="section" style={{ paddingBottom: 0 }}>
         <div className="section__head" style={{ maxWidth: 'var(--max)', marginInline: 'auto' }}>
-          <div><span className="kicker">Tacos Fox à {r.city}</span><h1 className="section__title">{r.name} {r.city}</h1></div>
+          <div><span className="kicker">Tacos Fox à {r.city}</span><h1 className="section__title">{restaurantTitle(r)}</h1></div>
         </div>
         <p style={{ maxWidth: 'var(--max)', marginInline: 'auto' }}>
           {r.intro || `Tacos à composer, burgers, pizzas (1 achetée = 1 offerte), bowls et Crousty Fox, préparés au ${r.addressLine1} à ${r.city}. Commandez en ligne, payez par carte et récupérez votre commande au créneau choisi.`}

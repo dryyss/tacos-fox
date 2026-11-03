@@ -26,7 +26,8 @@ export async function getCurrentRestaurant() {
 }
 
 /* « Tacos Fox Stains » et « 36 avenue Marcel Cachin » : l'enseigne est commune, l'adresse distingue */
-export const restaurantTitle = (r: { name: string; city: string }) => `${r.name} ${r.city}`;
+/* « Tacos Fox Stains · Marcel Cachin » : le repère distingue deux restaurants d'une même ville */
+export const restaurantTitle = (r: { name: string; city: string; label?: string | null }) => `${r.name} ${r.city}${r.label ? ` · ${r.label}` : ''}`;
 export const restaurantAddress = (r: { addressLine1: string; postalCode: string; city: string }) => [r.addressLine1, `${r.postalCode} ${r.city}`].filter(Boolean).join(', ');
 
 export function getRestaurantById(id: string) {

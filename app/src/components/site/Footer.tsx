@@ -24,7 +24,7 @@ export function Footer({ settings, accountEnabled, restaurants }: { settings: Re
         </div>
         <div className="footer__links">
           <strong>Nos restaurants</strong>
-          {restaurants.map(r => <Link key={r.slug} href={`/restaurants/${r.slug}`}>{r.title}, {r.street}</Link>)}
+          {restaurants.map(r => <Link key={r.slug} href={`/restaurants/${r.slug}`}>{r.title}{r.title.includes('·') ? '' : `, ${r.street}`}</Link>)}
         </div>
       </div>
       <div className="footer__legal">

@@ -58,6 +58,7 @@ export function RestaurantEditor({ id, initial, hours, products }: { id: string;
 
         <div className="panel">
           <div className="panel__title">Coordonnées et préparation</div>
+          {text('label', 'Repère affiché après le nom (ex. « Marcel Cachin »)')}
           {text('phone', 'Téléphone affiché aux clients', { inputMode: 'tel' })}
           {text('email', 'E-mail du restaurant', { type: 'email' })}
           {num('prepMinutes', 'Délai moyen de préparation (minutes)')}

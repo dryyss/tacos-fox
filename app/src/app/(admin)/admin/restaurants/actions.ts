@@ -27,6 +27,7 @@ const hm = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Heure au format HH:MM'
 const text = (max: number) => z.string().trim().max(max);
 
 const restaurantSchema = z.object({
+  label: text(40),
   phone: text(30),
   email: z.union([z.literal(''), z.string().trim().toLowerCase().email('E-mail invalide').max(160)]),
   intro: text(1000),

@@ -320,6 +320,9 @@ model Restaurant {
   city                 String
   postalCode           String
   addressLine1         String   @default("")
+  label                String   @default("") // repère affiché après le nom quand deux restaurants sont dans la même ville (« Marcel Cachin »)
+  latitude             Float? // pour proposer le restaurant le plus proche
+  longitude            Float?
   phone                String   @default("")
   email                String   @default("")
   intro                String   @default("") // texte de la page locale (référencement)

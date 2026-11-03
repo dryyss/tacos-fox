@@ -1338,3 +1338,10 @@ body.is-locked { overflow: hidden; }
 /* minmax(0, 1fr) : une carte ne peut pas élargir sa colonne au-delà de l'écran */
 @media (min-width: 720px) { .resto-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 1100px) { .resto-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* Choix du restaurant : « le plus proche de moi » */
+.nearest { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; max-width: var(--max); margin: 0 auto 14px; }
+.nearest .btn .ico { width: 18px; height: 18px; }
+.nearest__item { display: grid; gap: 6px; align-content: start; }
+.nearest__dist { justify-self: start; font-size: .8rem; font-weight: 700; color: var(--ink-2); background: var(--white); border: 1px solid var(--grey-2); border-radius: 999px; padding: 3px 10px; }
+.nearest__dist.is-first { background: var(--black); color: #fff; border-color: var(--black); }

@@ -29,7 +29,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         {/* C2 : le restaurant choisi est rappelé sur toutes les pages, et peut être changé avant le paiement */}
         <div className="resto-bar">
           {current
-            ? <><Icon name="pin" /><span>Votre restaurant : <strong>{restaurantTitle(current)}</strong>, {current.addressLine1}</span><Link href="/restaurants">Changer</Link></>
+            ? <><Icon name="pin" /><span>Votre restaurant : <strong>{restaurantTitle(current)}</strong><span className="hide-mobile">, {current.addressLine1}</span></span><Link href="/restaurants">Changer</Link></>
             : <><Icon name="pin" /><span>Choisissez votre restaurant pour commander</span><Link href="/restaurants">Choisir</Link></>}
         </div>
         <main id="app" className="app" tabIndex={-1}>{children}</main>

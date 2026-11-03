@@ -28,7 +28,7 @@ export default async function RestaurantAdminPage({ params }: { params: Promise<
       <RestaurantEditor
         id={r.id}
         initial={{
-          phone: r.phone, email: r.email, intro: r.intro, isActive: r.isActive, orderingEnabled: r.orderingEnabled,
+          label: r.label, phone: r.phone, email: r.email, intro: r.intro, isActive: r.isActive, orderingEnabled: r.orderingEnabled,
           prepMinutes: r.prepMinutes, slotInterval: r.slotInterval, legalName: r.legalName, legalForm: r.legalForm,
           shareCapital: r.shareCapital, siren: r.siren, siret: r.siret, rcsCity: r.rcsCity, vatNumber: r.vatNumber, vatRate: r.vatRate,
         }}
