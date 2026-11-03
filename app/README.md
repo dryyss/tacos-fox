@@ -16,7 +16,7 @@ npm run dev
 La base de développement est une branche Neon du projet `tacos-fox` (jamais `production`). Alternative hors ligne : `docker compose up -d` (PostgreSQL sur le port 5434, chaînes commentées dans `.env.example`).
 
 - Site : http://localhost:3000
-- Gestion : http://localhost:3000/admin (compte Auth0 ayant le rôle `tacosfox:admin` ou `tacosfox:staff`)
+- Gestion : http://localhost:3000/admin (compte Auth0 ayant le rôle `tacosfox:admin` ou `tacosfox:staff:<restaurant>`)
 - Connexion : uniquement via Auth0 (e-mail, Google, Apple, Microsoft). Les rôles se donnent dans Auth0 (User Management → Users → Roles) et sont repris à la connexion suivante.
 - Sans clé Stripe, le paiement carte est simulé (développement uniquement). Sans clé Resend, les e-mails sont écrits dans la console.
 

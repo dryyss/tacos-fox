@@ -23,18 +23,20 @@ Application Next.js hébergée sur **Vercel** (fonctions en région `fra1`, Fran
 | `AUTH_SECRET` | chaîne aléatoire : `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"` | autre chaîne aléatoire |
 | `AUTH_TRUST_HOST` | `true` | `true` |
 | `APP_URL` | `https://tacosfox.fr` (sans slash final) | URL de préversion stable, par exemple l'URL de branche `https://<projet>-git-<branche>-<équipe>.vercel.app` |
-| `STRIPE_SECRET_KEY` | clé secrète **live** du compte Stripe du restaurant | clé **test** (`sk_test_…`) |
-| `STRIPE_WEBHOOK_SECRET` | secret du webhook live (§ 5) | secret d'un webhook de test, ou vide |
+| `STRIPE_SECRET_KEY` | clé secrète **live** du compte Stripe **plateforme** (compte Tacos Fox, Connect activé) | clé **test** (`sk_test_…`) |
+| `STRIPE_WEBHOOK_SECRET` | secret du webhook live du compte plateforme (§ 5) | secret d'un webhook de test, ou vide |
+| `STRIPE_CONNECT_WEBHOOK_SECRET` | secret du webhook live « comptes connectés » (§ 5) : paiements des restaurants | idem en test |
 | `RESEND_API_KEY` | clé Resend, domaine d'envoi vérifié | clé Resend (ou vide : les e-mails sont alors écrits dans les journaux) |
 | `EMAIL_FROM` | `Tacos Fox <commandes@tacosfox.fr>` | idem |
 
-Les comptes et rôles se gèrent dans Auth0 (rôles `tacosfox:admin`, `tacosfox:staff`, Action `tacosfox-roles`) ; ajouter `AUTH_AUTH0_ID`, `AUTH_AUTH0_SECRET` et `AUTH_AUTH0_ISSUER` sur Vercel. `NEON_BRANCH` ne sert qu'aux outils Neon en local.
+Les comptes et rôles se gèrent dans Auth0 (Action `tacosfox-roles`) : `tacosfox:superadmin` (MAGAR), `tacosfox:admin` (gérant, les 5 restaurants) et, pour chaque équipier, `tacosfox:staff:<restaurant>` qui le rattache à son restaurant (`stains-marcel-cachin`, `stains-louis-bordes`, `dugny-22-lariviere`, `dugny-21-lariviere`, `blanc-mesnil`). Un équipier sans rôle de restaurant ne voit aucune commande. Ajouter ajouter `AUTH_AUTH0_ID`, `AUTH_AUTH0_SECRET` et `AUTH_AUTH0_ISSUER` sur Vercel. `NEON_BRANCH` ne sert qu'aux outils Neon en local.
 
 Points d'attention :
 
 - `APP_URL` sert aux URL de retour Stripe et aux liens des e-mails. Sans elle, le code retombe sur `http://localhost:3000` : elle est donc **obligatoire** dans chaque environnement.
 - Les variables sont lues **au build** (migrations) et à l'exécution : après toute modification, redéployer.
-- Sans `STRIPE_SECRET_KEY`, le paiement carte est **indisponible en production** (le paiement sur place reste possible) ; la simulation n'existe qu'en développement local.
+- Sans `STRIPE_SECRET_KEY`, la commande en ligne est **impossible en production** (paiement par carte uniquement) ; la simulation n'existe qu'en développement local.
+- En production, un restaurant n'accepte de commandes qu'une fois le compte Stripe de sa société actif (Gestion > Paiements). En mode test, ses paiements d'essai passent par le compte de test de la plateforme.
 
 ## 3. Base de données Neon
 
@@ -58,7 +60,8 @@ Points d'attention :
    ```
 
    Le seed ne touche pas à une carte existante ; ne pas utiliser `--reset-catalog` en production.
-3. Se connecter sur `/connexion` avec ce compte, puis compléter **Horaires et réglages** (raison sociale, SIRET, adresse, téléphone) : ces champs alimentent les mentions légales, les CGV et les factures.
+3. `npm run db:add-restaurants` crée ou met à jour les 5 restaurants (adresses et sociétés reprises des Kbis).
+4. Se connecter sur `/connexion` avec un compte `tacosfox:superadmin`, puis compléter **Gestion > Restaurants** (téléphone, horaires, délai, n° de TVA, taux de TVA) et **Réglages du site** (société signataire pour les mentions légales). Ouvrir enfin la commande en ligne de chaque restaurant.
 
 ## 5. Webhook Stripe
 
@@ -70,7 +73,11 @@ Dans le tableau de bord Stripe (mode **live**), créer un webhook vers `https://
 - `checkout.session.async_payment_failed`
 - `charge.refunded`
 
-Copier le secret de signature (`whsec_…`) dans `STRIPE_WEBHOOK_SECRET` (Production), puis redéployer.
+Copier le secret de signature (`whsec_…`) dans `STRIPE_WEBHOOK_SECRET` (Production).
+
+Paiements des restaurants (Stripe Connect, charges directes) : créer un **second** webhook, de type « événements des comptes connectés », vers la même adresse, avec les mêmes événements plus `account.updated`. Copier son secret dans `STRIPE_CONNECT_WEBHOOK_SECRET`, puis redéployer.
+
+Ouverture des comptes : **Gestion > Paiements** (MAGAR), un compte Stripe Standard par société, rempli avec le gérant (pièce d'identité, Kbis, RIB, téléphone). Les paiements arrivent directement sur ce compte, sans commission.
 
 Pour tester en préversion, créer un webhook distinct en mode test vers l'URL de préversion. Si la **Deployment Protection** de Vercel est active sur les préversions, Stripe reçoit une 401 : ajouter un contournement (*Protection Bypass for Automation*) ou tester le webhook en local avec `npm run stripe:listen`.
 
