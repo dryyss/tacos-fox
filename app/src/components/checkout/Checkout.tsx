@@ -11,7 +11,7 @@ import { useCart, type CheckoutInfo } from '@/components/cart/CartProvider';
 import type { CheckoutContext } from '@/lib/checkout-context';
 import type { Mode } from '@/lib/pricing';
 import { formatPrice } from '@/lib/money';
-import { MODE_LABELS } from '@/lib/format';
+import { MODE_LABELS, splitFreePizza } from '@/lib/format';
 import { useQuote, type QuoteResult } from './useQuote';
 
 type Step = 'panier' | 'commande' | 'paiement';
@@ -174,12 +174,14 @@ export function Checkout({ step, ctx }: { step: Step; ctx: CheckoutContext }) {
           <div className="cart-list">
             {items.map((i, idx) => {
               const err = lineError(idx);
+              const { details, free } = splitFreePizza(i.details);
               return (
                 <div key={i.key} className={`cart-item ${err ? 'is-invalid' : ''}`}>
                   <Photo src={i.image} alt={i.name} label="" />
                   <div>
                     <div className="cart-item__name"><span>{i.name}</span><span className="price">{formatPrice(i.unitPrice * i.input.qty)}</span></div>
-                    <div className="cart-item__details">{i.details.join(' · ')}{i.tbc && <> · <em>prix à confirmer</em></>}</div>
+                    <div className="cart-item__details">{details.join(' · ')}{i.tbc && <> · <em>prix à confirmer</em></>}</div>
+                    {free && <div className="cart-item__free"><span>+ {i.input.qty > 1 ? `${i.input.qty} x ` : ''}{free}</span><span className="price">{formatPrice(0)}</span></div>}
                     {err && <p className="alert alert--error"><Icon name="close" />{err} Retirez cet article pour continuer.</p>}
                     <div className="cart-item__row">
                       <Qty small value={i.input.qty} onChange={v => cart.setQty(i.key, v)} />

@@ -2,7 +2,7 @@ import 'server-only';
 import { PDFDocument, rgb, StandardFonts, type PDFFont, type PDFPage } from 'pdf-lib';
 import type { Order, OrderItem, Restaurant, Settings } from '@prisma/client';
 import { splitVat } from './accounting';
-import { MODE_LABELS, orderNumberLabel } from './format';
+import { MODE_LABELS, orderNumberLabel, splitFreePizza } from './format';
 
 const euros = (c: number) => (c / 100).toFixed(2).replace('.', ',') + ' EUR';
 const TZ = 'Europe/Paris';
@@ -95,14 +95,23 @@ export async function renderInvoice(order: Order & { items: OrderItem[] }, setti
 
   let current = page;
   for (const item of order.items) {
-    const details = wrap(item.details.join(' · '), 300, font, 8);
-    if (y - 14 - details.length * 10 < 120) { current = pdf.addPage([595.28, 841.89]); y = 790; }
+    const { details: shown, free } = splitFreePizza(item.details);
+    const details = wrap(shown.join(' · '), 300, font, 8);
+    if (y - 14 - details.length * 10 - (free ? 12 : 0) < 120) { current = pdf.addPage([595.28, 841.89]); y = 790; }
     text(current, item.name, 58, y, { f: bold });
     text(current, String(item.qty), 380, y, { right: true });
     text(current, euros(item.unitPrice), 460, y, { right: true });
     text(current, euros(item.unitPrice * item.qty), 537, y, { right: true });
     y -= 12;
     for (const d of details) { text(current, d, 58, y, { size: 8, color: grey }); y -= 10; }
+    // Pizza offerte (1 achetée = 1 offerte) : ligne à 0 € sous la pizza payée
+    if (free) {
+      text(current, free, 58, y);
+      text(current, String(item.qty), 380, y, { right: true });
+      text(current, euros(0), 460, y, { right: true });
+      text(current, euros(0), 537, y, { right: true });
+      y -= 12;
+    }
     current.drawLine({ start: { x: 50, y: y + 2 }, end: { x: 545, y: y + 2 }, thickness: 0.5, color: rgb(0.85, 0.85, 0.85) });
     y -= 12;
   }

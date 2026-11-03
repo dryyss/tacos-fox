@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { requireStaffPage, restaurantScope } from '@/lib/admin';
 import { formatPrice } from '@/lib/money';
-import { MODE_LABELS, orderNumberLabel, STATUS_LABELS } from '@/lib/format';
+import { MODE_LABELS, orderNumberLabel, splitFreePizza, STATUS_LABELS } from '@/lib/format';
 import { OrderActions } from './OrderActions';
 
 export const metadata = { title: 'Commande' };
@@ -62,7 +62,7 @@ export default async function AdminOrderPage({ params }: { params: Promise<{ id:
           <div className="panel" style={{ marginTop: 0 }}>
             <div className="panel__title">Articles</div>
             <div className="recap__items">
-              {order.items.map(i => <div key={i.id} className="recap__item"><div>{i.qty} x {i.name} <small>{i.details.join(' · ')}</small></div><b>{formatPrice(i.unitPrice * i.qty)}</b></div>)}
+              {order.items.map(i => { const { details, free } = splitFreePizza(i.details); return (<div key={i.id}><div className="recap__item"><div>{i.qty} x {i.name} <small>{details.join(' · ')}</small></div><b>{formatPrice(i.unitPrice * i.qty)}</b></div>{free && <div className="recap__item recap__item--free"><div>{i.qty} x {free}</div><b>{formatPrice(0)}</b></div>}</div>); })}
             </div>
             <div style={{ height: 12 }} />
             <div className="totals">

@@ -7,10 +7,11 @@ import { useCart } from '@/components/cart/CartProvider';
 import type { Catalog, CatalogCategory, CatalogProduct } from '@/lib/catalog-types';
 import { priceLine } from '@/lib/pricing';
 import { formatPrice } from '@/lib/money';
-import { MODE_LABELS } from '@/lib/format';
+import { MODE_LABELS, splitFreePizza } from '@/lib/format';
 import { ProductCard } from './ProductCard';
 import { ProductSheet } from './ProductSheet';
 
+const CART_PANEL_KEY = 'tfx-cart-panel';
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
 /* Ouverture d'un produit (fiche ou ajout direct), partagée entre la carte et l'accueil */
@@ -75,6 +76,19 @@ export function MenuBrowser({ catalog, initialCat }: { catalog: Catalog; initial
   }, [cats, q]);
 
   const current = cats.find(c => c.slug === cat) ?? null;
+
+  // Panier latéral repliable (ordinateur) : replié, les plats prennent la place. Choix mémorisé.
+  const [cartOpen, setCartOpen] = useState(true);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(CART_PANEL_KEY);
+      setCartOpen(saved ? saved === 'open' : window.innerWidth >= 1280);
+    } catch { /* stockage indisponible : panier ouvert */ }
+  }, []);
+  const toggleCart = () => setCartOpen(o => {
+    try { localStorage.setItem(CART_PANEL_KEY, o ? 'closed' : 'open'); } catch { /* ignoré */ }
+    return !o;
+  });
 
   const pick = (slug: string | null) => {
     setCat(slug);
@@ -160,14 +174,19 @@ export function MenuBrowser({ catalog, initialCat }: { catalog: Catalog; initial
     );
   }
 
+  const search = (
+    <div className="search">
+      <Icon name="search" />
+      <input type="search" inputMode="search" placeholder="Rechercher" autoComplete="off" aria-label="Rechercher dans la carte" value={query} onChange={e => setQuery(e.target.value)} />
+      {query && <button className="search__clear" onClick={() => setQuery('')} aria-label="Effacer la recherche"><Icon name="close" /></button>}
+    </div>
+  );
+
   return (
     <div className="page">
+      {/* Téléphone et tablette : recherche + pastilles de catégories en haut */}
       <div className="menu-top"><div className="menu-top__inner">
-        <div className="search">
-          <Icon name="search" />
-          <input type="search" inputMode="search" placeholder="Un plat, une viande, une sauce..." autoComplete="off" aria-label="Rechercher dans la carte" value={query} onChange={e => setQuery(e.target.value)} />
-          {query && <button className="search__clear" onClick={() => setQuery('')} aria-label="Effacer la recherche"><Icon name="close" /></button>}
-        </div>
+        {search}
         <nav className="cats" ref={chipsRef} aria-label="Catégories">
           <a href="/carte" data-cat="" className={!cat && !q ? 'is-active' : ''} onClick={e => { e.preventDefault(); pick(null); }}>Tout</a>
           {cats.map(c => (
@@ -176,8 +195,10 @@ export function MenuBrowser({ catalog, initialCat }: { catalog: Catalog; initial
         </nav>
       </div></div>
 
-      <div className="menu-layout">
+      <div className={`menu-layout ${cartOpen ? '' : 'is-cart-closed'}`}>
         <aside className="menu-side" aria-label="Catégories">
+          {/* Ordinateur : la recherche au-dessus des catégories */}
+          <div className="menu-side__search">{search}</div>
           <div className="menu-side__inner">
             <div className="menu-side__title">Catégories</div>
             {cats.map(c => (
@@ -190,7 +211,7 @@ export function MenuBrowser({ catalog, initialCat }: { catalog: Catalog; initial
           </div>
         </aside>
         <div className="menu-main">{main}</div>
-        <MiniCart />
+        <MiniCart open={cartOpen} onToggle={toggleCart} />
       </div>
       <div style={{ height: 40 }} />
       {sheet}
@@ -199,12 +220,27 @@ export function MenuBrowser({ catalog, initialCat }: { catalog: Catalog; initial
 }
 
 /* Panier en colonne droite (ordinateur) */
-function MiniCart() {
+function MiniCart({ open, onToggle }: { open: boolean; onToggle: () => void }) {
   const { ready, items, count, subtotal, mode } = useCart();
+  if (!open) {
+    return (
+      <aside className="menu-cart menu-cart--closed" aria-label="Votre panier">
+        <button type="button" className="menu-cart__tab" onClick={onToggle} aria-expanded={false} aria-label={`Afficher le panier${ready && count ? `, ${count} article${count > 1 ? 's' : ''}, ${formatPrice(subtotal)}` : ''}`}>
+          <Icon name="bag" />
+          {ready && count > 0 && <span className="qty-badge">{count}</span>}
+          <span className="menu-cart__tab-label">Panier</span>
+          {ready && count > 0 && <span className="menu-cart__tab-total">{formatPrice(subtotal)}</span>}
+        </button>
+      </aside>
+    );
+  }
   return (
     <aside className="menu-cart" aria-label="Votre panier">
       <div className="menu-cart__inner">
-        <div className="menu-cart__title">Votre panier {ready && count > 0 && <small>{count} article{count > 1 ? 's' : ''}</small>}</div>
+        <div className="menu-cart__title">
+          <span>Votre panier {ready && count > 0 && <small>{count} article{count > 1 ? 's' : ''}</small>}</span>
+          <button type="button" className="menu-cart__fold" onClick={onToggle} aria-expanded aria-label="Replier le panier"><Icon name="chevron" /></button>
+        </div>
         {!ready || !items.length ? (
           <div className="menu-cart__empty">
             <Icon name="bag" />
@@ -221,7 +257,7 @@ function MiniCart() {
                     {i.image ? <img src={i.image} alt="" loading="lazy" /> : <Icon name="fox" />}
                     <span className="qty-badge">{i.input.qty}</span>
                   </span>
-                  <div className="menu-cart__info"><strong>{i.name}</strong>{i.details.length > 0 && <small>{i.details.join(' · ')}</small>}</div>
+                  <div className="menu-cart__info"><strong>{i.name}</strong>{(() => { const { details, free } = splitFreePizza(i.details); return <>{details.length > 0 && <small>{details.join(' · ')}</small>}{free && <small className="menu-cart__free">+ {free} · {formatPrice(0)}</small>}</>; })()}</div>
                   <span className="menu-cart__price">{formatPrice(i.unitPrice * i.input.qty)}</span>
                 </div>
               ))}

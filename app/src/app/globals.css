@@ -1207,6 +1207,42 @@ body.is-locked { overflow: hidden; }
 @media (min-width: 1280px) {
   .menu-top__inner, .menu-layout { max-width: 1320px; }
 }
+
+/* Pizza offerte : ligne à 0 € regroupée sous la pizza payée */
+.cart-item__free { display: flex; justify-content: space-between; gap: 8px; margin-top: 6px; padding: 6px 10px; border-left: 3px solid var(--yellow); background: var(--grey); border-radius: 6px; font-size: .88rem; font-weight: 600; }
+.cart-item__free .price { font-size: 1rem; color: var(--green); }
+.menu-cart__free { color: var(--green) !important; font-weight: 700; }
+.recap__item--free { padding-left: 14px; color: var(--green); font-size: .92rem; }
+.ticket-free { display: block; color: var(--green); }
+
+/* Carte sur ordinateur : recherche au-dessus des catégories, panier repliable, photos plus grandes */
+.menu-side__search { display: none; }
+.menu-cart__fold { display: none; }
+@media (min-width: 1024px) {
+  .menu-top { display: none; }
+  .menu-side, .menu-cart { top: calc(var(--header-h) + 16px); max-height: calc(100vh - var(--header-h) - 32px); }
+  .menu-side__search { display: block; margin-bottom: 10px; }
+  .menu-side__search .search { max-width: none; }
+  .menu-layout.is-cart-closed { grid-template-columns: 220px minmax(0, 1fr) 64px; }
+  .menu-main .grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
+  .menu-main .card__name { font-size: 1.6rem; }
+
+  .menu-cart__title > span { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .menu-cart__fold {
+    display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 50%;
+    border: 1.5px solid var(--grey-2); background: var(--white); color: var(--ink); cursor: pointer;
+  }
+  .menu-cart__fold:hover { border-color: var(--black); }
+  .menu-cart__fold .ico { width: 18px; height: 18px; }
+  .menu-cart__tab {
+    width: 64px; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 0;
+    background: var(--white); border: 1.5px solid var(--grey-2); border-radius: var(--radius); cursor: pointer; color: var(--ink);
+  }
+  .menu-cart__tab:hover { border-color: var(--black); }
+  .menu-cart__tab .ico { width: 26px; height: 26px; color: var(--red); }
+  .menu-cart__tab-label { writing-mode: vertical-rl; transform: rotate(180deg); font-family: var(--display); font-size: 1.2rem; letter-spacing: .08em; text-transform: uppercase; }
+  .menu-cart__tab-total { font-family: var(--display); font-size: 1rem; writing-mode: vertical-rl; transform: rotate(180deg); }
+}
 @media (min-width: 1440px) {
   .menu-top__inner, .menu-layout { max-width: 1560px; grid-template-columns: 260px minmax(0, 1fr) 340px; gap: 32px; }
   .cat-grid { grid-template-columns: repeat(4, 1fr); }

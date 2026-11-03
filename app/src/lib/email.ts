@@ -6,6 +6,7 @@ import { formatPrice } from './money';
 import { appUrl } from './url';
 import { publicFeatures } from './features';
 import { renderInvoice } from './invoice';
+import { splitFreePizza } from './format';
 
 const MODE_LABELS = { SURPLACE: 'Sur place', EMPORTER: 'À emporter', LIVRAISON: 'Livraison' } as const;
 
@@ -54,7 +55,11 @@ export async function notifyOrderConfirmed(orderId: string) {
     } catch (e) { console.error('Facture PDF :', e); }
   }
   const num = `TF-${String(order.number).padStart(4, '0')}`;
-  const rows = order.items.map(i => `<tr><td style="padding:6px 0">${i.qty} x ${esc(i.name)}<br><small style="color:#5A5A5A">${esc(i.details.join(' · '))}</small></td><td style="text-align:right;white-space:nowrap">${formatPrice(i.unitPrice * i.qty)}</td></tr>`).join('');
+  const rows = order.items.map(i => {
+    const { details, free } = splitFreePizza(i.details);
+    return `<tr><td style="padding:6px 0">${i.qty} x ${esc(i.name)}<br><small style="color:#5A5A5A">${esc(details.join(' · '))}</small></td><td style="text-align:right;white-space:nowrap">${formatPrice(i.unitPrice * i.qty)}</td></tr>`
+      + (free ? `<tr><td style="padding:0 0 6px">${i.qty} x ${esc(free)}</td><td style="text-align:right;white-space:nowrap">${formatPrice(0)}</td></tr>` : '');
+  }).join('');
   const when = order.asap ? 'Dès que possible' : order.scheduledFor!.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' });
   const body = `
     <p>Merci ${esc(order.customerName)}, votre commande <b>${num}</b> est bien reçue.</p>

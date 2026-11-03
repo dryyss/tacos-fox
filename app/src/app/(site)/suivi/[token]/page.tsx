@@ -7,7 +7,7 @@ import { prisma } from '@/lib/prisma';
 import { getSettings } from '@/lib/catalog';
 import { publicFeatures } from '@/lib/features';
 import { formatPrice } from '@/lib/money';
-import { MODE_LABELS, orderNumberLabel, phoneHref } from '@/lib/format';
+import { MODE_LABELS, orderNumberLabel, phoneHref, splitFreePizza } from '@/lib/format';
 
 export const metadata: Metadata = { title: 'Suivi de commande', robots: { index: false } };
 export const dynamic = 'force-dynamic';
@@ -107,7 +107,7 @@ export default async function TrackingPage({ params }: { params: Promise<{ token
         <div className="recap panel">
           <div className="panel__title">Récapitulatif</div>
           <div className="recap__items">
-            {order.items.map(i => <div key={i.id} className="recap__item"><div>{i.qty} x {i.name}<small>{i.details.join(' · ')}</small></div><b>{formatPrice(i.unitPrice * i.qty)}</b></div>)}
+            {order.items.map(i => { const { details, free } = splitFreePizza(i.details); return (<div key={i.id}><div className="recap__item"><div>{i.qty} x {i.name}<small>{details.join(' · ')}</small></div><b>{formatPrice(i.unitPrice * i.qty)}</b></div>{free && <div className="recap__item recap__item--free"><div>{i.qty} x {free}</div><b>{formatPrice(0)}</b></div>}</div>); })}
           </div>
           <div style={{ height: 12 }} />
           <div className="totals">
@@ -123,7 +123,7 @@ export default async function TrackingPage({ params }: { params: Promise<{ token
         <div className="actions-row" style={{ maxWidth: 420, marginInline: 'auto' }}>
           {(order.restaurant ? order.restaurant.phone : settings.phone) && <a className="btn btn--light" href={phoneHref(order.restaurant ? order.restaurant.phone : settings.phone)}><Icon name="phone" /> Appeler le resto</a>}
           {order.invoiceNumber
-            ? <a className="btn btn--dark" href={`/api/invoices/${token}`}>Facture PDF</a>
+            ? <a className="btn btn--dark" href={`/api/invoices/${token}?telecharger=1`} download={`facture-${order.invoiceNumber}.pdf`}>Télécharger la facture</a>
             : features.customerAccount ? <Link className="btn btn--dark" href="/compte">Mes commandes</Link> : <Link className="btn btn--dark" href="/carte">Retour à la carte</Link>}
         </div>
         <p className="small muted" style={{ margin: '18px auto 0', maxWidth: 420 }}>La confirmation et la facture ont été envoyées à {order.customerEmail}. Un problème ? Appelez-nous, on règle ça tout de suite.</p>

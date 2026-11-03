@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import type { BoardOrder } from '@/lib/admin-orders';
 import { useToast } from '@/components/ui/Toast';
 import { formatPrice } from '@/lib/money';
-import { MODE_LABELS, orderNumberLabel, STATUS_LABELS } from '@/lib/format';
+import { MODE_LABELS, orderNumberLabel, splitFreePizza, STATUS_LABELS } from '@/lib/format';
 import { cancel, changeStatus, collectOnsite, type AdminResult } from '@/app/(admin)/admin/actions';
 
 const TZ = 'Europe/Paris';
@@ -161,7 +161,7 @@ function OrderTicket({ o, pending, act, showRestaurant }: { o: BoardOrder; pendi
       {showRestaurant && o.restaurant && <div className="ticket__meta"><span className="pill">{o.restaurant}</span></div>}
       {o.address && <div className="ticket__meta">{o.address}</div>}
       <div className="ticket__items">
-        {o.items.map(i => <div key={i.id}><b>{i.qty} x {i.name}</b>{i.details.length > 0 && <small>{i.details.join(' · ')}</small>}</div>)}
+        {o.items.map(i => { const { details, free } = splitFreePizza(i.details); return (<div key={i.id}><b>{i.qty} x {i.name}</b>{details.length > 0 && <small>{details.join(' · ')}</small>}{free && <b className="ticket-free">{i.qty} x {free}</b>}</div>); })}
       </div>
       {o.note && <div className="ticket__note">{o.note}</div>}
       <div className="ticket__meta" style={{ justifyContent: 'space-between' }}>
