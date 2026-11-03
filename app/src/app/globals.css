@@ -606,6 +606,9 @@ ul { margin: 0; padding: 0; list-style: none; }
 .slot { flex: none; min-height: 52px; padding: 0 14px; border-radius: 12px; border: 2px solid var(--grey-2); background: var(--white); display: grid; place-items: center; font-weight: 700; }
 .slot small { display: block; font-size: .7rem; font-weight: 600; color: var(--ink-2); text-align: center; }
 .slot.is-selected { border-color: var(--red); background: var(--red-soft); color: var(--red); }
+.slot--asap { width: 100%; min-height: 64px; font-size: 1.15rem; }
+.slot--asap small { font-size: .78rem; margin-top: 2px; }
+.slot-toggle { display: inline-block; margin-top: 10px; background: none; border: 0; padding: 4px 0; font-weight: 700; color: var(--red); text-decoration: underline; cursor: pointer; }
 .saved-addr { display: grid; gap: 8px; margin-bottom: 12px; }
 .pay-methods { display: grid; gap: 8px; margin-bottom: 14px; }
 .card-visual { background: var(--black); color: #fff; border-radius: 14px; padding: 16px; display: grid; gap: 14px; margin-bottom: 14px; }

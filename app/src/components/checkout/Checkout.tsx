@@ -96,6 +96,9 @@ export function Checkout({ step, ctx }: { step: Step; ctx: CheckoutContext }) {
     if (checkout.slot === 'asap' && !win.status.open && win.slots[0]) updateCheckout({ slot: win.slots[0] });
     if (checkout.slot !== 'asap' && !win.slots.includes(checkout.slot)) updateCheckout({ slot: win.status.open ? 'asap' : win.slots[0] ?? 'asap' });
   }, [ready, win, checkout.slot, updateCheckout]);
+  // Liste des heures : repliée tant que le client garde « prêt dans X min » ; toujours visible si fermé (précommande)
+  const [pickTime, setPickTime] = useState(false);
+  const showSlots = !!win && (!win.status.open || pickTime || checkout.slot !== 'asap');
 
   // Retour de Stripe après annulation : on libère la commande en attente
   const cancelled = params.get('annule');
@@ -250,17 +253,25 @@ export function Checkout({ step, ctx }: { step: Step; ctx: CheckoutContext }) {
             <Link className="section__link" href="/restaurants?next=/commande">Changer de restaurant</Link>
           </div>
           <div className="panel">
-            <div className="panel__title"><Icon name="clock" /> Créneau</div>
-            <div className="slots">
-              <button type="button" className={`slot ${checkout.slot === 'asap' ? 'is-selected' : ''}`} disabled={!win?.status.open} onClick={() => updateCheckout({ slot: 'asap' })}>
-                Dès que possible<small>env. {win?.lead ?? 20} min</small>
+            <div className="panel__title"><Icon name="clock" /> Retrait</div>
+            {/* C5 : « prêt dans X min » en avant ; le choix d'une heure reste possible (créneaux) */}
+            {win?.status.open && (
+              <button type="button" className={`slot slot--asap ${checkout.slot === 'asap' ? 'is-selected' : ''}`} onClick={() => { updateCheckout({ slot: 'asap' }); setPickTime(false); }}>
+                Prêt dans {win.lead} min<small>{effectiveMode === 'LIVRAISON' ? 'livré au plus vite' : 'on lance la préparation dès le paiement'}</small>
               </button>
-              {win?.slots.map(s => (
-                <button key={s} type="button" className={`slot ${checkout.slot === s ? 'is-selected' : ''}`} onClick={() => updateCheckout({ slot: s })}>
-                  {s.replace(':', 'h')}<small>{effectiveMode === 'LIVRAISON' ? 'livré vers' : 'prêt à'}</small>
-                </button>
-              ))}
-            </div>
+            )}
+            {win?.status.open && !showSlots && win.slots.length > 0 && (
+              <button type="button" className="link slot-toggle" onClick={() => setPickTime(true)}>Choisir une heure</button>
+            )}
+            {showSlots && (
+              <div className="slots" style={{ marginTop: win?.status.open ? 10 : 0 }}>
+                {win?.slots.map(s => (
+                  <button key={s} type="button" className={`slot ${checkout.slot === s ? 'is-selected' : ''}`} onClick={() => updateCheckout({ slot: s })}>
+                    {s.replace(':', 'h')}<small>{effectiveMode === 'LIVRAISON' ? 'livré vers' : 'prêt à'}</small>
+                  </button>
+                ))}
+              </div>
+            )}
             {win && !win.status.open && <p className="mode-note"><Icon name="clock" /><span>{win.status.label}. {win.slots.length ? 'Vous pouvez précommander pour plus tard.' : 'Les commandes rouvrent à l\'ouverture.'}</span></p>}
           </div>
 
@@ -309,7 +320,7 @@ export function Checkout({ step, ctx }: { step: Step; ctx: CheckoutContext }) {
             <div className="field"><label htmlFor="f-note">Un mot pour la cuisine (optionnel)</label><textarea id="f-note" maxLength={500} placeholder="Sans oignons, sauce à part, bien gratiné..." {...field('note')} /></div>
             {ctx.features.customerAccount && !ctx.user && <p className="small muted"><Link className="link" href="/connexion?retour=/commande">Connectez-vous</Link> pour retrouver vos adresses et l&apos;historique de vos commandes.</p>}
           </div>
-          <button type="submit" hidden />
+          <button type="submit" hidden aria-label="Continuer" />
         </form>
         <aside className="checkout__aside">
           <div className="panel"><div className="panel__title">Récapitulatif</div>{miniSummary}<div style={{ height: 12 }} /><TotalsPanel quote={quote} mode={effectiveMode} count={count} /></div>
@@ -328,7 +339,7 @@ export function Checkout({ step, ctx }: { step: Step; ctx: CheckoutContext }) {
   const canOnsite = ctx.payments.onsite && effectiveMode !== 'LIVRAISON';
   const payment: CheckoutInfo['payment'] = checkout.payment === 'ONSITE' && canOnsite ? 'ONSITE' : ctx.payments.card ? 'CARD' : canOnsite ? 'ONSITE' : 'CARD';
   const noPayment = !ctx.payments.card && !canOnsite;
-  const slotLabel = checkout.slot === 'asap' ? 'Dès que possible' : checkout.slot.replace(':', 'h');
+  const slotLabel = checkout.slot === 'asap' ? `Prêt dans ${win?.lead ?? 15} min` : checkout.slot.replace(':', 'h');
   const addressLabel = savedAddress ? `${savedAddress.line1}${savedAddress.extra ? ', ' + savedAddress.extra : ''}, ${savedAddress.postalCode} ${savedAddress.city}` : `${checkout.line1}${checkout.extra ? ', ' + checkout.extra : ''}, ${zone?.postalCode ?? ''} ${zone?.city ?? ''}`;
 
   const placeOrder = async () => {
