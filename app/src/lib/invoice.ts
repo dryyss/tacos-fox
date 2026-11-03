@@ -1,6 +1,6 @@
 import 'server-only';
 import { PDFDocument, rgb, StandardFonts, type PDFFont, type PDFPage } from 'pdf-lib';
-import type { Order, OrderItem, Settings } from '@prisma/client';
+import type { Order, OrderItem, Restaurant, Settings } from '@prisma/client';
 import { splitVat } from './accounting';
 import { MODE_LABELS, orderNumberLabel } from './format';
 
@@ -10,11 +10,36 @@ const TZ = 'Europe/Paris';
 /* Les polices standard PDF (WinAnsi) ne couvrent pas certains caractères : on les remplace */
 const safe = (s: string) => s.replace(/[  ]/g, ' ').replace(/[œ]/g, 'oe').replace(/[Œ]/g, 'OE').replace(/[’‘]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, '-').replace(/[^\x20-\x7E -ÿ€]/g, '');
 
+type Seller = { name: string; lines: string[]; footer: string; vatRate: number };
+
+/* Vendeur : la société qui exploite le restaurant de la commande (formule multi-restaurants),
+   sinon les réglages généraux (commandes antérieures, sans restaurant) */
+function sellerOf(s: Settings, r?: Restaurant | null): Seller {
+  if (r?.legalName) {
+    const legal = [r.legalForm, r.shareCapital ? `au capital de ${(r.shareCapital / 100).toLocaleString('fr-FR')} €` : ''].filter(Boolean).join(' ');
+    const rcs = r.siren && `RCS ${r.rcsCity} ${r.siren}`.replace('  ', ' ');
+    const address = `${r.addressLine1}, ${r.postalCode} ${r.city}`;
+    return {
+      name: r.legalName,
+      lines: [r.legalName, legal, r.addressLine1, `${r.postalCode} ${r.city}`, rcs, r.siret && `SIRET ${r.siret}`, r.vatNumber && `TVA ${r.vatNumber}`, r.phone, r.email].filter(Boolean),
+      footer: [`${r.legalName}${legal ? ', ' + legal : ''}`, address, rcs].filter(Boolean).join(' · '),
+      vatRate: r.vatRate,
+    };
+  }
+  return {
+    name: s.legalName || s.name,
+    lines: [s.legalName || s.name, s.addressLine1, `${s.postalCode} ${s.city}`, s.siret && `SIRET ${s.siret}`, s.vatNumber && `TVA ${s.vatNumber}`, s.phone, s.email].filter(Boolean),
+    footer: `${s.legalName || s.name} · ${s.addressLine1} ${s.postalCode} ${s.city}${s.siret ? ' · SIRET ' + s.siret : ''}`,
+    vatRate: s.vatRate,
+  };
+}
+
 /* Facture PDF conforme : vendeur, numéro unique, date, détail, HT / TVA / TTC */
-export async function renderInvoice(order: Order & { items: OrderItem[] }, s: Settings): Promise<Uint8Array> {
+export async function renderInvoice(order: Order & { items: OrderItem[] }, settings: Settings, restaurant?: Restaurant | null): Promise<Uint8Array> {
+  const s = sellerOf(settings, restaurant);
   const pdf = await PDFDocument.create();
   pdf.setTitle(`Facture ${order.invoiceNumber}`);
-  pdf.setAuthor(s.legalName || s.name);
+  pdf.setAuthor(s.name);
   const page = pdf.addPage([595.28, 841.89]); // A4
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
@@ -38,7 +63,7 @@ export async function renderInvoice(order: Order & { items: OrderItem[] }, s: Se
 
   // Vendeur
   let sy = 768;
-  for (const line of [s.legalName || s.name, s.addressLine1, `${s.postalCode} ${s.city}`, s.siret && `SIRET ${s.siret}`, s.vatNumber && `TVA ${s.vatNumber}`, s.phone, s.email].filter(Boolean) as string[]) {
+  for (const line of s.lines) {
     text(page, line, 50, sy, { color: grey }); sy -= 13;
   }
 
@@ -98,7 +123,7 @@ export async function renderInvoice(order: Order & { items: OrderItem[] }, s: Se
     y -= strong ? 18 : 14;
   }
 
-  const foot = `${s.legalName || s.name} · ${s.addressLine1} ${s.postalCode} ${s.city}${s.siret ? ' · SIRET ' + s.siret : ''}. Facture acquittée${order.paymentMethod === 'CARD' ? ' par carte bancaire' : ''}.`;
+  const foot = `${s.footer}. Facture acquittée${order.paymentMethod === 'CARD' ? ' par carte bancaire' : ''}.`;
   for (const p of pdf.getPages()) text(p, foot, 297, 40, { size: 8, color: grey, center: true });
   return pdf.save();
 }

@@ -1,6 +1,114 @@
 /* Photos de carte générées. Une photo sert parfois à plusieurs recettes proches.
    Une photo envoyée par le gérant (imageUrl en base) reste prioritaire. */
 
+/* Vraies photos du restaurant (fiche Uber Eats fournie par le client, 500 px) : public/menu/photos/<slug>.png.
+   Prioritaires sur les visuels générés ci-dessous, qui ne servent plus qu'aux plats sans photo. */
+const REAL = new Set([
+  'tacos-a-composer',
+  'burgers-petit-fox',
+  'burgers-petit-double',
+  'burgers-country-fox',
+  'burgers-grand-fox',
+  'burgers-boursin-fox',
+  'burgers-smash-burger',
+  'burgers-chicken-pane',
+  'burgers-king-fox',
+  'burgers-maxi-fox',
+  'burgers-tenders-fox',
+  'burgers-geant-fox',
+  'burgers-le-magnificos',
+  'burgers-big-smash-burger',
+  'burgers-crispy-fox',
+  'burgers-duo',
+  'burgers-smash-burger-chevre-miel',
+  'burgers-le-180',
+  'burgers-le-360',
+  'burgers-double-duo',
+  'sandwichs-steak',
+  'sandwichs-merguez',
+  'sandwichs-escalope',
+  'sandwichs-chicken-jaune',
+  'sandwichs-chicken-rouge',
+  'sandwichs-grec',
+  'sandwichs-mixte',
+  'sandwichs-special',
+  'sandwichs-special-fox',
+  'sandwichs-tentation',
+  'sandwichs-mexicain',
+  'sandwichs-magistral',
+  'sandwichs-radical',
+  'sandwichs-royal-fox',
+  'sandwichs-x-trem',
+  'sandwichs-magic',
+  'sandwichs-triple-x',
+  'sandwichs-savoyard',
+  'sandwichs-fabuleux',
+  'sandwichs-charcutier',
+  'sandwichs-quattro',
+  'sandwichs-mortel',
+  'sandwichs-seven',
+  'sandwichs-supreme',
+  'sandwichs-buffalo',
+  'sandwichs-blinde',
+  'sandwichs-monster-fox',
+  'sandwichs-five-fox',
+  'sandwichs-escalope-du-chef',
+  'bowls-bowl-1-viande',
+  'bowls-bowl-2-viandes',
+  'assiettes-assiette-kebab',
+  'assiettes-assiette-chicken',
+  'assiettes-assiette-chicken-rouge',
+  'assiettes-assiette-mixte',
+  'paninis-panini-seul',
+  'paninis-panini-menu',
+  'pates-penne',
+  'pates-tagliatelle',
+  'salades-cesar',
+  'salades-italienne',
+  'salades-fox',
+  'salades-du-chef',
+  'salades-norvegienne',
+  'crepes-crepe-salee',
+  'crepes-crepe-sucree',
+  'enfant-menu-fox-kids',
+  'pizzas-3-jambons',
+  'pizzas-4-fromages',
+  'pizzas-4-saisons',
+  'pizzas-algerienne',
+  'pizzas-americaine',
+  'pizzas-boursin',
+  'pizzas-buffalo',
+  'pizzas-calzone',
+  'pizzas-campione',
+  'pizzas-chicken',
+  'pizzas-chicken-tikka',
+  'pizzas-fermiere',
+  'pizzas-fruits-de-mer',
+  'pizzas-hawaienne',
+  'pizzas-jasmine',
+  'pizzas-kebab',
+  'pizzas-kirri',
+  'pizzas-l-orientale',
+  'pizzas-la-texane-fox',
+  'pizzas-margherita',
+  'pizzas-mexicaine',
+  'pizzas-miami',
+  'pizzas-miel',
+  'pizzas-milano',
+  'pizzas-mixte',
+  'pizzas-napolitaine',
+  'pizzas-neptune',
+  'pizzas-paysanne',
+  'pizzas-pizza-fox',
+  'pizzas-raclette-fox',
+  'pizzas-regina',
+  'pizzas-shaineze-pimenlo',
+  'pizzas-speciale-shaineze',
+  'pizzas-tartiflette',
+  'pizzas-vegetarienne',
+  'pizzas-venezia',
+]);
+
 const PHOTOS: Record<string, string> = {
   'tacos-a-composer': 'tacos-a-composer.jpg',
 
@@ -152,10 +260,13 @@ const PHOTOS: Record<string, string> = {
 };
 
 export function menuPhoto(slug: string): string | null {
+  if (REAL.has(slug)) return `/menu/photos/${slug}.png`;
   const file = PHOTOS[slug];
   return file ? `/menu/${file}` : null;
 }
 
+/* Une photo envoyée depuis l'admin reste prioritaire ; un visuel du dossier /menu/ (généré) est remplacé par la vraie photo */
 export function withMenuPhoto(slug: string, imageUrl: string | null | undefined): string | null {
-  return imageUrl || menuPhoto(slug);
+  if (imageUrl && !imageUrl.startsWith('/menu/')) return imageUrl;
+  return menuPhoto(slug) ?? imageUrl ?? null;
 }

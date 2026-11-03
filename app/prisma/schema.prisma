@@ -326,6 +326,10 @@ model Restaurant {
   slotInterval         Int      @default(15)
   tables               Int      @default(0) // nombre de QR codes de table
   legalName            String   @default("") // société qui exploite et encaisse (factures)
+  legalForm            String   @default("") // « SAS »
+  shareCapital         Int      @default(0) // capital social en centimes
+  siren                String   @default("")
+  rcsCity              String   @default("") // greffe d'immatriculation : « Bobigny »
   siret                String   @default("")
   vatNumber            String   @default("")
   vatRate              Int      @default(1000) // points de base : 1000 = 10 %

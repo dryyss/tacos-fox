@@ -29,11 +29,15 @@ const CUSTOMER_MESSAGES: Partial<Record<OrderStatus, string>> = {
   CANCELLED: 'votre commande a été annulée',
 };
 
-/* Numéro de facture séquentiel par année, sans trou : F-2026-00001 */
-async function assignInvoiceNumber(tx: Prisma.TransactionClient, orderId: string) {
+/* Numéro de facture séquentiel sans trou, propre à la société du restaurant et à l'année : F-LSF-2026-00001.
+   Une commande sans restaurant (anciennes données) garde la série commune F-2026-00001. */
+async function assignInvoiceNumber(tx: Prisma.TransactionClient, orderId: string, restaurantId: string | null) {
   const year = new Date().getFullYear();
-  const counter = await tx.counter.upsert({ where: { key: `invoice-${year}` }, create: { key: `invoice-${year}`, value: 1 }, update: { value: { increment: 1 } } });
-  await tx.order.update({ where: { id: orderId }, data: { invoiceNumber: `F-${year}-${String(counter.value).padStart(5, '0')}`, invoicedAt: new Date() } });
+  const code = restaurantId ? (await tx.restaurant.findUnique({ where: { id: restaurantId }, select: { code: true } }))?.code : undefined;
+  const prefix = code ? `F-${code}-${year}` : `F-${year}`;
+  const key = code ? `invoice-${code}-${year}` : `invoice-${year}`;
+  const counter = await tx.counter.upsert({ where: { key }, create: { key, value: 1 }, update: { value: { increment: 1 } } });
+  await tx.order.update({ where: { id: orderId }, data: { invoiceNumber: `${prefix}-${String(counter.value).padStart(5, '0')}`, invoicedAt: new Date() } });
 }
 
 export async function setOrderStatus(orderId: string, status: OrderStatus) {
@@ -48,7 +52,7 @@ export async function setOrderStatus(orderId: string, status: OrderStatus) {
   await prisma.$transaction(async tx => {
     await tx.order.update({ where: { id: orderId }, data: { status } });
     await tx.orderEvent.create({ data: { orderId, status, message: STATUS_LABELS[status] } });
-    if (status === 'COMPLETED' && !order.invoiceNumber) await assignInvoiceNumber(tx, orderId);
+    if (status === 'COMPLETED' && !order.invoiceNumber) await assignInvoiceNumber(tx, orderId, order.restaurantId);
   });
   if (CUSTOMER_MESSAGES[status]) await notifyOrderStatus(orderId, CUSTOMER_MESSAGES[status]!);
 }
