@@ -30,7 +30,7 @@ export async function requireStaff(feature: AdminFeature = 'orders') {
 /* Liste des fonctionnalités accessibles, pour la navigation du back-office */
 export async function allowedFeatures() {
   const { user, options } = await access();
-  const all: AdminFeature[] = ['orders', 'history', 'qrcodes', 'menu', 'settings', 'stock', 'accounting', 'delivery', 'promos', 'options'];
+  const all: AdminFeature[] = ['orders', 'history', 'qrcodes', 'menu', 'settings', 'stock', 'accounting', 'delivery', 'promos', 'payments', 'options'];
   return all.filter(f => canUse(f, user?.role, options));
 }
 

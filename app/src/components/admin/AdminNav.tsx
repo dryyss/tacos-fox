@@ -11,10 +11,12 @@ const LINKS: { href: string; label: string; feature: AdminFeature; exact?: boole
   { href: '/admin/qrcode', label: 'QR codes', feature: 'qrcodes' },
   { href: '/admin/carte', label: 'Carte', feature: 'menu' },
   { href: '/admin/vitrine', label: 'Vitrine', feature: 'menu' },
-  { href: '/admin/reglages', label: 'Horaires et réglages', feature: 'settings' },
+  { href: '/admin/restaurants', label: 'Restaurants', feature: 'settings' },
+  { href: '/admin/reglages', label: 'Réglages du site', feature: 'settings' },
   { href: '/admin/promos', label: 'Promos', feature: 'promos' },
   { href: '/admin/livraison', label: 'Livraison', feature: 'delivery' },
   { href: '/admin/compta', label: 'Comptabilité', feature: 'accounting' },
+  { href: '/admin/paiements', label: 'Paiements', feature: 'payments' },
   { href: '/admin/options', label: 'Options', feature: 'options' },
 ];
 

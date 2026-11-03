@@ -2,13 +2,15 @@ import 'server-only';
 import { z } from 'zod';
 import type { Order, OrderStatus, Prisma } from '@prisma/client';
 import { prisma } from './prisma';
-import { quoteCart, quoteSchema, orderingWindow } from './quote';
+import { quoteCart, quoteSchema } from './quote';
+import { restaurantTitle, restaurantWindow, type RestaurantWithHours } from './restaurants';
 import { slotToDate } from './hours';
 import { getSettings } from './catalog';
-import { getStripe, paymentSimulated, stripeEnabled } from './stripe';
+import { getStripe, onAccount, paymentAccount, paymentSimulated, stripeEnabled } from './stripe';
 import { appUrl } from './url';
 import { notifyOrderConfirmed } from './email';
 import { publicFeatures } from './features';
+import { assignInvoiceNumber } from './invoice-number';
 
 const phoneRe = /^(\+33|0)[1-9](\d{2}){4}$/;
 
@@ -32,19 +34,23 @@ export class CheckoutError extends Error {}
 
 export const orderNumber = (o: Pick<Order, 'number'>) => `TF-${String(o.number).padStart(4, '0')}`;
 
-/* Crée la commande après recalcul complet côté serveur. Retourne l'URL où envoyer le client. */
-export async function createOrder(input: CheckoutInput, userId: string | null): Promise<{ redirectUrl: string; trackingToken: string }> {
-  const quote = await quoteCart(input);
+/* Crée la commande dans le restaurant choisi, après recalcul complet côté serveur.
+   Retourne l'URL où envoyer le client. */
+export async function createOrder(input: CheckoutInput, userId: string | null, restaurant: RestaurantWithHours): Promise<{ redirectUrl: string; trackingToken: string }> {
+  const quote = await quoteCart(input, restaurant.id);
   if (quote.errors.length) throw new CheckoutError(quote.errors[0]);
   if (input.promoCode && !quote.promo?.valid) throw new CheckoutError(quote.promo?.message ?? 'Code promo invalide.');
 
   const settings = await getSettings();
   const features = publicFeatures(settings.enabledOptions);
   if (input.payment === 'CARD' && !settings.acceptCard) throw new CheckoutError('Le paiement par carte est indisponible.');
-  if (input.payment === 'ONSITE' && (!settings.acceptOnsite || input.mode === 'LIVRAISON')) throw new CheckoutError('Le paiement sur place n\'est pas possible pour cette commande.');
-  if (input.payment === 'CARD' && !stripeEnabled() && !paymentSimulated()) throw new CheckoutError('Le paiement par carte n\'est pas encore configuré.');
+  // C6 : paiement par carte uniquement (le paiement au comptoir ne fait pas partie de la formule)
+  if (input.payment !== 'CARD') throw new CheckoutError('Le paiement se fait par carte bancaire.');
+  if (!stripeEnabled() && !paymentSimulated()) throw new CheckoutError('Le paiement par carte n\'est pas encore configuré.');
+  const payTo = paymentAccount(restaurant);
+  if (!payTo.ok) throw new CheckoutError('Le paiement en ligne n\'est pas encore ouvert pour ce restaurant.');
 
-  const window = await orderingWindow(input.mode);
+  const window = await restaurantWindow(restaurant, input.mode);
   if (!window.enabled) throw new CheckoutError('Les commandes en ligne sont suspendues pour le moment.');
   if (input.slot === 'asap' && !window.status.open) throw new CheckoutError('Le restaurant est fermé, choisissez un créneau.');
   if (input.slot !== 'asap' && !window.slots.includes(input.slot)) throw new CheckoutError('Ce créneau n\'est plus disponible, choisissez-en un autre.');
@@ -66,6 +72,8 @@ export async function createOrder(input: CheckoutInput, userId: string | null): 
 
     return tx.order.create({
       data: {
+        restaurantId: restaurant.id,
+        stripeAccountId: payTo.account,
         userId: features.customerAccount ? userId : null, // compte client = option O7
         mode: input.mode,
         status: input.payment === 'CARD' ? 'PENDING_PAYMENT' : 'RECEIVED',
@@ -99,16 +107,12 @@ export async function createOrder(input: CheckoutInput, userId: string | null): 
 
   const trackPath = `/suivi/${order.trackingToken}`;
 
-  if (input.payment === 'ONSITE') {
-    await notifyOrderConfirmed(order.id);
-    return { redirectUrl: trackPath, trackingToken: order.trackingToken };
-  }
-
   if (paymentSimulated()) {
     await markOrderPaid(order.id, { sessionId: null, paymentIntentId: null });
     return { redirectUrl: trackPath, trackingToken: order.trackingToken };
   }
 
+  // R5 : session créée sur le compte Stripe de la société du restaurant (charge directe, sans commission)
   const session = await getStripe().checkout.sessions.create({
     mode: 'payment',
     customer_email: order.customerEmail,
@@ -122,25 +126,37 @@ export async function createOrder(input: CheckoutInput, userId: string | null): 
       price_data: {
         currency: 'eur',
         unit_amount: order.total,
-        product_data: { name: `${settings.name} · commande ${orderNumber(order)}`, description: order.items.map(i => `${i.qty} x ${i.name}`).join(', ').slice(0, 500) },
+        product_data: { name: `${restaurantTitle(restaurant)} · commande ${orderNumber(order)}`, description: order.items.map(i => `${i.qty} x ${i.name}`).join(', ').slice(0, 500) },
       },
     }],
     success_url: `${appUrl()}${trackPath}?paiement=ok`,
     cancel_url: `${appUrl()}/paiement?annule=${order.trackingToken}`,
-  });
+  }, onAccount(payTo.account));
   await prisma.order.update({ where: { id: order.id }, data: { stripeSessionId: session.id } });
   return { redirectUrl: session.url!, trackingToken: order.trackingToken };
 }
 
 /* Paiement confirmé (webhook Stripe ou simulation) : la commande part en cuisine. Idempotent. */
-export async function markOrderPaid(orderId: string, ids: { sessionId: string | null; paymentIntentId: string | null }) {
-  const res = await prisma.order.updateMany({
-    where: { id: orderId, paymentStatus: 'UNPAID' },
-    data: { paymentStatus: 'PAID', status: 'RECEIVED', stripePaymentIntentId: ids.paymentIntentId ?? undefined },
+/* La facture est émise dès le paiement (C7, R4) pour partir avec l'e-mail de confirmation.
+   Depuis un webhook, le paiement doit venir du compte Stripe qui encaisse cette commande, pour son montant exact. */
+export async function markOrderPaid(orderId: string, ids: { sessionId: string | null; paymentIntentId: string | null; account?: string | null; amount?: number | null }) {
+  const order = await prisma.order.findUnique({ where: { id: orderId }, select: { restaurantId: true, stripeAccountId: true, stripeSessionId: true, total: true } });
+  if (!order) return;
+  if (ids.account !== undefined && (ids.account ?? null) !== order.stripeAccountId) return console.error(`Paiement ${orderId} reçu d'un autre compte Stripe (${ids.account}) : ignoré.`);
+  if (ids.amount != null && ids.amount !== order.total) return console.error(`Paiement ${orderId} : montant ${ids.amount} différent du total ${order.total}, ignoré.`);
+  if (ids.sessionId && order.stripeSessionId && ids.sessionId !== order.stripeSessionId) return console.error(`Paiement ${orderId} : session inattendue, ignoré.`);
+
+  const paid = await prisma.$transaction(async tx => {
+    const res = await tx.order.updateMany({
+      where: { id: orderId, paymentStatus: 'UNPAID' },
+      data: { paymentStatus: 'PAID', status: 'RECEIVED', stripePaymentIntentId: ids.paymentIntentId ?? undefined },
+    });
+    if (res.count === 0) return false;
+    await tx.orderEvent.create({ data: { orderId, status: 'RECEIVED', message: 'Paiement carte accepté' } });
+    await assignInvoiceNumber(tx, orderId, order.restaurantId);
+    return true;
   });
-  if (res.count === 0) return;
-  await prisma.orderEvent.create({ data: { orderId, status: 'RECEIVED', message: 'Paiement carte accepté' } });
-  await notifyOrderConfirmed(orderId);
+  if (paid) await notifyOrderConfirmed(orderId);
 }
 
 /* Paiement abandonné ou expiré : on annule et on restitue stocks et utilisation du code promo. */

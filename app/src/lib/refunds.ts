@@ -1,7 +1,7 @@
 import 'server-only';
 import type Stripe from 'stripe';
 import { prisma } from './prisma';
-import { getStripe, paymentSimulated } from './stripe';
+import { getStripe, onAccount, paymentSimulated } from './stripe';
 
 export class RefundError extends Error {}
 
@@ -17,7 +17,7 @@ export async function refundOrder(orderId: string, amount: number, reason: strin
 
   if (!paymentSimulated()) {
     if (!order.stripePaymentIntentId) throw new RefundError('Paiement Stripe introuvable pour cette commande.');
-    await getStripe().refunds.create({ payment_intent: order.stripePaymentIntentId, amount, metadata: { orderId } }, { idempotencyKey: `refund-${orderId}-${order.refundedAmount}-${amount}` });
+    await getStripe().refunds.create({ payment_intent: order.stripePaymentIntentId, amount, metadata: { orderId } }, { idempotencyKey: `refund-${orderId}-${order.refundedAmount}-${amount}`, ...onAccount(order.stripeAccountId) });
   }
   return applyRefund(orderId, order.refundedAmount + amount, reason);
 }
@@ -35,9 +35,9 @@ async function applyRefund(orderId: string, refundedTotal: number, reason: strin
 }
 
 /* Remboursement fait depuis le tableau de bord Stripe : on aligne la commande. */
-export async function syncRefund(charge: Stripe.Charge) {
+export async function syncRefund(charge: Stripe.Charge, account: string | null) {
   const pi = typeof charge.payment_intent === 'string' ? charge.payment_intent : charge.payment_intent?.id;
   if (!pi) return;
-  const order = await prisma.order.findFirst({ where: { stripePaymentIntentId: pi } });
+  const order = await prisma.order.findFirst({ where: { stripePaymentIntentId: pi, stripeAccountId: account } });
   if (order) await applyRefund(order.id, charge.amount_refunded, 'via Stripe');
 }

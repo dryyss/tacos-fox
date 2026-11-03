@@ -14,6 +14,7 @@ export type AdminFeature =
   | 'accounting' // comptabilité et exports (O3)
   | 'delivery' // zones de livraison (O5)
   | 'promos' // codes promo (O8)
+  | 'payments' // comptes Stripe des sociétés (ouverture accompagnée) : MAGAR uniquement
   | 'options'; // activer ou couper les options : MAGAR uniquement
 
 const BY_OPTION: Partial<Record<AdminFeature, string>> = {
@@ -24,7 +25,7 @@ const BY_OPTION: Partial<Record<AdminFeature, string>> = {
 export function canUse(feature: AdminFeature, role: Role | undefined, options: Options): boolean {
   if (role === 'SUPERADMIN') return true; // MAGAR fait les modifications prévues sans O1
   if (role !== 'STAFF' && role !== 'ADMIN') return false;
-  if (feature === 'options') return false;
+  if (feature === 'options' || feature === 'payments') return false;
   if (feature === 'orders' || feature === 'history' || feature === 'qrcodes') return true;
   const code = BY_OPTION[feature];
   return role === 'ADMIN' && !!code && options.has(code as never);

@@ -1,10 +1,11 @@
 import 'server-only';
-import type { OrderStatus, Prisma } from '@prisma/client';
+import type { OrderStatus } from '@prisma/client';
 import { prisma } from './prisma';
 import { restock } from './orders';
 import { refundOrder } from './refunds';
 import { notifyOrderStatus } from './email';
 import { STATUS_LABELS } from './format';
+import { assignInvoiceNumber } from './invoice-number';
 
 export class OrderActionError extends Error {}
 
@@ -28,17 +29,6 @@ const CUSTOMER_MESSAGES: Partial<Record<OrderStatus, string>> = {
   OUT_FOR_DELIVERY: 'votre commande est en route',
   CANCELLED: 'votre commande a été annulée',
 };
-
-/* Numéro de facture séquentiel sans trou, propre à la société du restaurant et à l'année : F-LSF-2026-00001.
-   Une commande sans restaurant (anciennes données) garde la série commune F-2026-00001. */
-async function assignInvoiceNumber(tx: Prisma.TransactionClient, orderId: string, restaurantId: string | null) {
-  const year = new Date().getFullYear();
-  const code = restaurantId ? (await tx.restaurant.findUnique({ where: { id: restaurantId }, select: { code: true } }))?.code : undefined;
-  const prefix = code ? `F-${code}-${year}` : `F-${year}`;
-  const key = code ? `invoice-${code}-${year}` : `invoice-${year}`;
-  const counter = await tx.counter.upsert({ where: { key }, create: { key, value: 1 }, update: { value: { increment: 1 } } });
-  await tx.order.update({ where: { id: orderId }, data: { invoiceNumber: `${prefix}-${String(counter.value).padStart(5, '0')}`, invoicedAt: new Date() } });
-}
 
 export async function setOrderStatus(orderId: string, status: OrderStatus) {
   const order = await prisma.order.findUnique({ where: { id: orderId } });

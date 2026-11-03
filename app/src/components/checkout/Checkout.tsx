@@ -196,6 +196,7 @@ export function Checkout({ step, ctx }: { step: Step; ctx: CheckoutContext }) {
         <aside className="checkout__aside">
           <div className="panel">
             <div className="panel__title">Récapitulatif</div>
+            <p className="small muted" style={{ marginBottom: 8 }}><Icon name="pin" /> {ctx.restaurant.title}, {ctx.restaurant.address} · <Link href="/restaurants?next=/panier">Changer</Link></p>
             <TotalsPanel quote={quote} mode={effectiveMode} count={count} />
             {ctx.features.promoCodes && <>{promoBox}{promoState}</>}
             {minMissing > 0 && <p className="mode-note" style={{ color: 'var(--red)' }}><Icon name="clock" /><span>Minimum de commande en livraison : {formatPrice(zone!.minimum)}. Ajoutez {formatPrice(minMissing)} pour continuer.</span></p>}
@@ -241,6 +242,11 @@ export function Checkout({ step, ctx }: { step: Step; ctx: CheckoutContext }) {
           <p className="page-sub">{effectiveMode === 'LIVRAISON' ? 'Quand et où voulez-vous être livré ?' : 'Quand souhaitez-vous récupérer votre commande ?'}</p>
         </div>
         <form className="checkout__main" noValidate onSubmit={e => { e.preventDefault(); if (validate()) router.push('/paiement'); }}>
+          <div className="panel">
+            <div className="panel__title"><Icon name="pin" /> Restaurant</div>
+            <p><strong>{ctx.restaurant.title}</strong><br />{ctx.restaurant.address}</p>
+            <Link className="section__link" href="/restaurants?next=/commande">Changer de restaurant</Link>
+          </div>
           <div className="panel">
             <div className="panel__title"><Icon name="clock" /> Créneau</div>
             <div className="slots">

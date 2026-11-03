@@ -4,9 +4,8 @@ import { z } from 'zod';
 // Messages de validation en français
 z.config(z.locales.fr());
 import { prisma } from './prisma';
-import { getHours, getProductsForPricing, getSettings } from './catalog';
+import { getProductsForPricing, getSettings } from './catalog';
 import { computeTotals, MAX_QTY, priceLine, PricingError, type Mode, type PricedLine, type Totals } from './pricing';
-import { openStatus, timeSlots } from './hours';
 import { publicFeatures } from './features';
 import { availableModes } from './restaurants';
 
@@ -52,10 +51,11 @@ async function findPromo(code: string, subtotal: number) {
   return { promo, message: undefined };
 }
 
-/* Recalcule entièrement un panier à partir des identifiants : c'est la seule source de vérité des prix. */
-export async function quoteCart(input: QuoteInput): Promise<Quote> {
+/* Recalcule entièrement un panier à partir des identifiants, à la carte et aux prix du restaurant choisi :
+   c'est la seule source de vérité des prix. */
+export async function quoteCart(input: QuoteInput, restaurantId: string): Promise<Quote> {
   const ids = input.lines.flatMap(l => [l.productId, ...(l.freePizzaId ? [l.freePizzaId] : [])]);
-  const products = await getProductsForPricing(ids);
+  const products = await getProductsForPricing(ids, restaurantId);
   const byId = new Map(products.map(p => [p.id, p]));
 
   const lines: LineResult[] = input.lines.map((l, index) => {
@@ -101,14 +101,3 @@ export async function quoteCart(input: QuoteInput): Promise<Quote> {
   };
 }
 
-/* Disponibilité de la prise de commande : ouvert maintenant, ou créneau valide plus tard dans la journée */
-export async function orderingWindow(mode: Mode) {
-  const [settings, hours] = await Promise.all([getSettings(), getHours()]);
-  const lead = mode === 'LIVRAISON' ? settings.deliveryMinutes : settings.prepMinutes;
-  return {
-    enabled: settings.orderingEnabled,
-    status: openStatus(hours),
-    slots: timeSlots(hours, lead, settings.slotInterval),
-    lead,
-  };
-}
