@@ -5,7 +5,13 @@ import { AdminNav } from '@/components/admin/AdminNav';
 import { allowedFeatures, requireStaffPage } from '@/lib/admin';
 import { logout } from '@/app/(site)/connexion/actions';
 
-export const metadata: Metadata = { title: { default: 'Gestion', template: '%s · Gestion Tacos Fox' }, robots: { index: false, follow: false } };
+export const metadata: Metadata = {
+  title: { default: 'Gestion', template: '%s · Gestion Tacos Fox' },
+  robots: { index: false, follow: false },
+  // Installée depuis l'espace équipe, l'application s'ouvre sur l'écran cuisine (tablette du restaurant)
+  manifest: '/cuisine.webmanifest',
+  appleWebApp: { capable: true, title: 'TF Cuisine', statusBarStyle: 'black' },
+};
 export const dynamic = 'force-dynamic';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

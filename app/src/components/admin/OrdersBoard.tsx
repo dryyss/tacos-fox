@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import type { BoardOrder } from '@/lib/admin-orders';
+import { InstallApp } from './InstallApp';
 import { useToast } from '@/components/ui/Toast';
 import { formatPrice } from '@/lib/money';
 import { MODE_LABELS, onsiteLabel, orderNumberLabel, splitFreePizza, STATUS_LABELS } from '@/lib/format';
@@ -193,6 +194,7 @@ export function OrdersBoard({ initial, restaurants, selected, allowAll }: { init
           <button className={`btn btn--sm ${autoPrint ? 'btn--dark' : 'btn--ghost'}`} onClick={() => { const v = !autoPrint; setAutoPrint(v); try { localStorage.setItem(AUTO_PRINT_KEY, v ? '1' : '0'); } catch { /* ignoré */ } toast(v ? 'Impression auto activée : chaque nouvelle commande sort sur l’imprimante' : 'Impression auto désactivée'); }}>
             {autoPrint ? 'Impression auto : oui' : 'Impression auto : non'}
           </button>
+          <InstallApp />
         </div>
       </div>
 

@@ -18,6 +18,8 @@ export const metadata: Metadata = {
   // Pas d'indexation avant la livraison du site (NEXT_PUBLIC_ALLOW_INDEXING=1 pour ouvrir)
   robots: indexingAllowed() ? { index: true, follow: true } : { index: false, follow: false },
   formatDetection: { telephone: false },
+  // Installé sur l'écran d'accueil (iPhone, iPad) : plein écran, nom court
+  appleWebApp: { capable: true, title: 'Tacos Fox', statusBarStyle: 'black' },
 };
 
 export const viewport: Viewport = { themeColor: '#141414', width: 'device-width', initialScale: 1, viewportFit: 'cover' };
