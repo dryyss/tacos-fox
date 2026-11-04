@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import type { BoardOrder } from '@/lib/admin-orders';
 import { useToast } from '@/components/ui/Toast';
 import { formatPrice } from '@/lib/money';
-import { MODE_LABELS, orderNumberLabel, splitFreePizza, STATUS_LABELS } from '@/lib/format';
+import { MODE_LABELS, onsiteLabel, orderNumberLabel, splitFreePizza, STATUS_LABELS } from '@/lib/format';
 import { cancel, changeStatus, collectOnsite, type AdminResult } from '@/app/(admin)/admin/actions';
 
 const TZ = 'Europe/Paris';
@@ -84,6 +84,23 @@ function notify(o: BoardOrder) {
 
 const openTicket = (id: string) => window.open(`/admin/commandes/${id}/ticket?print=1`, `ticket-${id}`, 'width=420,height=700');
 
+/* Impression automatique d'une nouvelle commande : le ticket est chargé dans un cadre invisible qui
+   lance l'impression lui-même (pas de fenêtre pop-up, souvent bloquée sur tablette). Avec Chrome lancé
+   en « --kiosk-printing », le ticket sort sans boîte de dialogue. */
+const printing = new Set<string>();
+function printTicket(id: string) {
+  if (printing.has(id)) return;
+  printing.add(id);
+  const frame = document.createElement('iframe');
+  frame.title = 'Impression du ticket';
+  frame.setAttribute('aria-hidden', 'true');
+  frame.tabIndex = -1;
+  frame.style.cssText = 'position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0;pointer-events:none';
+  frame.src = `/admin/commandes/${id}/ticket?print=1&frame=1`;
+  document.body.appendChild(frame);
+  setTimeout(() => frame.remove(), 120_000);
+}
+
 interface BoardRestaurant { id: string; slug: string; label: string }
 const REPEAT_MS = 10_000; // R3 : alerte répétée tant qu'une commande attend d'être prise en charge
 
@@ -123,8 +140,10 @@ export function OrdersBoard({ initial, restaurants, selected, allowAll }: { init
       if (soundOn) ring();
       fresh.forEach(notify);
       toast(`${fresh.length} nouvelle${fresh.length > 1 ? 's' : ''} commande${fresh.length > 1 ? 's' : ''}`, 'bag');
-      if (autoPrint) fresh.forEach(o => openTicket(o.id));
     }
+    // Impression auto : toute commande à préparer dont le ticket n'est pas encore sorti
+    // (y compris celles arrivées pendant que la tablette était éteinte)
+    if (autoPrint) data.filter(o => o.status === 'RECEIVED' && !o.printedAt).forEach(o => printTicket(o.id));
     setOrders(data);
   }, [soundOn, autoPrint, toast, selected]);
 
@@ -171,7 +190,7 @@ export function OrdersBoard({ initial, restaurants, selected, allowAll }: { init
         <div className="filters" style={{ margin: 0 }}>
           <button className={`btn btn--sm ${soundOn ? 'btn--dark' : 'btn--ghost'}`} onClick={toggleSound} aria-pressed={soundOn}>{soundOn ? 'Sonnerie : oui' : 'Sonnerie : coupée'}</button>
           {soundOn && <button className="btn btn--sm btn--ghost" onClick={ring}>Tester la sonnerie</button>}
-          <button className={`btn btn--sm ${autoPrint ? 'btn--dark' : 'btn--ghost'}`} onClick={() => { const v = !autoPrint; setAutoPrint(v); try { localStorage.setItem(AUTO_PRINT_KEY, v ? '1' : '0'); } catch { /* ignoré */ } toast(v ? 'Impression auto activée : autorisez les fenêtres pop-up' : 'Impression auto désactivée'); }}>
+          <button className={`btn btn--sm ${autoPrint ? 'btn--dark' : 'btn--ghost'}`} onClick={() => { const v = !autoPrint; setAutoPrint(v); try { localStorage.setItem(AUTO_PRINT_KEY, v ? '1' : '0'); } catch { /* ignoré */ } toast(v ? 'Impression auto activée : chaque nouvelle commande sort sur l’imprimante' : 'Impression auto désactivée'); }}>
             {autoPrint ? 'Impression auto : oui' : 'Impression auto : non'}
           </button>
         </div>
@@ -270,7 +289,7 @@ function OrderTicket({ o, pending, act, showRestaurant, now }: { o: BoardOrder; 
       {o.note && <div className="ticket__note">{o.note}</div>}
       <div className="ticket__meta" style={{ justifyContent: 'space-between' }}>
         <span className="price" style={{ fontSize: '1.3rem' }}>{formatPrice(o.total)}</span>
-        <span className={`pill ${unpaid ? 'pill--red' : 'pill--green'}`}>{unpaid ? 'À encaisser' : o.paymentMethod === 'CARD' ? 'Payée CB en ligne' : 'Encaissée'}</span>
+        <span className={`pill ${unpaid ? 'pill--red' : 'pill--green'}`}>{unpaid ? `À encaisser${o.onsiteMethods.length ? ` · ${onsiteLabel(o.onsiteMethods)}` : ''}` : o.paymentMethod === 'CARD' ? 'Payée CB en ligne' : 'Encaissée'}</span>
       </div>
       <div className="ticket__actions">
         {unpaid && <button className="btn btn--yellow" disabled={pending} onClick={() => act(() => collectOnsite(o.id), 'Encaissement enregistré')}>Encaisser</button>}

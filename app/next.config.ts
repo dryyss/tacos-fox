@@ -14,7 +14,7 @@ const csp = [
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
   `connect-src 'self'${dev ? ' ws: wss:' : ''}`,
-  'frame-src https://www.google.com https://maps.google.com',
+  "frame-src 'self' https://www.google.com https://maps.google.com",
   `form-action 'self' https://checkout.stripe.com${auth0 ? ` ${auth0}` : ''}`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
@@ -32,6 +32,12 @@ const securityHeaders = [
   { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
 ];
 
+/* Ticket cuisine : imprimé depuis un cadre invisible de l'écran cuisine, donc affichable en cadre par le site lui-même seulement */
+const ticketFrameHeaders = [
+  { key: 'Content-Security-Policy', value: csp.replace("frame-ancestors 'none'", "frame-ancestors 'self'") },
+  { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+];
+
 const nextConfig: NextConfig = {
   outputFileTracingRoot: path.resolve(process.cwd()),
   outputFileTracingIncludes: {
@@ -42,6 +48,7 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       { source: '/:path*', headers: securityHeaders },
+      { source: '/admin/commandes/:id/ticket', headers: ticketFrameHeaders },
       // Espace équipe et suivi de commande : jamais en cache partagé
       { source: '/admin/:path*', headers: [{ key: 'Cache-Control', value: 'private, no-store' }, { key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
       { source: '/suivi/:path*', headers: [{ key: 'Cache-Control', value: 'private, no-store' }, { key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },

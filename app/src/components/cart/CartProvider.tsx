@@ -27,10 +27,11 @@ export interface CheckoutInfo {
   addressId: string; // adresse enregistrée choisie, ou 'new'
   note: string;
   payment: 'CARD' | 'ONSITE';
+  onsiteMethods: string[]; // moyens annoncés pour un paiement au comptoir
   promoCode: string;
 }
 
-const EMPTY_CHECKOUT: CheckoutInfo = { slot: 'asap', name: '', phone: '', email: '', zoneId: '', line1: '', extra: '', addressId: '', note: '', payment: 'CARD', promoCode: '' };
+const EMPTY_CHECKOUT: CheckoutInfo = { slot: 'asap', name: '', phone: '', email: '', zoneId: '', line1: '', extra: '', addressId: '', note: '', payment: 'CARD', onsiteMethods: [], promoCode: '' };
 
 interface CartContextValue {
   ready: boolean;

@@ -32,6 +32,7 @@ export default async function TermsPage() {
 
       {h('Paiement')}
       <p>Le paiement s&apos;effectue en ligne par carte bancaire via notre prestataire sécurisé Stripe (3-D Secure). Le montant est encaissé par le restaurant qui prépare la commande. Aucune donnée bancaire n&apos;est conservée par le restaurant ni par le site.</p>
+      <p>Lorsque le restaurant le propose, la commande peut aussi être réglée au comptoir lors du retrait, en espèces, en titres-restaurant ou en chèques-vacances selon les moyens acceptés par ce restaurant (indiqués au moment de commander). Les titres-restaurant et chèques-vacances ne donnent pas lieu à rendu de monnaie. Une commande à régler au comptoir est préparée dès sa validation : le client s&apos;engage à venir la retirer et la payer au créneau choisi.</p>
 
       {f.delivery && zones.length > 0 && (
         <>

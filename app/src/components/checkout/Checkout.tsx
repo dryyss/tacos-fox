@@ -11,7 +11,7 @@ import { useCart, type CheckoutInfo } from '@/components/cart/CartProvider';
 import type { CheckoutContext } from '@/lib/checkout-context';
 import type { Mode } from '@/lib/pricing';
 import { formatPrice } from '@/lib/money';
-import { MODE_LABELS, splitFreePizza } from '@/lib/format';
+import { MODE_LABELS, ONSITE_LABELS, onsiteLabel, splitFreePizza, type OnsiteMethod } from '@/lib/format';
 import { useQuote, type QuoteResult } from './useQuote';
 
 type Step = 'panier' | 'commande' | 'paiement';
@@ -340,6 +340,11 @@ export function Checkout({ step, ctx }: { step: Step; ctx: CheckoutContext }) {
   const canOnsite = ctx.payments.onsite && effectiveMode !== 'LIVRAISON';
   const payment: CheckoutInfo['payment'] = checkout.payment === 'ONSITE' && canOnsite ? 'ONSITE' : ctx.payments.card ? 'CARD' : canOnsite ? 'ONSITE' : 'CARD';
   const noPayment = !ctx.payments.card && !canOnsite;
+  // Moyens annoncés pour le comptoir : un seul accepté = choisi d'office
+  const accepted = ctx.payments.onsiteMethods;
+  const onsiteChosen = accepted.length === 1 ? accepted : checkout.onsiteMethods.filter(m => accepted.includes(m));
+  const onsiteMissing = payment === 'ONSITE' && !onsiteChosen.length;
+  const toggleOnsite = (m: string) => updateCheckout({ onsiteMethods: onsiteChosen.includes(m) ? onsiteChosen.filter(x => x !== m) : [...onsiteChosen, m] });
   const slotLabel = checkout.slot === 'asap' ? `Prêt dans ${win?.lead ?? 15} min` : checkout.slot.replace(':', 'h');
   const addressLabel = savedAddress ? `${savedAddress.line1}${savedAddress.extra ? ', ' + savedAddress.extra : ''}, ${savedAddress.postalCode} ${savedAddress.city}` : `${checkout.line1}${checkout.extra ? ', ' + checkout.extra : ''}, ${zone?.postalCode ?? ''} ${zone?.city ?? ''}`;
 
@@ -360,6 +365,7 @@ export function Checkout({ step, ctx }: { step: Step; ctx: CheckoutContext }) {
           address: effectiveMode === 'LIVRAISON' ? (savedAddress ? { line1: savedAddress.line1, extra: savedAddress.extra } : { line1: checkout.line1, extra: checkout.extra }) : null,
           note: checkout.note,
           payment,
+          onsiteMethods: payment === 'ONSITE' ? onsiteChosen : [],
         }),
       });
       const data = await res.json();
@@ -393,10 +399,25 @@ export function Checkout({ step, ctx }: { step: Step; ctx: CheckoutContext }) {
             {canOnsite && (
               <button type="button" className={`opt ${payment === 'ONSITE' ? 'is-selected' : ''}`} onClick={() => updateCheckout({ payment: 'ONSITE' })}>
                 <span className="opt__box opt__box--round"><Icon name="check" /></span>
-                <span className="opt__label">Payer au restaurant<small>Carte, espèces ou ticket resto au comptoir.</small></span>
+                <span className="opt__label">Payer au comptoir<small>{onsiteLabel(accepted)}, au retrait de la commande.</small></span>
               </button>
             )}
           </div>
+          {payment === 'ONSITE' && (
+            <fieldset className="onsite-methods">
+              <legend>Vous réglerez en</legend>
+              <div className="onsite-methods__list">
+                {accepted.map(m => (
+                  <label key={m} className={`check-chip ${onsiteChosen.includes(m) ? 'is-on' : ''}`}>
+                    <input type="checkbox" checked={onsiteChosen.includes(m)} disabled={accepted.length === 1} onChange={() => toggleOnsite(m)} />
+                    {ONSITE_LABELS[m as OnsiteMethod] ?? m}
+                  </label>
+                ))}
+              </div>
+              {accepted.some(m => m !== 'ESPECES') && <p className="small muted">Titres-restaurant et chèques-vacances : pas de rendu de monnaie{accepted.includes('ESPECES') ? ', complétez en espèces si besoin' : ''}.</p>}
+              <p className="small muted">La commande part en cuisine dès validation. Vous payez au comptoir en la récupérant.</p>
+            </fieldset>
+          )}
           {payment === 'CARD' && !noPayment && <p className="secure"><Icon name="lock" /> Vous serez redirigé vers la page de paiement sécurisée Stripe. Aucune donnée bancaire n&apos;est stockée par le restaurant.</p>}
           {payment === 'CARD' && ctx.payments.simulated && <p className="alert alert--info"><Icon name="card" />Mode développement : sans clé Stripe, le paiement carte est simulé.</p>}
           {noPayment && <p className="alert alert--error"><Icon name="close" />Aucun moyen de paiement disponible pour ce mode. Appelez le restaurant.</p>}
@@ -419,7 +440,7 @@ export function Checkout({ step, ctx }: { step: Step; ctx: CheckoutContext }) {
         </div>
         {(serverError || blocking[0]) && <p className="alert alert--error"><Icon name="close" />{serverError ?? blocking[0]}</p>}
         <div className="cta-sticky">
-          <button className="btn btn--primary btn--xl btn--block" disabled={!canContinue || submitting || noPayment || !checkout.name || !checkout.email} onClick={placeOrder}>
+          <button className="btn btn--primary btn--xl btn--block" disabled={!canContinue || submitting || noPayment || onsiteMissing || !checkout.name || !checkout.email} onClick={placeOrder}>
             {submitting ? <><span className="spinner" /> Validation...</> : <>{payment === 'CARD' ? 'Payer' : 'Commander'} <span className="price">{formatPrice(total)}</span></>}
           </button>
         </div>

@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { MenuBrowser } from '@/components/menu/MenuBrowser';
 import { redirect } from 'next/navigation';
 import { getCatalog } from '@/lib/catalog';
-import { getCurrentRestaurant } from '@/lib/restaurants';
+import { openStatus } from '@/lib/hours';
+import { getCurrentRestaurant, restaurantTitle } from '@/lib/restaurants';
 
 export const metadata: Metadata = {
   title: 'La carte',
@@ -16,5 +17,10 @@ export default async function MenuPage({ searchParams }: { searchParams: Promise
   const [{ cat }, restaurant] = await Promise.all([searchParams, getCurrentRestaurant()]);
   if (!restaurant) redirect(`/restaurants?next=${encodeURIComponent(cat ? `/carte?cat=${cat}` : '/carte')}`);
   const catalog = await getCatalog(restaurant.id);
-  return <MenuBrowser catalog={catalog} initialCat={cat} />;
+  // Hors horaires (ou commande pas encore ouverte) : carte consultable, commande bloquée avec un message
+  const status = openStatus(restaurant.hours);
+  const closedNotice = !restaurant.isActive || !restaurant.orderingEnabled
+    ? `${restaurantTitle(restaurant)} : la commande en ligne ouvre bientôt. Vous pouvez consulter la carte.`
+    : !status.open ? `${restaurantTitle(restaurant)} est fermé (${status.label.replace(/^Fermé, ?/, '')}). Vous pouvez consulter la carte, la commande reprend à l'ouverture.` : null;
+  return <MenuBrowser catalog={catalog} initialCat={cat} closedNotice={closedNotice} />;
 }

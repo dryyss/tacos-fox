@@ -7,7 +7,7 @@ import { prisma } from '@/lib/prisma';
 import { getSettings } from '@/lib/catalog';
 import { publicFeatures } from '@/lib/features';
 import { formatPrice } from '@/lib/money';
-import { MODE_LABELS, orderNumberLabel, phoneHref, splitFreePizza } from '@/lib/format';
+import { MODE_LABELS, onsiteLabel, orderNumberLabel, phoneHref, splitFreePizza } from '@/lib/format';
 
 export const metadata: Metadata = { title: 'Suivi de commande', robots: { index: false } };
 export const dynamic = 'force-dynamic';
@@ -30,7 +30,7 @@ export default async function TrackingPage({ params }: { params: Promise<{ token
   const at = (s: string) => order.events.find(e => e.status === s)?.createdAt;
 
   const steps = [
-    { t: 'Commande reçue', d: 'Le restaurant a bien reçu votre commande' + (order.paymentMethod === 'CARD' ? ' et votre paiement.' : '. Règlement au comptoir.') },
+    { t: 'Commande reçue', d: 'Le restaurant a bien reçu votre commande' + (order.paymentMethod === 'CARD' ? ' et votre paiement.' : `. Règlement au comptoir${order.onsiteMethods.length ? ` (${onsiteLabel(order.onsiteMethods).toLowerCase()})` : ''} en récupérant votre commande.`) },
     { t: 'En préparation', d: 'La cuisine s\'en occupe. On vous prévient dès que c\'est prêt.' },
     delivery
       ? { t: 'En livraison', d: `Le livreur est en route vers ${order.addressLine1 ?? 'votre adresse'}.` }
@@ -126,7 +126,7 @@ export default async function TrackingPage({ params }: { params: Promise<{ token
             ? <a className="btn btn--dark" href={`/api/invoices/${token}?telecharger=1`} download={`facture-${order.invoiceNumber}.pdf`}>Télécharger la facture</a>
             : features.customerAccount ? <Link className="btn btn--dark" href="/compte">Mes commandes</Link> : <Link className="btn btn--dark" href="/carte">Retour à la carte</Link>}
         </div>
-        <p className="small muted" style={{ margin: '18px auto 0', maxWidth: 420 }}>La confirmation et la facture ont été envoyées à {order.customerEmail}. Un problème ? Appelez-nous, on règle ça tout de suite.</p>
+        <p className="small muted" style={{ margin: '18px auto 0', maxWidth: 420 }}>{order.invoiceNumber ? 'La confirmation et la facture ont été envoyées' : 'La confirmation a été envoyée'} à {order.customerEmail}. Un problème ? Appelez-nous, on règle ça tout de suite.</p>
       </section>
       <div style={{ height: 32 }} />
     </div>

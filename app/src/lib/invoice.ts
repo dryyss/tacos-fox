@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { PDFDocument, rgb, StandardFonts, type PDFFont, type PDFImage, type PDFPage } from 'pdf-lib';
 import type { Order, OrderItem, Restaurant, Settings } from '@prisma/client';
 import { splitVat } from './accounting';
-import { MODE_LABELS, orderNumberLabel, splitFreePizza } from './format';
+import { MODE_LABELS, onsiteLabel, orderNumberLabel, splitFreePizza } from './format';
 
 async function brandLogo(pdf: PDFDocument): Promise<PDFImage> {
   return pdf.embedPng(await readFile(join(process.cwd(), 'src/lib/invoice-logo.png')));
@@ -83,7 +83,7 @@ export async function renderInvoice(order: Order & { items: OrderItem[] }, setti
     text(page, line, 50, y); y -= 13;
   }
   text(page, `Mode : ${MODE_LABELS[order.mode]}`, 545, 646, { right: true });
-  text(page, `Paiement : ${order.paymentMethod === 'CARD' ? 'carte bancaire en ligne' : 'au restaurant'}`, 545, 632, { right: true });
+  text(page, `Paiement : ${order.paymentMethod === 'CARD' ? 'carte bancaire en ligne' : `au restaurant${order.onsiteMethods.length ? ` (${onsiteLabel(order.onsiteMethods).toLowerCase()})` : ''}`}`, 545, 632, { right: true });
 
   // Tableau
   y = 570;

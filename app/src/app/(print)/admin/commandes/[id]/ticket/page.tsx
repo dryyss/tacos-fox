@@ -3,8 +3,9 @@ import { requireStaffPage, restaurantScope } from '@/lib/admin';
 import { prisma } from '@/lib/prisma';
 import { getSettings } from '@/lib/catalog';
 import { formatPrice } from '@/lib/money';
-import { MODE_LABELS, orderNumberLabel } from '@/lib/format';
+import { MODE_LABELS, onsiteLabel, orderNumberLabel, splitFreePizza } from '@/lib/format';
 import { markPrinted } from '@/lib/order-admin';
+import { restaurantTitle } from '@/lib/restaurants';
 import { AutoPrint } from './AutoPrint';
 
 export const metadata = { title: 'Ticket', robots: { index: false } };
@@ -14,18 +15,21 @@ const TZ = 'Europe/Paris';
 const fmt = (d: Date, o: Intl.DateTimeFormatOptions) => d.toLocaleString('fr-FR', { ...o, timeZone: TZ });
 
 /* Ticket cuisine / client au format imprimante thermique 80 mm */
-export default async function TicketPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ print?: string }> }) {
+export default async function TicketPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ print?: string; frame?: string }> }) {
   const scope = await restaurantScope(await requireStaffPage());
-  const [{ id }, { print }] = await Promise.all([params, searchParams]);
-  const [order, settings] = await Promise.all([prisma.order.findUnique({ where: { id }, include: { items: true } }), getSettings()]);
+  const [{ id }, { print, frame }] = await Promise.all([params, searchParams]);
+  const [order, settings] = await Promise.all([prisma.order.findUnique({ where: { id }, include: { items: true, restaurant: true } }), getSettings()]);
   if (!order || (scope && (!order.restaurantId || !scope.includes(order.restaurantId)))) notFound();
   if (!order.printedAt) await markPrinted(order.id);
 
   return (
     <div className="receipt">
-      <AutoPrint auto={!!print} />
-      <h1>{settings.name}</h1>
-      <div className="center">{settings.addressLine1}<br />{settings.postalCode} {settings.city}{settings.phone && <><br />{settings.phone}</>}</div>
+      <AutoPrint auto={!!print} hidden={!!frame} />
+      {/* En-tête : le restaurant qui prépare la commande (sinon les coordonnées générales) */}
+      <h1>{order.restaurant ? restaurantTitle(order.restaurant) : settings.name}</h1>
+      {order.restaurant
+        ? <div className="center">{order.restaurant.addressLine1}<br />{order.restaurant.postalCode} {order.restaurant.city}{order.restaurant.phone && <><br />{order.restaurant.phone}</>}</div>
+        : <div className="center">{settings.addressLine1}<br />{settings.postalCode} {settings.city}{settings.phone && <><br />{settings.phone}</>}</div>}
       <hr />
       <div className="big">{orderNumberLabel(order.number)}</div>
       <div className="big">{MODE_LABELS[order.mode].toUpperCase()}</div>
@@ -35,12 +39,16 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
       <div>Tél : {order.customerPhone}</div>
       {order.mode === 'LIVRAISON' && <div>Adresse : {order.addressLine1}{order.addressExtra ? `, ${order.addressExtra}` : ''}, {order.postalCode} {order.city}</div>}
       <hr />
-      {order.items.map(i => (
-        <div key={i.id} className="item">
-          <div className="row"><b>{i.qty} x {i.name}</b><span>{formatPrice(i.unitPrice * i.qty)}</span></div>
-          {i.details.map((d, k) => <small key={k}>- {d}</small>)}
-        </div>
-      ))}
+      {order.items.map(i => {
+        const { details, free } = splitFreePizza(i.details);
+        return (
+          <div key={i.id} className="item">
+            <div className="row"><b>{i.qty} x {i.name}</b><span>{formatPrice(i.unitPrice * i.qty)}</span></div>
+            {details.map((d, k) => <small key={k}>- {d}</small>)}
+            {free && <div className="row"><b>{i.qty} x {free}</b><span>OFFERTE</span></div>}
+          </div>
+        );
+      })}
       {order.note && <><hr /><div className="note">NOTE : {order.note}</div></>}
       <hr />
       <div className="row"><span>Sous-total</span><span>{formatPrice(order.subtotal)}</span></div>
@@ -48,7 +56,7 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
       {order.mode === 'LIVRAISON' && <div className="row"><span>Livraison</span><span>{formatPrice(order.deliveryFee)}</span></div>}
       <div className="row" style={{ fontSize: 16, fontWeight: 'bold' }}><span>TOTAL TTC</span><span>{formatPrice(order.total)}</span></div>
       <div className="center" style={{ marginTop: '2mm', fontWeight: 'bold' }}>
-        {order.paymentStatus === 'PAID' ? (order.paymentMethod === 'CARD' ? 'PAYÉ EN LIGNE (CB)' : 'PAYÉ') : 'À ENCAISSER'}
+        {order.paymentStatus === 'PAID' ? (order.paymentMethod === 'CARD' ? 'PAYÉ EN LIGNE (CB)' : 'PAYÉ') : `À ENCAISSER${order.onsiteMethods.length ? ` : ${onsiteLabel(order.onsiteMethods).toUpperCase()}` : ''}`}
       </div>
       <hr />
       <div className="center">Commande du {fmt(order.createdAt, { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>

@@ -613,6 +613,14 @@ ul { margin: 0; padding: 0; list-style: none; }
 .slot-toggle { display: inline-block; margin-top: 10px; background: none; border: 0; padding: 4px 0; font-weight: 700; color: var(--red); text-decoration: underline; cursor: pointer; }
 .saved-addr { display: grid; gap: 8px; margin-bottom: 12px; }
 .pay-methods { display: grid; gap: 8px; margin-bottom: 14px; }
+/* Paiement au comptoir : moyens annoncés par le client */
+.onsite-methods { border: 0; margin: 0 0 14px; padding: 12px 14px; border-radius: 12px; background: var(--grey); }
+.onsite-methods legend { float: left; width: 100%; padding: 0; margin-bottom: 8px; font-weight: 700; }
+.onsite-methods__list { clear: both; display: flex; flex-wrap: wrap; gap: 8px; }
+.onsite-methods p { margin: 8px 0 0; }
+.check-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 14px; border-radius: 999px; border: 2px solid var(--grey-2); background: var(--white); font-weight: 600; cursor: pointer; }
+.check-chip.is-on { border-color: var(--black); }
+.check-chip input { width: 18px; height: 18px; accent-color: var(--black); margin: 0; }
 .card-visual { background: var(--black); color: #fff; border-radius: 14px; padding: 16px; display: grid; gap: 14px; margin-bottom: 14px; }
 .card-visual .field label { color: rgba(255,255,255,.65); }
 .card-visual .field input { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.12); color: #fff; }
@@ -1346,6 +1354,11 @@ body.is-locked { overflow: hidden; }
 .resto-card__title { font-size: 1.15rem; margin: 0; }
 .resto-card__addr, .resto-card__hours { display: flex; align-items: center; gap: 6px; margin: 8px 0 0; color: var(--ink-2); font-size: .92rem; }
 .resto-card__addr svg, .resto-card__hours svg { width: 16px; height: 16px; flex: none; }
+/* Restaurant fermé : carte consultable, commande bloquée (message) */
+.resto-card__notice { display: flex; align-items: flex-start; gap: 6px; margin: 10px 0 0; padding: 8px 10px; border-radius: 10px; background: var(--red-soft); color: var(--red-dark); font-size: .88rem; font-weight: 600; }
+.resto-card__notice svg { width: 16px; height: 16px; flex: none; margin-top: 2px; }
+.menu-notice { margin: 0 0 16px; background: var(--red-soft); color: var(--red-dark); }
+.menu-notice svg { width: 18px; height: 18px; flex: none; }
 .resto-card .actions-row { margin-top: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .resto-card .actions-row .btn { white-space: normal; text-align: center; line-height: 1.1; min-width: 0; }
 .resto-card__current { position: absolute; top: -11px; left: 14px; background: var(--red); color: #fff; font-size: .72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; }

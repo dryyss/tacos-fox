@@ -24,10 +24,12 @@ export async function getCheckoutContext() {
     modes,
     windows,
     zones: zones.map(z => ({ id: z.id, city: z.city, postalCode: z.postalCode, fee: z.fee, freeFrom: z.freeFrom, minimum: z.minimum })),
-    // C6 : paiement par carte uniquement, sur le compte de la société du restaurant (R5)
+    // C6 : carte en ligne sur le compte de la société du restaurant (R5), et paiement au comptoir
+    // avec les moyens que ce restaurant accepte (espèces, titre-restaurant, chèques-vacances)
     payments: {
       card: (stripeEnabled() || paymentSimulated()) && paymentAccount(restaurant).ok,
-      onsite: false,
+      onsite: restaurant.onsiteMethods.length > 0,
+      onsiteMethods: restaurant.onsiteMethods,
       simulated: paymentSimulated(),
     },
     features,

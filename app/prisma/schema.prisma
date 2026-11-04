@@ -261,6 +261,7 @@ model Order {
   promoCode             String?
   paymentMethod         PaymentMethod
   paymentStatus         PaymentStatus @default(UNPAID)
+  onsiteMethods         String[]      @default([]) // moyens annoncés par le client pour un paiement au comptoir
   refundedAmount        Int           @default(0)
   stripeSessionId       String?       @unique
   stripePaymentIntentId String?
@@ -341,6 +342,7 @@ model Restaurant {
   vatRate              Int      @default(1000) // points de base : 1000 = 10 %
   stripeAccountId      String? // compte Stripe Connect qui reçoit les paiements
   stripeChargesEnabled Boolean  @default(false)
+  onsiteMethods        String[] @default([]) // paiement au comptoir accepté : ESPECES, TITRE_RESTAURANT, CHEQUE_VACANCES (vide = carte en ligne seulement)
   sortOrder            Int      @default(0)
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt

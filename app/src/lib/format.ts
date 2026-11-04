@@ -2,6 +2,15 @@
 
 export const MODE_LABELS = { SURPLACE: 'Sur place', EMPORTER: 'À emporter', LIVRAISON: 'Livraison' } as const;
 
+/* Paiement au comptoir : moyens que le restaurant accepte (Gestion > Restaurants) */
+export const ONSITE_METHODS = ['ESPECES', 'TITRE_RESTAURANT', 'CHEQUE_VACANCES'] as const;
+export type OnsiteMethod = typeof ONSITE_METHODS[number];
+export const ONSITE_LABELS: Record<OnsiteMethod, string> = { ESPECES: 'Espèces', TITRE_RESTAURANT: 'Titre-restaurant', CHEQUE_VACANCES: 'Chèques-vacances' };
+export const onsiteLabel = (methods: string[]) => methods.map(m => ONSITE_LABELS[m as OnsiteMethod] ?? m).join(' + ');
+/* Libellé du paiement d'une commande : « CB en ligne » ou « Au comptoir (Espèces + Titre-restaurant) » */
+export const paymentLabel = (o: { paymentMethod: string; onsiteMethods?: string[] }) =>
+  o.paymentMethod === 'CARD' ? 'CB en ligne' : `Au comptoir${o.onsiteMethods?.length ? ` (${onsiteLabel(o.onsiteMethods)})` : ''}`;
+
 export const STATUS_LABELS = {
   PENDING_PAYMENT: 'Paiement en attente',
   RECEIVED: 'Reçue',

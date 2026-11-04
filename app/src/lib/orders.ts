@@ -12,6 +12,7 @@ import { appUrl } from './url';
 import { notifyOrderConfirmed } from './email';
 import { publicFeatures } from './features';
 import { assignInvoiceNumber } from './invoice-number';
+import { ONSITE_METHODS } from './format';
 
 const phoneRe = /^(\+33|0)[1-9](\d{2}){4}$/;
 
@@ -28,6 +29,8 @@ export const checkoutSchema = quoteSchema.extend({
   }).nullish(),
   note: z.string().trim().max(500).optional().default(''),
   payment: z.enum(['CARD', 'ONSITE']),
+  // Paiement au comptoir : moyens annoncés par le client (espèces, titre-restaurant, chèques-vacances)
+  onsiteMethods: z.array(z.enum(ONSITE_METHODS)).max(ONSITE_METHODS.length).optional().default([]).transform(a => [...new Set(a)]),
 });
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
 
@@ -44,12 +47,19 @@ export async function createOrder(input: CheckoutInput, userId: string | null, r
 
   const settings = await getSettings();
   const features = publicFeatures(settings.enabledOptions);
-  if (input.payment === 'CARD' && !settings.acceptCard) throw new CheckoutError('Le paiement par carte est indisponible.');
-  // C6 : paiement par carte uniquement (le paiement au comptoir ne fait pas partie de la formule)
-  if (input.payment !== 'CARD') throw new CheckoutError('Le paiement se fait par carte bancaire.');
-  if (!stripeEnabled() && !paymentSimulated()) throw new CheckoutError('Le paiement par carte n\'est pas encore configuré.');
-  const payTo = paymentAccount(restaurant);
-  if (!payTo.ok) throw new CheckoutError('Le paiement en ligne n\'est pas encore ouvert pour ce restaurant.');
+  // C6 : carte en ligne, sur le compte de la société du restaurant (R5)
+  const payTo = input.payment === 'CARD' ? paymentAccount(restaurant) : null;
+  if (input.payment === 'CARD') {
+    if (!settings.acceptCard) throw new CheckoutError('Le paiement par carte est indisponible.');
+    if (!stripeEnabled() && !paymentSimulated()) throw new CheckoutError('Le paiement par carte n\'est pas encore configuré.');
+    if (!payTo!.ok) throw new CheckoutError('Le paiement en ligne n\'est pas encore ouvert pour ce restaurant.');
+  } else {
+    // Paiement au comptoir, seulement avec les moyens que ce restaurant accepte (Gestion > Restaurants)
+    const accepted = restaurant.onsiteMethods;
+    if (!accepted.length || input.mode === 'LIVRAISON') throw new CheckoutError('Le paiement au comptoir n\'est pas proposé par ce restaurant.');
+    if (!input.onsiteMethods.length) throw new CheckoutError('Indiquez comment vous réglerez au comptoir.');
+    if (input.onsiteMethods.some(m => !accepted.includes(m))) throw new CheckoutError('Ce moyen de paiement n\'est pas accepté par ce restaurant.');
+  }
 
   const window = await restaurantWindow(restaurant, input.mode);
   if (!window.enabled) throw new CheckoutError('Les commandes en ligne sont suspendues pour le moment.');
@@ -76,7 +86,7 @@ export async function createOrder(input: CheckoutInput, userId: string | null, r
         // Jeton du lien de suivi et de la facture : 192 bits aléatoires, impossible à deviner
         trackingToken: randomBytes(24).toString('base64url'),
         restaurantId: restaurant.id,
-        stripeAccountId: payTo.account,
+        stripeAccountId: payTo?.account ?? null,
         userId: features.customerAccount ? userId : null, // compte client = option O7
         mode: input.mode,
         status: input.payment === 'CARD' ? 'PENDING_PAYMENT' : 'RECEIVED',
@@ -96,6 +106,7 @@ export async function createOrder(input: CheckoutInput, userId: string | null, r
         total: totals.total,
         promoCode: quote.promo?.valid ? quote.promo.code : null,
         paymentMethod: input.payment,
+        onsiteMethods: input.payment === 'ONSITE' ? input.onsiteMethods : [],
         items: {
           create: lines.map(l => ({
             productId: l.productId, name: l.name, qty: l.qty, unitPrice: l.unitPrice, details: l.details,
@@ -109,6 +120,12 @@ export async function createOrder(input: CheckoutInput, userId: string | null, r
   });
 
   const trackPath = `/suivi/${order.trackingToken}`;
+
+  // Au comptoir : pas de paiement en ligne, la commande part directement en cuisine (encaissement au retrait)
+  if (input.payment === 'ONSITE') {
+    await notifyOrderConfirmed(order.id);
+    return { redirectUrl: trackPath, trackingToken: order.trackingToken };
+  }
 
   if (paymentSimulated()) {
     await markOrderPaid(order.id, { sessionId: null, paymentIntentId: null });
@@ -134,7 +151,7 @@ export async function createOrder(input: CheckoutInput, userId: string | null, r
     }],
     success_url: `${appUrl()}${trackPath}?paiement=ok`,
     cancel_url: `${appUrl()}/paiement?annule=${order.trackingToken}`,
-  }, onAccount(payTo.account));
+  }, onAccount(payTo?.account ?? null));
   await prisma.order.update({ where: { id: order.id }, data: { stripeSessionId: session.id } });
   return { redirectUrl: session.url!, trackingToken: order.trackingToken };
 }

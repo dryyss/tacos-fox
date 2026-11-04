@@ -42,13 +42,17 @@ export default async function RestaurantPage({ params }: { params: Promise<{ slu
           {r.intro || `Tacos à composer, burgers, pizzas (1 achetée = 1 offerte), bowls et Crousty Fox, préparés au ${r.addressLine1} à ${r.city}. Commandez en ligne, payez par carte et récupérez votre commande au créneau choisi.`}
         </p>
         <div className="actions-row" style={{ maxWidth: 'var(--max)', marginInline: 'auto', marginTop: 14 }}>
-          {!r.orderingEnabled
-            ? <span className="btn btn--ghost btn--xl is-disabled" aria-disabled="true">Commande en ligne bientôt disponible</span>
-            : !status.open
-              ? <span className="btn btn--ghost btn--xl is-disabled" aria-disabled="true">{status.label}</span>
-              : <Link className="btn btn--primary btn--xl" href={`/r/${r.slug}`} prefetch={false}>Commander à {r.city}</Link>}
+          {/* Fermé : la carte reste consultable, seule la commande attend l'ouverture */}
+          <Link className={`btn btn--xl ${r.orderingEnabled && status.open ? 'btn--primary' : 'btn--ghost'}`} href={`/r/${r.slug}`} prefetch={false}>
+            {r.orderingEnabled && status.open ? `Commander à ${r.city}` : 'Voir la carte'}
+          </Link>
           <Link className="btn btn--ghost btn--xl" href="/restaurants">Changer de restaurant</Link>
         </div>
+        {(!r.orderingEnabled || !status.open) && (
+          <p className="alert alert--info" style={{ maxWidth: 'var(--max)', marginInline: 'auto', marginTop: 12 }}>
+            <Icon name="clock" /><span>{!r.orderingEnabled ? 'La commande en ligne ouvre bientôt dans ce restaurant. Vous pouvez déjà consulter la carte.' : `${status.label}. Vous pouvez consulter la carte, la commande en ligne reprend à l'ouverture.`}</span>
+          </p>
+        )}
       </section>
       <section className="section infos-grid" style={{ paddingTop: 12 }}>
         <div>

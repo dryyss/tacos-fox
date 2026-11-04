@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { requireStaffPage, restaurantScope } from '@/lib/admin';
 import { formatPrice } from '@/lib/money';
-import { MODE_LABELS, orderNumberLabel, splitFreePizza, STATUS_LABELS } from '@/lib/format';
+import { MODE_LABELS, orderNumberLabel, paymentLabel, splitFreePizza, STATUS_LABELS } from '@/lib/format';
 import { OrderActions } from './OrderActions';
 
 export const metadata = { title: 'Commande' };
@@ -28,7 +28,7 @@ export default async function AdminOrderPage({ params }: { params: Promise<{ id:
           <p className="admin-sub" style={{ margin: 0 }}>
             <span className="pill pill--dark">{MODE_LABELS[order.mode]}</span>{' '}
             <span className={`pill ${order.status === 'CANCELLED' ? 'pill--red' : order.status === 'COMPLETED' ? 'pill--green' : 'pill--yellow'}`}>{STATUS_LABELS[order.status]}</span>{' '}
-            <span className="pill">{order.paymentMethod === 'CARD' ? 'CB en ligne' : 'Sur place'} · {PAYMENT[order.paymentStatus]}</span>{' '}
+            <span className="pill">{paymentLabel(order)} · {PAYMENT[order.paymentStatus]}</span>{' '}
             {order.restaurant && <span className="pill">{order.restaurant.name} {order.restaurant.city}, {order.restaurant.addressLine1}</span>}
           </p>
         </div>

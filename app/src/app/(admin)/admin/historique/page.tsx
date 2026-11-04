@@ -3,7 +3,7 @@ import Link from 'next/link';
 import type { OrderStatus, Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { formatPrice } from '@/lib/money';
-import { MODE_LABELS, orderNumberLabel, STATUS_LABELS } from '@/lib/format';
+import { MODE_LABELS, orderNumberLabel, paymentLabel, STATUS_LABELS } from '@/lib/format';
 import { parisDayRange } from '@/lib/accounting';
 
 export const metadata = { title: 'Historique' };
@@ -84,7 +84,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
                 <td>{o.customerName}<div className="small muted">{o.customerPhone}</div></td>
                 <td>{MODE_LABELS[o.mode]}</td>
                 <td><span className={`pill ${o.status === 'CANCELLED' ? 'pill--red' : o.status === 'COMPLETED' ? 'pill--green' : 'pill--yellow'}`}>{STATUS_LABELS[o.status]}</span></td>
-                <td className="small">{o.paymentMethod === 'CARD' ? 'CB' : 'Sur place'} · {o.paymentStatus === 'PAID' ? 'payée' : o.paymentStatus === 'UNPAID' ? 'à encaisser' : o.paymentStatus.toLowerCase().replace('_', ' ')}</td>
+                <td className="small">{paymentLabel(o)} · {o.paymentStatus === 'PAID' ? 'payée' : o.paymentStatus === 'UNPAID' ? 'à encaisser' : o.paymentStatus.toLowerCase().replace('_', ' ')}</td>
                 <td className="small">{o.invoiceNumber ? <a className="link" href={`/api/invoices/${o.trackingToken}`} target="_blank" rel="noopener">{o.invoiceNumber}</a> : '-'}</td>
                 <td className="num">{formatPrice(o.total)}</td>
               </tr>

@@ -2,7 +2,7 @@ import { requireStaff } from '@/lib/admin';
 import { prisma } from '@/lib/prisma';
 import { parisDayRange, splitVat } from '@/lib/accounting';
 import { getSettings } from '@/lib/catalog';
-import { MODE_LABELS, orderNumberLabel, STATUS_LABELS } from '@/lib/format';
+import { MODE_LABELS, orderNumberLabel, paymentLabel, STATUS_LABELS } from '@/lib/format';
 
 const isDay = (s: string | null) => !!s && /^\d{4}-\d{2}-\d{2}$/.test(s);
 const euros = (c: number) => (c / 100).toFixed(2).replace('.', ',');
@@ -31,7 +31,7 @@ export async function GET(req: Request) {
     const d = o.createdAt;
     return [
       d.toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' }), d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' }),
-      orderNumberLabel(o.number), o.invoiceNumber ?? '', MODE_LABELS[o.mode], STATUS_LABELS[o.status], o.paymentMethod === 'CARD' ? 'CB en ligne' : 'Sur place', o.paymentStatus,
+      orderNumberLabel(o.number), o.invoiceNumber ?? '', MODE_LABELS[o.mode], STATUS_LABELS[o.status], paymentLabel(o), o.paymentStatus,
       o.customerName, euros(o.subtotal), euros(o.discount), o.promoCode ?? '', euros(o.deliveryFee), euros(o.total), euros(o.refundedAmount), euros(net), euros(ht), euros(vat),
     ].map(v => cell(String(v))).join(';');
   });

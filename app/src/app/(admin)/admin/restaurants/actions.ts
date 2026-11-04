@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { requireStaff } from '@/lib/admin';
 import { prisma } from '@/lib/prisma';
+import { ONSITE_METHODS } from '@/lib/format';
 
 /* Réglages d'un restaurant : faits par MAGAR Développement sur demande (formule Essentiel),
    ou par le gérant si l'option O1 est achetée (fonction « settings » / « menu »). */
@@ -33,6 +34,8 @@ const restaurantSchema = z.object({
   intro: text(1000),
   isActive: z.boolean(),
   orderingEnabled: z.boolean(),
+  // Paiement au comptoir accepté (vide = carte en ligne seulement)
+  onsiteMethods: z.array(z.enum(ONSITE_METHODS)).max(ONSITE_METHODS.length).transform(a => [...new Set(a)]),
   prepMinutes: z.number().int().min(5, 'Délai de 5 minutes minimum').max(180),
   slotInterval: z.number().int().min(5).max(60),
   legalName: text(120),

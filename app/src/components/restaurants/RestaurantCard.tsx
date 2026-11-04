@@ -16,13 +16,15 @@ export function RestaurantCard({ r, current, next }: { r: RestaurantWithHours; c
       </div>
       <p className="resto-card__addr"><Icon name="pin" /> {r.addressLine1}, {r.postalCode} {r.city}</p>
       <p className="resto-card__hours"><Icon name="clock" /> Aujourd&apos;hui : {today?.isOpen ? `${hmLabel(today.open)} à ${hmLabel(today.close)}` : 'fermé'}</p>
+      {/* Fermé ou commande pas encore ouverte : le restaurant reste sélectionnable pour consulter sa carte,
+          seule la commande est bloquée (message ici, sur la carte et au panier) */}
+      {(!r.orderingEnabled || !status.open) && (
+        <p className="resto-card__notice"><Icon name="clock" /> {!r.orderingEnabled ? 'Commande en ligne bientôt disponible' : `${status.label} : carte consultable, commande à l'ouverture`}</p>
+      )}
       <div className="actions-row">
-        {!r.orderingEnabled
-          ? <span className="btn btn--ghost is-disabled" aria-disabled="true">Commande en ligne bientôt</span>
-          : !status.open
-            // Hors horaires : commande fermée (CDC), bouton grisé avec l'heure de réouverture
-            ? <span className="btn btn--ghost is-disabled" aria-disabled="true">{status.label}</span>
-            : <Link className="btn btn--primary" href={order} prefetch={false}>{current ? 'Continuer ici' : 'Commander ici'}</Link>}
+        <Link className={`btn ${r.orderingEnabled && status.open ? 'btn--primary' : 'btn--ghost'}`} href={order} prefetch={false}>
+          {r.orderingEnabled && status.open ? (current ? 'Continuer ici' : 'Commander ici') : 'Voir la carte'}
+        </Link>
         <Link className="btn btn--dark" href={`/restaurants/${r.slug}`}>Infos et accès</Link>
       </div>
       {current && <span className="resto-card__current">Votre restaurant</span>}

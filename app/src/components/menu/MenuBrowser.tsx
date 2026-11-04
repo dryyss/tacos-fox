@@ -49,7 +49,7 @@ function CatThumb({ src, small }: { src: string | null; small?: boolean }) {
   );
 }
 
-export function MenuBrowser({ catalog, initialCat }: { catalog: Catalog; initialCat?: string }) {
+export function MenuBrowser({ catalog, initialCat, closedNotice = null }: { catalog: Catalog; initialCat?: string; closedNotice?: string | null }) {
   const pizzas = useMemo(() => catalog.products.filter(p => p.kind === 'PIZZA'), [catalog]);
   const { openProduct, quickAdd, sheet } = useProductOpener(pizzas);
 
@@ -211,8 +211,11 @@ export function MenuBrowser({ catalog, initialCat }: { catalog: Catalog; initial
             ))}
           </div>
         </aside>
-        <div className="menu-main">{main}</div>
-        <MiniCart open={cartOpen} onToggle={toggleCart} />
+        <div className="menu-main">
+          {closedNotice && <p className="alert alert--info menu-notice" role="status"><Icon name="clock" /><span>{closedNotice}</span></p>}
+          {main}
+        </div>
+        <MiniCart open={cartOpen} onToggle={toggleCart} closed={!!closedNotice} />
       </div>
       <div style={{ height: 40 }} />
       {sheet}
@@ -221,7 +224,7 @@ export function MenuBrowser({ catalog, initialCat }: { catalog: Catalog; initial
 }
 
 /* Panier en colonne droite (ordinateur) */
-function MiniCart({ open, onToggle }: { open: boolean; onToggle: () => void }) {
+function MiniCart({ open, onToggle, closed }: { open: boolean; onToggle: () => void; closed: boolean }) {
   const { ready, items, count, subtotal, mode } = useCart();
   if (!open) {
     return (
@@ -265,7 +268,9 @@ function MiniCart({ open, onToggle }: { open: boolean; onToggle: () => void }) {
             </div>
             <div className="menu-cart__mode"><Icon name={mode === 'LIVRAISON' ? 'scooter' : mode === 'SURPLACE' ? 'store' : 'takeaway'} /><span>{MODE_LABELS[mode]}</span><Link href="/panier">Changer</Link></div>
             <div className="totals"><div className="total"><span>Sous-total</span><span className="price">{formatPrice(subtotal)}</span></div></div>
-            <Link className="btn btn--primary btn--xl btn--block" href="/panier">Commander</Link>
+            {closed
+              ? <span className="btn btn--ghost btn--xl btn--block is-disabled" aria-disabled="true">Commande fermée pour le moment</span>
+              : <Link className="btn btn--primary btn--xl btn--block" href="/panier">Commander</Link>}
             <p className="menu-cart__note"><Icon name="lock" /> Prix vérifiés au moment du paiement</p>
           </>
         )}

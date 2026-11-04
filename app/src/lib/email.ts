@@ -6,7 +6,7 @@ import { formatPrice } from './money';
 import { appUrl } from './url';
 import { publicFeatures } from './features';
 import { renderInvoice } from './invoice';
-import { splitFreePizza } from './format';
+import { onsiteLabel, splitFreePizza } from './format';
 
 const MODE_LABELS = { SURPLACE: 'Sur place', EMPORTER: 'À emporter', LIVRAISON: 'Livraison' } as const;
 
@@ -67,7 +67,7 @@ export async function notifyOrderConfirmed(orderId: string) {
     <table style="width:100%;border-collapse:collapse;font-size:14px">${rows}
       ${order.discount ? `<tr><td>Remise ${esc(order.promoCode ?? '')}</td><td style="text-align:right">-${formatPrice(order.discount)}</td></tr>` : ''}
       ${order.mode === 'LIVRAISON' ? `<tr><td>Livraison</td><td style="text-align:right">${order.deliveryFee ? formatPrice(order.deliveryFee) : 'Offerte'}</td></tr>` : ''}
-      <tr><td style="padding-top:10px;border-top:2px dashed #E8E8E5"><b>Total ${order.paymentMethod === 'CARD' ? 'payé' : 'à régler sur place'}</b></td><td style="padding-top:10px;border-top:2px dashed #E8E8E5;text-align:right"><b>${formatPrice(order.total)}</b></td></tr>
+      <tr><td style="padding-top:10px;border-top:2px dashed #E8E8E5"><b>Total ${order.paymentMethod === 'CARD' ? 'payé' : `à régler au comptoir${order.onsiteMethods.length ? ` (${onsiteLabel(order.onsiteMethods).toLowerCase()})` : ''}`}</b></td><td style="padding-top:10px;border-top:2px dashed #E8E8E5;text-align:right"><b>${formatPrice(order.total)}</b></td></tr>
     </table>
     <p style="margin-top:20px"><a href="${appUrl()}/suivi/${order.trackingToken}" style="background:#D7261E;color:#fff;padding:12px 18px;border-radius:10px;text-decoration:none;font-weight:bold">Suivre ma commande</a></p>
     ${order.invoiceNumber ? `<p style="font-size:13px;margin-top:20px">Votre facture ${esc(order.invoiceNumber)} est jointe à cet e-mail (<a href="${appUrl()}/api/invoices/${order.trackingToken}">la télécharger</a>).</p>` : ''}
@@ -78,14 +78,14 @@ export async function notifyOrderConfirmed(orderId: string) {
 
 /* R1 : alerte immédiate au restaurant, en plus de l'écran cuisine (sonnerie). Utile si l'écran est
    fermé ou la tablette éteinte. Envoyée à l'e-mail du restaurant (Gestion > Restaurants). */
-async function notifyRestaurant(order: { restaurant: { email: string } | null; customerName: string; customerPhone: string; total: number; note: string | null; mode: keyof typeof MODE_LABELS }, num: string, when: string, rows: string) {
+async function notifyRestaurant(order: { restaurant: { email: string } | null; paymentMethod: string; onsiteMethods: string[]; customerName: string; customerPhone: string; total: number; note: string | null; mode: keyof typeof MODE_LABELS }, num: string, when: string, rows: string) {
   const to = order.restaurant?.email?.trim();
   if (!to) return;
   const body = `
     <p style="font-size:16px"><b>${MODE_LABELS[order.mode]}</b> · ${esc(when)}</p>
     <p>${esc(order.customerName)} · <a href="tel:${esc(order.customerPhone)}">${esc(order.customerPhone)}</a></p>
     <table style="width:100%;border-collapse:collapse;font-size:14px">${rows}
-      <tr><td style="padding-top:10px;border-top:2px dashed #E8E8E5"><b>Total payé</b></td><td style="padding-top:10px;border-top:2px dashed #E8E8E5;text-align:right"><b>${formatPrice(order.total)}</b></td></tr>
+      <tr><td style="padding-top:10px;border-top:2px dashed #E8E8E5"><b>${order.paymentMethod === 'CARD' ? 'Total payé en ligne' : `À encaisser au comptoir${order.onsiteMethods.length ? ` (${onsiteLabel(order.onsiteMethods).toLowerCase()})` : ''}`}</b></td><td style="padding-top:10px;border-top:2px dashed #E8E8E5;text-align:right"><b>${formatPrice(order.total)}</b></td></tr>
     </table>
     ${order.note ? `<p style="background:#FFF6D6;padding:10px 12px;border-radius:8px"><b>Note du client :</b> ${esc(order.note)}</p>` : ''}
     <p style="margin-top:20px"><a href="${appUrl()}/admin" style="background:#D7261E;color:#fff;padding:12px 18px;border-radius:10px;text-decoration:none;font-weight:bold">Ouvrir l'écran cuisine</a></p>`;

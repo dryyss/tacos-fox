@@ -34,7 +34,7 @@ export async function getBoardOrders(scope: string[] | null, restaurantId?: stri
     restaurant: o.restaurant ? `${o.restaurant.city}, ${o.restaurant.addressLine1}` : null,
     customerName: o.customerName, customerPhone: o.customerPhone,
     address: o.mode === 'LIVRAISON' ? [o.addressLine1, o.addressExtra, `${o.postalCode ?? ''} ${o.city ?? ''}`.trim()].filter(Boolean).join(', ') : null,
-    note: o.note, total: o.total, paymentMethod: o.paymentMethod, paymentStatus: o.paymentStatus, printedAt: o.printedAt?.toISOString() ?? null,
+    note: o.note, total: o.total, paymentMethod: o.paymentMethod, onsiteMethods: o.onsiteMethods, paymentStatus: o.paymentStatus, printedAt: o.printedAt?.toISOString() ?? null,
     items: o.items.map(i => ({ id: i.id, name: i.name, qty: i.qty, details: i.details })),
   }));
 }

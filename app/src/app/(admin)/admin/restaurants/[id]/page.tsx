@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { requireStaffPage } from '@/lib/admin';
 import { canUse } from '@/lib/features';
 import { prisma } from '@/lib/prisma';
+import { ONSITE_METHODS } from '@/lib/format';
 import { RestaurantEditor } from './RestaurantEditor';
 
 export const metadata = { title: 'Restaurant' };
@@ -28,7 +29,7 @@ export default async function RestaurantAdminPage({ params }: { params: Promise<
       <RestaurantEditor
         id={r.id}
         initial={{
-          label: r.label, phone: r.phone, email: r.email, intro: r.intro, isActive: r.isActive, orderingEnabled: r.orderingEnabled,
+          label: r.label, phone: r.phone, email: r.email, intro: r.intro, isActive: r.isActive, orderingEnabled: r.orderingEnabled, onsiteMethods: ONSITE_METHODS.filter(m => r.onsiteMethods.includes(m)),
           prepMinutes: r.prepMinutes, slotInterval: r.slotInterval, legalName: r.legalName, legalForm: r.legalForm,
           shareCapital: r.shareCapital, siren: r.siren, siret: r.siret, rcsCity: r.rcsCity, vatNumber: r.vatNumber, vatRate: r.vatRate,
         }}

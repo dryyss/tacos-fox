@@ -6,6 +6,7 @@ import { useToast } from '@/components/ui/Toast';
 import { Euro, Toggle } from '@/components/admin/fields';
 import { DAY_NAMES, type DayHours } from '@/lib/hours';
 import { formatPrice } from '@/lib/money';
+import { ONSITE_LABELS, ONSITE_METHODS } from '@/lib/format';
 import { saveRestaurant, saveRestaurantHours, setProductOverride, type RestaurantInput, type Result } from '../actions';
 
 interface Product { id: string; name: string; category: string; price: number; sized: boolean; isHidden: boolean; ownPrice: number | null }
@@ -54,6 +55,16 @@ export function RestaurantEditor({ id, initial, hours, products }: { id: string;
           <label className="small" style={{ display: 'flex', gap: 8, alignItems: 'center', fontWeight: 600, marginTop: 8 }}>
             <Toggle on={s.isActive} label="Visible sur le site" onChange={v => set('isActive', v)} /> {s.isActive ? 'Visible sur le site' : 'Masqué du site'}
           </label>
+        </div>
+
+        <div className="panel">
+          <div className="panel__title">Paiement au comptoir</div>
+          <p className="small muted" style={{ marginTop: 0 }}>Moyens proposés au client en plus de la carte en ligne. Il règle en récupérant sa commande. Rien de coché : carte en ligne seulement.</p>
+          {ONSITE_METHODS.map(m => (
+            <label key={m} className="small" style={{ display: 'flex', gap: 8, alignItems: 'center', fontWeight: 600, marginTop: 8 }}>
+              <Toggle on={s.onsiteMethods.includes(m)} label={ONSITE_LABELS[m]} onChange={v => set('onsiteMethods', v ? [...s.onsiteMethods, m] : s.onsiteMethods.filter(x => x !== m))} /> {ONSITE_LABELS[m]}
+            </label>
+          ))}
         </div>
 
         <div className="panel">
