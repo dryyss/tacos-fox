@@ -1,8 +1,14 @@
 import 'server-only';
-import { PDFDocument, rgb, StandardFonts, type PDFFont, type PDFPage } from 'pdf-lib';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { PDFDocument, rgb, StandardFonts, type PDFFont, type PDFImage, type PDFPage } from 'pdf-lib';
 import type { Order, OrderItem, Restaurant, Settings } from '@prisma/client';
 import { splitVat } from './accounting';
 import { MODE_LABELS, orderNumberLabel, splitFreePizza } from './format';
+
+async function brandLogo(pdf: PDFDocument): Promise<PDFImage> {
+  return pdf.embedPng(await readFile(join(process.cwd(), 'src/lib/invoice-logo.png')));
+}
 
 const euros = (c: number) => (c / 100).toFixed(2).replace('.', ',') + ' EUR';
 const TZ = 'Europe/Paris';
@@ -43,7 +49,7 @@ export async function renderInvoice(order: Order & { items: OrderItem[] }, setti
   const page = pdf.addPage([595.28, 841.89]); // A4
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
-  const red = rgb(0.84, 0.15, 0.12), grey = rgb(0.35, 0.35, 0.35), black = rgb(0.08, 0.08, 0.08);
+  const grey = rgb(0.35, 0.35, 0.35), black = rgb(0.08, 0.08, 0.08);
 
   const text = (p: PDFPage, t: string, x: number, y: number, o: { size?: number; f?: PDFFont; color?: ReturnType<typeof rgb>; right?: boolean; center?: boolean } = {}) => {
     const size = o.size ?? 10, f = o.f ?? font, str = safe(t), w = f.widthOfTextAtSize(str, size);
@@ -51,8 +57,9 @@ export async function renderInvoice(order: Order & { items: OrderItem[] }, setti
   };
 
   let y = 790;
-  text(page, 'TACOS', 50, y, { size: 24, f: bold });
-  text(page, 'FOX', 50 + bold.widthOfTextAtSize('TACOS', 24), y, { size: 24, f: bold, color: red });
+  const logo = await brandLogo(pdf);
+  const logoBox = logo.scaleToFit(58, 58);
+  page.drawImage(logo, { x: 50, y: y - logoBox.height + 18, width: logoBox.width, height: logoBox.height });
   text(page, 'FACTURE', 545, y, { size: 20, f: bold, right: true });
   y -= 18;
   text(page, `N° ${order.invoiceNumber}`, 545, y, { size: 11, f: bold, right: true });
@@ -61,10 +68,11 @@ export async function renderInvoice(order: Order & { items: OrderItem[] }, setti
   text(page, `Date : ${issued}`, 545, y, { right: true, color: grey });
   text(page, `Commande ${orderNumberLabel(order.number)} du ${order.createdAt.toLocaleDateString('fr-FR', { timeZone: TZ })}`, 545, y - 14, { right: true, color: grey });
 
-  // Vendeur
+  // Vendeur, à droite du logo
+  const sx = 50 + logoBox.width + 12;
   let sy = 768;
   for (const line of s.lines) {
-    text(page, line, 50, sy, { color: grey }); sy -= 13;
+    text(page, line, sx, sy, { color: grey }); sy -= 13;
   }
 
   // Client

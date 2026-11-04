@@ -34,6 +34,9 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: path.resolve(process.cwd()),
+  outputFileTracingIncludes: {
+    '/api/**': ['./src/lib/invoice-logo.png'],
+  },
   serverExternalPackages: ['@prisma/client', '@prisma/adapter-pg', 'pg'],
   poweredByHeader: false,
   async headers() {
