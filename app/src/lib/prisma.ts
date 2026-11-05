@@ -23,7 +23,7 @@ function connectionString() {
 }
 
 function createPrisma() {
-  const pool = globalForPrisma.pool ?? new Pool({ connectionString: connectionString(), max: 10 });
+  const pool = globalForPrisma.pool ?? new Pool({ connectionString: connectionString(), max: Number(process.env.PG_POOL_MAX) || 10 }); // add-on Clever DEV : 5 connexions
   globalForPrisma.pool = pool;
   if (process.env.VERCEL) {
     void import('@vercel/functions').then(({ attachDatabasePool }) => attachDatabasePool(pool));
