@@ -114,6 +114,17 @@ const REAL = new Set([
   'boissons-coca-cola-1-5-l',
 ]);
 
+/* Photos d'ingrédients (parfums, toppings, sauces…) : public/menu/options/<nom>.jpg, nom = libellé du choix
+   sans accents (« Kinder Bueno » → kinder-bueno). Ajouter le nom ici une fois la photo déposée. */
+const OPTIONS = new Set<string>([]);
+
+const slugify = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+export function optionPhoto(label: string): string | null {
+  const slug = slugify(label);
+  return OPTIONS.has(slug) ? `/menu/options/${slug}.jpg` : null;
+}
+
 export function menuPhoto(slug: string): string | null {
   return REAL.has(slug) ? `/menu/photos/${slug}.png` : null;
 }

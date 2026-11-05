@@ -7,6 +7,7 @@ export interface CatalogChoice {
   label: string;
   price: number;
   isAvailable: boolean;
+  imageUrl?: string | null;
 }
 
 export interface CatalogGroup {

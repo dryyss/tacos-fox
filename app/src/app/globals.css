@@ -519,6 +519,9 @@ ul { margin: 0; padding: 0; list-style: none; }
 .chip .ico { width: 16px; height: 16px; }
 .chip__check { display: none; }
 .chip.is-selected .chip__check { display: block; }
+.chip__img { width: 30px; height: 30px; margin-left: -8px; border-radius: 50%; object-fit: cover; flex: none; }
+.chip.is-selected .chip__img { display: none; }
+.opt__img { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; flex: none; }
 .chip__more { margin: 0 -8px 0 2px; padding: 4px 9px; border-radius: 999px; background: var(--red); color: #fff; font-size: .78rem; font-weight: 800; line-height: 1; }
 .chip__more:hover { background: var(--red-dark); }
 

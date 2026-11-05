@@ -169,6 +169,8 @@ export function ProductSheet({ product, pizzas, initialSize, onClose }: { produc
                   <button key={c.id} type="button" className={`opt ${sel.includes(c.id) ? 'is-selected' : ''}`} disabled={!c.isAvailable}
                     onClick={() => setGroup(g.key, sel.includes(c.id) ? [] : [c.id])}>
                     <span className={`opt__box ${g.choices.length > 1 ? 'opt__box--round' : ''}`}><Icon name="check" /></span>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {c.imageUrl && <img className="opt__img" src={c.imageUrl} alt="" loading="lazy" />}
                     <span className="opt__label">{c.label}{!c.isAvailable && <small>Indisponible</small>}</span>
                     {c.price > 0 && <span className="opt__price">+{formatPrice(c.price)}</span>}
                   </button>
@@ -187,6 +189,8 @@ export function ProductSheet({ product, pizzas, initialSize, onClose }: { produc
                 const disabled = !c.isAvailable || (!times && full && max > 1);
                 return (
                   <button key={c.id} type="button" className={`chip ${times ? 'is-selected' : ''} ${disabled ? 'is-disabled' : ''}`} onClick={() => c.isAvailable && toggle(g, c.id)}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {c.imageUrl && <img className="chip__img" src={c.imageUrl} alt="" loading="lazy" />}
                     <Icon name="check" className="ico chip__check" />{c.label}
                     {c.price > 0 && <span className="chip__price">+{formatPrice(c.price)}</span>}
                     {times > 1 && <span className="chip__price">x{times}</span>}

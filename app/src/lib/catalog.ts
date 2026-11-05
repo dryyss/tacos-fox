@@ -3,7 +3,7 @@ import { Prisma } from '@prisma/client';
 import { prisma } from './prisma';
 import type { Catalog, CatalogProduct } from './catalog-types';
 import type { DayHours } from './hours';
-import { withMenuPhoto } from './menu-photos';
+import { optionPhoto, withMenuPhoto } from './menu-photos';
 
 const productInclude = {
   category: { select: { slug: true } },
@@ -25,7 +25,7 @@ function toCatalogProduct(p: ProductRow): CatalogProduct {
     sizes: p.sizes.map(s => ({ code: s.code, label: s.label, hint: s.hint, price: s.price, includedQty: s.includedQty, bogo: s.bogo })),
     groups: p.optionGroups.map(g => ({
       id: g.id, key: g.key, label: g.label, hint: g.hint, min: g.min, max: g.max, maxFromSize: g.maxFromSize, allowRepeat: g.allowRepeat, sizeCodes: g.sizeCodes,
-      choices: g.choices.map(c => ({ id: c.id, label: c.label, price: c.price, isAvailable: c.isAvailable })),
+      choices: g.choices.map(c => ({ id: c.id, label: c.label, price: c.price, isAvailable: c.isAvailable, imageUrl: optionPhoto(c.label) })),
     })),
   };
 }
