@@ -28,6 +28,7 @@ Variables Clever Cloud (onglet *Environment variables*) :
 | `DATABASE_URL_UNPOOLED` | chaîne **directe** Neon (sans `-pooler`) |
 | `AUTH_SECRET` | chaîne aléatoire |
 | `AUTH_TRUST_HOST` | `true` |
+| `AUTH_URL` | même valeur que `APP_URL` (sinon Auth.js voit `0.0.0.0:8080` derrière le proxy Clever) |
 | `AUTH_AUTH0_ID` | identifiant de l'application Auth0 |
 | `AUTH_AUTH0_SECRET` | secret Auth0 |
 | `AUTH_AUTH0_ISSUER` | `https://dev-zajf3pvu6p66a2c0.us.auth0.com` |
