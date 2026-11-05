@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { requireStaffPage, restaurantScope } from '@/lib/admin';
 import { formatPrice } from '@/lib/money';
-import { MODE_LABELS, orderNumberLabel, paymentLabel, splitFreePizza, STATUS_LABELS } from '@/lib/format';
+import { discountLabel, MODE_LABELS, orderNumberLabel, paymentLabel, splitFreePizza, STATUS_LABELS } from '@/lib/format';
 import { OrderActions } from './OrderActions';
 
 export const metadata = { title: 'Commande' };
@@ -67,7 +67,7 @@ export default async function AdminOrderPage({ params }: { params: Promise<{ id:
             <div style={{ height: 12 }} />
             <div className="totals">
               <div><span>Sous-total</span><span>{formatPrice(order.subtotal)}</span></div>
-              {order.discount > 0 && <div><span>Remise {order.promoCode}</span><span>-{formatPrice(order.discount)}</span></div>}
+              {order.discount > 0 && <div><span>{discountLabel(order.promoCode)}</span><span>-{formatPrice(order.discount)}</span></div>}
               {order.mode === 'LIVRAISON' && <div><span>Livraison</span><span>{formatPrice(order.deliveryFee)}</span></div>}
               <div className="total"><span>Total TTC</span><span className="price">{formatPrice(order.total)}</span></div>
               {order.refundedAmount > 0 && <div><span>Remboursé</span><span>-{formatPrice(order.refundedAmount)}</span></div>}

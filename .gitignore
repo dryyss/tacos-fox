@@ -4,3 +4,6 @@ Thumbs.db
 desktop.ini
 *.log
 .cursor/
+.worktrees/
+kbis/
+.clever.json

@@ -153,7 +153,7 @@ export function ProductSheet({ product, pizzas, initialSize, onClose }: { produc
 
         const title = g.key === 'meats' ? (max > 1 ? 'Vos viandes' : 'Votre viande') : g.label;
         const hint = g.key === 'meats'
-          ? (max > 1 ? `Jusqu'à ${max} viandes. Appuyez sur +1 pour doubler une viande.` : 'Appuyez pour choisir')
+          ? (max > 1 ? `Jusqu'à ${max}, la même viande autant de fois.` : 'Appuyez pour choisir')
           : g.hint ?? (max > 1 ? `${req ? `Au moins ${g.min}, ` : ''}${max} maximum` : req ? '1 choix' : 'Optionnel');
         const count = max > 1
           ? { text: `${sel.length}/${max}`, cls: sel.length >= g.min && sel.length ? 'is-ok' : req ? 'is-need' : '' }

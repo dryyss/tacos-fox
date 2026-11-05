@@ -5,7 +5,7 @@ import { z } from 'zod';
 z.config(z.locales.fr());
 import { prisma } from './prisma';
 import { getProductsForPricing, getSettings } from './catalog';
-import { computeTotals, MAX_QTY, priceLine, PricingError, type Mode, type PricedLine, type Totals } from './pricing';
+import { computeTotals, DEAL_3_PLUS_1, MAX_QTY, offeredBottles, priceLine, PricingError, threePlusOneDiscount, type Mode, type PricedLine, type Totals } from './pricing';
 import { publicFeatures } from './features';
 import { availableModes } from './restaurants';
 
@@ -37,6 +37,7 @@ export interface Quote {
   lines: LineResult[];
   totals: Totals;
   promo: { code: string; valid: boolean; message?: string } | null;
+  discountNote: string | null;
   zone: { id: string; city: string; postalCode: string } | null;
   errors: string[]; // erreurs bloquantes pour passer commande
 }
@@ -93,10 +94,27 @@ export async function quoteCart(input: QuoteInput, restaurantId: string): Promis
   }
 
   const totals = computeTotals(priced, input.mode as Mode, zone, promoRule);
+  const dessertDeal = threePlusOneDiscount(priced.filter(l => byId.get(l.productId)?.formula === DEAL_3_PLUS_1).map(l => ({ unitPrice: l.unitPrice, qty: l.qty })));
+  const bottleDeal = offeredBottles(priced.map(l => {
+    const product = byId.get(l.productId);
+    const drinks = product?.groups.find(g => g.key === 'drink');
+    const ids = l.config.selections?.drink ?? [];
+    const grande = drinks?.choices.find(c => ids.includes(c.id) && c.label === 'Grande boisson');
+    return { kind: product?.kind ?? '', sizeCode: l.config.sizeCode, qty: l.qty, grandePrice: grande?.price ?? 0, grandes: grande ? 1 : 0 };
+  }));
+  // shortcut: code promo et offres menu partagent le même montant de remise
+  const offer = Math.min(dessertDeal + bottleDeal, Math.max(0, totals.subtotal - totals.discount));
+  totals.discount += offer;
+  totals.total -= offer;
+  const notes = [
+    promoRule ? `Remise ${promoRule.code}` : '',
+    offer && dessertDeal ? DEAL_3_PLUS_1 : '',
+    offer && bottleDeal ? 'Grande boisson offerte' : '',
+  ].filter(Boolean);
   if (totals.minimumMissing > 0) errors.push(`Minimum de commande en livraison non atteint : il manque ${(totals.minimumMissing / 100).toFixed(2).replace('.', ',')} €.`);
 
   return {
-    lines, totals, promo: promoResult, errors,
+    lines, totals, promo: promoResult, discountNote: notes.length ? notes.join(' · ') : null, errors,
     zone: zone ? { id: zone.id, city: zone.city, postalCode: zone.postalCode } : null,
   };
 }

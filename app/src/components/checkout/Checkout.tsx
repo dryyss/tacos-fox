@@ -32,7 +32,7 @@ function TotalsPanel({ quote, mode, count }: { quote: QuoteResult | null; mode: 
   return (
     <div className="totals">
       <div><span>Sous-total ({count} article{count > 1 ? 's' : ''})</span><span>{formatPrice(t.subtotal)}</span></div>
-      {t.discount > 0 && <div className="is-free"><span>Remise {quote.promo?.code}</span><span>-{formatPrice(t.discount)}</span></div>}
+      {t.discount > 0 && <div className="is-free"><span>{quote.discountNote || 'Offre'}</span><span>-{formatPrice(t.discount)}</span></div>}
       {mode === 'LIVRAISON'
         ? <div className={t.deliveryFee ? '' : 'is-free'}><span>Livraison</span><span>{t.deliveryFee ? formatPrice(t.deliveryFee) : 'Offerte'}</span></div>
         : <div><span>Frais de service</span><span className="is-free">0,00 €</span></div>}

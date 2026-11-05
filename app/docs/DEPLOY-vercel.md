@@ -1,4 +1,6 @@
-# Déploiement Vercel + Neon
+# Déploiement Vercel + Neon (archive)
+
+L'hébergement retenu est **Clever Cloud + OVH** : voir [`DEPLOY-clever-cloud.md`](DEPLOY-clever-cloud.md). Cette page décrit l'ancienne piste Vercel.
 
 Application Next.js hébergée sur **Vercel** (fonctions en région `fra1`, Francfort), base **PostgreSQL Neon** : projet `tacos-fox` (id `patient-tooth-82388366`), région `aws-eu-central-1` (Francfort), branche `production`.
 

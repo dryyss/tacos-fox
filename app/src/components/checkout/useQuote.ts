@@ -8,6 +8,7 @@ export interface QuoteResult {
   lines: { index: number; ok: boolean; error?: string; image?: string | null; line?: { unitPrice: number; name: string; details: string[] } }[];
   totals: Totals;
   promo: { code: string; valid: boolean; message?: string } | null;
+  discountNote?: string | null;
   errors: string[];
 }
 

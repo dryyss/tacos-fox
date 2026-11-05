@@ -41,7 +41,7 @@ function describe(labels: string[]): string {
 }
 
 /* Libellés du ticket : préfixe selon le groupe, et mention explicite quand un groupe est laissé vide */
-const DETAIL_PREFIX: Record<string, string> = { cheeses: 'Suppl. ', 'extra-meat': 'Suppl. viande ', gratin: 'Gratiné ' };
+const DETAIL_PREFIX: Record<string, string> = { cheeses: 'Suppl. ', 'extra-meat': 'Suppl. viande ', gratin: 'Gratiné ', remove: 'Sans ', veg: 'Suppl. légume ', topping: 'Topping ', supp: 'Suppl. ' };
 const EMPTY_DETAIL: Record<string, string> = { sauces: 'Sans sauce', crudites: 'Sans crudités' };
 
 export function lineName(product: CatalogProduct, size?: CatalogSize): string {
@@ -161,4 +161,27 @@ export function computeTotals(lines: Pick<PricedLine, 'lineTotal'>[], mode: Mode
   }
 
   return { subtotal, deliveryFee, discount, total: subtotal - discount + deliveryFee, minimumMissing };
+}
+
+/* Tiramisu et tarte au Daim : 4 parts pour le prix de 3. La part offerte est la moins chère. */
+export const DEAL_3_PLUS_1 = '3 achetés = 1 offert';
+
+export function threePlusOneDiscount(units: { unitPrice: number; qty: number }[]): number {
+  const prices = units.flatMap(u => Array.from({ length: u.qty }, () => u.unitPrice)).sort((a, b) => a - b);
+  return prices.slice(0, Math.floor(prices.length / 4)).reduce((a, n) => a + n, 0);
+}
+
+/* 2 pizzas Mega, ou 4 Senior, offrent une grande boisson déjà ajoutée à la commande. */
+export function offeredBottles(lines: { kind: string; sizeCode?: string | null; qty: number; grandePrice: number; grandes: number }[]): number {
+  let mega = 0;
+  let senior = 0;
+  const prices: number[] = [];
+  for (const l of lines) {
+    if (l.kind !== 'PIZZA') continue;
+    if (l.sizeCode === 'mega') mega += l.qty;
+    if (l.sizeCode === 'senior') senior += l.qty;
+    for (let i = 0; i < l.grandes * l.qty; i++) prices.push(l.grandePrice);
+  }
+  prices.sort((a, b) => a - b);
+  return prices.slice(0, Math.floor(mega / 2) + Math.floor(senior / 4)).reduce((a, n) => a + n, 0);
 }

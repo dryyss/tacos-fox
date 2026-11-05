@@ -18,7 +18,7 @@ const prisma = new PrismaClient({
 const cents = (euros: number) => Math.round(euros * 100);
 
 type Choice = { label: string; price?: number; isAvailable?: boolean };
-type Group = { id: string; label: string; type: string; min: number; max: number; choices: Choice[] };
+type Group = { id: string; label: string; type: string; min: number; max: number; hint?: string; allowRepeat?: boolean; sizeCodes?: string[]; choices: Choice[] };
 type SrcProduct = {
   id: string; cat: string; name: string; desc: string; price: number; badges: string[];
   formula?: string; range?: string; tbc?: boolean; priceFrom?: boolean; bogo?: boolean;
@@ -30,10 +30,12 @@ const CATEGORY_SUBS: Record<string, string> = {
   tacos: 'Frites, sauce fromagère et boisson incluses. Taille S et M : 1 viande, L : 2, XL : 3, XXL : 4.',
   burgers: 'Seul ou en menu avec frites et boisson.',
   sandwichs: 'Pain frais, viandes halal, crudités au choix. Seul ou en menu avec frites et boisson.',
-  pizzas: 'Pâte maison. 1 achetée = 1 offerte sur Senior et Mega, à emporter.',
+  pizzas: 'Pâte maison, base au choix. 1 achetée = 1 offerte sur Senior et Mega. 2 Mega ou 4 Senior : grande boisson offerte.',
   bowls: 'Frites, 4 fromages fondus, viande et sauce au choix. Boisson incluse.',
-  crousty: 'La galette croustillante signature Tacos Fox.',
-  assiettes: 'Viande, salade, tomate, oignon, frites. Boisson incluse.',
+  crousty: '10 €, boisson comprise.',
+  assiettes: '12,90 €. Crudités et sauce au choix. Boisson +1 €.',
+  crepes: 'Salée à composer. Sucrées au sucre, à la confiture ou au Nutella.',
+  desserts: 'Tiramisu et tarte au Daim : 3 achetés = 1 offert.',
 };
 
 const ZONES: [string, string, number][] = [
@@ -66,17 +68,17 @@ async function seedCatalog() {
   const T = src.TACOS;
   await upsertProduct({
     slug: 'tacos-a-composer', categoryId: cats.tacos, kind: ProductKind.TACOS,
-    name: 'Tacos à composer', description: T.included + '. Choisissez la taille, vos viandes et 2 sauces parmi 15.',
+    name: 'Tacos à composer', description: T.included + '. Choisissez la taille, vos viandes et jusqu\'à 3 sauces.',
     price: cents(T.sizes[0].price), priceFrom: true, badges: ['best'], isFeatured: true, sortOrder: 0,
     sizes: T.sizes.map((s: { id: string; label: string; price: number; meats: number; hint: string }, i: number) => ({
       code: s.id, label: s.label, hint: s.hint, price: cents(s.price), includedQty: s.meats, sortOrder: i,
     })),
     groups: [
-      { key: 'meats', label: 'Vos viandes', hint: 'Appuyez sur +1 pour doubler une viande', min: 1, max: 4, maxFromSize: true, allowRepeat: true, choices: src.MEATS.map((l: string) => ({ label: l })) },
-      { key: 'sauces', label: 'Vos sauces', hint: '2 maximum, incluses', min: 0, max: 2, choices: src.SAUCES.map((l: string) => ({ label: l })) },
+      { key: 'meats', label: 'Vos viandes', hint: 'La même viande autant de fois, dans la limite de la taille (4 en XXL)', min: 1, max: 4, maxFromSize: true, allowRepeat: true, choices: src.MEATS.map((l: string) => ({ label: l })) },
+      { key: 'fries', label: 'Frites en plus', hint: 'Une portion supplémentaire dans le tacos', min: 0, max: 1, choices: [{ label: 'Frites supplémentaires', price: T.friesPrice }] },
+      { key: 'sauces', label: 'Vos sauces', hint: '3 maximum, au choix', min: 0, max: 3, choices: src.SAUCES.map((l: string) => ({ label: l })) },
       { key: 'cheeses', label: 'Suppléments fromage', hint: 'Optionnel', min: 0, max: src.CHEESES.length, choices: src.CHEESES },
       { key: 'gratin', label: 'Gratinage', hint: 'Passage au four, 1 choix', min: 0, max: 1, choices: src.GRATINS },
-      { key: 'fries', label: 'Frites en plus', hint: 'Une portion supplémentaire dans le tacos', min: 0, max: 1, choices: [{ label: 'Frites supplémentaires', price: T.friesPrice }] },
       { key: 'drink', label: 'Votre boisson', hint: 'Incluse dans le prix', min: 1, max: 1, choices: src.DRINKS.map((l: string) => ({ label: l })) },
     ],
   });
@@ -96,8 +98,8 @@ async function seedCatalog() {
       badges: p.badges ?? [], tbc: !!p.tbc, isFeatured: featured.has(p.id), sortOrder: order,
       sizes: (p.sizes ?? []).map((s, i) => ({ code: s.id, label: s.label, hint: s.hint ?? null, price: cents(s.price), bogo: !!s.bogo, sortOrder: i })),
       groups: SANDWICH_CATEGORIES.includes(p.cat) && !p.options
-        ? sandwichGroups({ description: p.desc, formula: p.formula ?? null })
-        : (p.options ?? []).map(g => ({ key: g.id, label: g.label, min: g.min, max: g.max, choices: g.choices })),
+        ? sandwichGroups({ description: p.desc, formula: p.formula ?? null, category: p.cat })
+        : (p.options ?? []).map(g => ({ key: g.id, label: g.label, hint: g.hint, min: g.min, max: g.max, allowRepeat: g.allowRepeat, sizeCodes: g.sizeCodes, choices: g.choices })),
     });
   }
 }
@@ -113,7 +115,8 @@ type ProductInput = {
 
 async function upsertProduct({ sizes, groups, ...data }: ProductInput) {
   const existing = await prisma.product.findUnique({ where: { slug: data.slug } });
-  const imageUrl = existing?.imageUrl ?? menuPhoto(data.slug);
+  const imageUrl = existing?.imageUrl ?? menuPhoto(data.slug)
+    ?? (data.slug.startsWith('crepes-crepe-') && data.slug !== 'crepes-crepe-salee' ? menuPhoto('crepes-crepe-sucree') : null);
   const product = existing
     ? await prisma.product.update({ where: { id: existing.id }, data: { ...data, isHidden: false, imageUrl } })
     : await prisma.product.create({ data: { ...data, imageUrl } });

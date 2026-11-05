@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>LST-2026-TFX-001 · Éléments à fournir · Tacos Fox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,600;0,700;1,400&family=Barlow+Condensed:wght@600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root { --orange: #E07B2E; --orange-soft: #FBEFE4; --ink: #1E1E1E; --muted: #5A5A5A; --line: #E6E2DC; --grey: #F3F1EE; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; background: #d9d6d1; color: var(--ink); font-family: 'Barlow', Arial, sans-serif; font-size: 10.6pt; line-height: 1.45; }
+  .page { width: 210mm; height: 297mm; background: #fff; margin: 10px auto; position: relative; overflow: hidden; padding: 14mm 16mm 22mm; }
+  .page::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: var(--orange); }
+  h1 { font-family: 'Barlow Condensed', 'Barlow', sans-serif; font-weight: 700; font-size: 27pt; line-height: 1.05; margin: 4px 0 4px; }
+  h2 { font-family: 'Barlow Condensed', 'Barlow', sans-serif; font-weight: 700; font-size: 15pt; text-transform: uppercase; letter-spacing: .01em; margin: 20px 0 8px; padding-bottom: 5px; border-bottom: 2px solid var(--ink); display: flex; align-items: baseline; gap: 14px; }
+  h2 .n { font-family: 'JetBrains Mono', monospace; font-size: 9pt; color: var(--orange); font-weight: 500; }
+  p { margin: 0 0 8px; }
+  .kicker { font-family: 'JetBrains Mono', monospace; font-size: 8.5pt; letter-spacing: .08em; text-transform: uppercase; color: var(--orange); margin: 0 0 2px; }
+  .sub { color: var(--muted); font-size: 11pt; margin-bottom: 12px; }
+  .head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+  .logo { width: 108px; }
+  .meta { font-size: 9.5pt; display: grid; grid-template-columns: auto auto; gap: 3px 16px; align-items: baseline; }
+  .meta .k { font-family: 'JetBrains Mono', monospace; font-size: 8pt; letter-spacing: .08em; text-transform: uppercase; color: var(--orange); }
+  .brief { background: var(--orange-soft); border-left: 4px solid var(--orange); padding: 10px 14px; margin: 10px 0 6px; }
+  .brief b { font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 4px; font-size: 9.8pt; }
+  th { background: var(--ink); color: #fff; text-align: left; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 9.5pt; letter-spacing: .04em; text-transform: uppercase; padding: 6px 8px; }
+  td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--grey); }
+  td.c { width: 22px; padding-right: 0; }
+  .box { display: inline-block; width: 12px; height: 12px; border: 1.5px solid var(--ink); border-radius: 2px; margin-top: 2px; }
+  td.el { width: 150px; font-weight: 700; }
+  td .why { display: block; color: var(--muted); font-size: 9pt; margin-top: 1px; }
+  .tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 7.5pt; letter-spacing: .06em; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; background: var(--orange); color: #fff; margin-left: 4px; vertical-align: middle; }
+  .tag.opt { background: #e9e6e1; color: var(--muted); }
+  td.el .tag { display: table; margin: 4px 0 0; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .panel { border: 1px solid var(--line); padding: 10px 12px; }
+  .panel h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 12.5pt; text-transform: uppercase; margin: 0 0 6px; }
+  ul { margin: 0; padding-left: 16px; }
+  li { margin: 2px 0; }
+  li::marker { color: var(--orange); }
+  .confid { position: absolute; left: 0; right: 0; bottom: 13mm; text-align: center; font-size: 8pt; font-style: italic; color: var(--muted); }
+  .foot { position: absolute; left: 16mm; right: 16mm; bottom: 7mm; display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 7.5pt; letter-spacing: .06em; color: var(--muted); border-top: 1px solid var(--line); padding-top: 5px; }
+  .runhead { display: flex; justify-content: space-between; font-family: 'Barlow Condensed', sans-serif; font-size: 9pt; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-bottom: 6px; }
+  @page { size: A4; margin: 0; }
+  @media print { body { background: #fff; } .page { margin: 0; page-break-after: always; } .page:last-child { page-break-after: auto; } }
+</style>
+</head>
+<body>
+
+<section class="page">
+  <div class="head">
+    <img class="logo" src="magar-logo.svg" alt="MAGAR Développement">
+    <div class="meta">
+      <span class="k">Réf.</span><span>LST-2026-TFX-001</span>
+      <span class="k">Date</span><span>20/10/2026</span>
+      <span class="k">Devis lié</span><span>DEV-2026-TFX-001 · CDC-0006</span>
+      <span class="k">Client</span><span>Tacos Fox, Stains (93)</span>
+      <span class="k">Prestataire</span><span>MAGAR Développement</span>
+    </div>
+  </div>
+
+  <p class="kicker">Liste de contrôle · Lancement du projet</p>
+  <h1>Éléments à fournir pour la mise en ligne</h1>
+  <p class="sub">Tout ce que Tacos Fox nous transmet pour lancer son site de commande. À cocher au fur et à mesure.</p>
+
+  <div class="brief"><b>En bref.</b> Le site est développé. Pour le mettre en ligne, il nous manque les informations ci-dessous, à envoyer par WhatsApp ou e-mail (<b>andrys.developper@gmail.com</b>), en une ou plusieurs fois. Comptez environ une heure pour tout réunir. Les points marqués <span class="tag">requis</span> conditionnent la mise en ligne ; les autres peuvent suivre.</div>
+
+  <h2><span class="n">01</span>Informations légales</h2>
+  <table>
+    <tr><th></th><th>Élément</th><th>Détail et utilisation</th></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Raison sociale <span class="tag">requis</span></td><td>Nom de la société et forme juridique (SARL, EURL, EI…).<span class="why">Mentions légales, CGV, factures.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">SIRET <span class="tag">requis</span></td><td>Numéro à 14 chiffres. Un extrait Kbis de moins de 3 mois servira aussi pour le compte de paiement.<span class="why">Mentions légales, factures, Stripe.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">TVA</td><td>Numéro de TVA intracommunautaire si assujetti, et taux appliqué (10 % en restauration par défaut). À confirmer avec votre comptable.<span class="why">Factures, comptabilité.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Adresse du restaurant <span class="tag">requis</span></td><td>Numéro, rue, code postal, ville.<span class="why">Site, itinéraire, Google, factures.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Téléphone et e-mail <span class="tag">requis</span></td><td>Le numéro affiché aux clients et une adresse e-mail de contact.<span class="why">Site, confirmations de commande, CGV.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Nom du gérant <span class="tag">requis</span></td><td>Signataire du devis et du contrat, directeur de la publication.</td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Médiateur de la consommation</td><td>Nom et site du médiateur auquel le restaurant adhère (souvent proposé par l'assureur ou la fédération). Si vous n'en avez pas, nous vous indiquons des médiateurs agréés.<span class="why">Mention obligatoire dans les CGV.</span></td></tr>
+  </table>
+
+  <div class="confid">Document confidentiel, propriété de MAGAR Développement. Ne peut être communiqué à des tiers sans accord écrit.</div>
+  <div class="foot"><span>LST-2026-TFX-001 · MAGAR DÉVELOPPEMENT · SIRET 908 058 092 00028</span><span>1</span></div>
+</section>
+
+<section class="page">
+  <div class="runhead"><span>Éléments à fournir · Site de commande en ligne Tacos Fox</span><span>LST-2026-TFX-001 · 20/10/2026</span></div>
+
+  <h2 style="margin-top:8px"><span class="n">02</span>Identité visuelle</h2>
+  <table>
+    <tr><th></th><th>Élément</th><th>Détail et utilisation</th></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Logo en haute définition <span class="tag">requis</span></td><td>Fichier source : SVG, AI, PDF ou PNG grand format (2000 px minimum). Une photo de l'enseigne ne suffit pas.<span class="why">En-tête du site, QR codes, tickets, factures. Option O1 si création nécessaire.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Couleurs</td><td>Si une charte existe. Sinon nous gardons le rouge, noir et jaune de la maquette validée.</td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Slogan</td><td>Valider « La meilleure excuse pour ne pas cuisiner ce soir » ou proposer le vôtre.</td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Mention halal</td><td>Nom exact de l'organisme certificateur (Achahada ?) et photo du certificat.<span class="why">Bandeau du site, page Infos pratiques.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Réseaux sociaux</td><td>Liens Instagram, Snapchat, TikTok, Facebook (ceux qui existent).</td></tr>
+  </table>
+
+  <h2><span class="n">03</span>La carte</h2>
+  <table>
+    <tr><th></th><th>Élément</th><th>Détail et utilisation</th></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Validation du relevé <span class="tag">requis</span></td><td>Relire le fichier <b>Carte_Tacos_Fox.xlsx</b> (131 produits relevés sur la borne) : noms, compositions, prix. Signaler toute différence.<span class="why">La carte en ligne est déjà saisie à partir de ce relevé.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Prix à confirmer <span class="tag">requis</span></td><td>Desserts (tiramisu, brownie, cheesecake, tarte au Daim, cookie), boissons, paninis, crêpes, menu enfant, salade norvégienne, supplément raclette.<span class="why">Ces prix n'étaient pas lisibles sur la borne.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Règles des offres <span class="tag">requis</span></td><td>Pizza « 1 achetée = 1 offerte » : tailles concernées (Senior et Mega ?), sur place et à emporter uniquement ? Menus burgers et sandwichs : frites et boisson toujours inclus ? Tacos : 2 sauces incluses, boisson incluse ?</td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Allergènes <span class="tag">requis</span></td><td>Pour chaque plat, les allergènes présents parmi les 14 obligatoires (gluten, œufs, lait, arachides, fruits à coque, soja, poisson, crustacés, mollusques, céleri, moutarde, sésame, sulfites, lupin). Nous fournissons un tableau à cocher.<span class="why">Page Allergènes et fiches produits, obligation légale (règlement INCO).</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Incontournables</td><td>4 à 8 plats à mettre en avant sur la page d'accueil. Par défaut : tacos, Le 360, Bowl 1 viande, Crousty Fox.</td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Produits en quantité limitée</td><td>Si certains produits ont un stock à suivre (desserts du jour, etc.).</td></tr>
+  </table>
+
+  <div class="confid">Document confidentiel, propriété de MAGAR Développement. Ne peut être communiqué à des tiers sans accord écrit.</div>
+  <div class="foot"><span>LST-2026-TFX-001 · MAGAR DÉVELOPPEMENT · SIRET 908 058 092 00028</span><span>2</span></div>
+</section>
+
+<section class="page">
+  <div class="runhead"><span>Éléments à fournir · Site de commande en ligne Tacos Fox</span><span>LST-2026-TFX-001 · 20/10/2026</span></div>
+
+  <h2 style="margin-top:8px"><span class="n">04</span>Photos</h2>
+  <table>
+    <tr><th></th><th>Élément</th><th>Détail et utilisation</th></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Plats phares <span class="tag">requis</span></td><td>Au minimum : un tacos, un burger, une pizza, un bowl, un Crousty Fox. Idéalement une photo par catégorie, puis par produit au fil du temps.<span class="why">Cartes produits et fiches. Option O2 : shooting photo sur place.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Visuel d'accueil <span class="tag">requis</span></td><td>Une belle photo de tacos XXL ouvert, pour la bannière de la page d'accueil.</td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Devanture et intérieur</td><td>Une ou deux photos du restaurant.<span class="why">Page Infos pratiques, fiche Google.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Conseils de prise de vue</td><td>Lumière naturelle, fond simple, plat au centre, pas de flash. Format JPG ou PNG, 1 200 px minimum. Envoi par WeTransfer ou Google Drive pour garder la qualité (WhatsApp compresse les images).</td></tr>
+  </table>
+
+  <h2><span class="n">05</span>Fonctionnement</h2>
+  <table>
+    <tr><th></th><th>Élément</th><th>Détail et utilisation</th></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Horaires <span class="tag">requis</span></td><td>Heures d'ouverture et de fermeture pour chaque jour, jours de fermeture. Relevé actuel : 11h à 23h, minuit le vendredi et samedi, 12h le dimanche.<span class="why">Affichage et créneaux de commande.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Modes de commande <span class="tag">requis</span></td><td>Sur place, à emporter, livraison : lesquels activer. Paiement au comptoir accepté pour les commandes en ligne ?</td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Délais <span class="tag">requis</span></td><td>Temps de préparation moyen (20 min ?) et temps de livraison moyen (35 min ?).<span class="why">Affichés au client et utilisés pour les créneaux.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Zones de livraison <span class="tag">requis</span></td><td>Communes livrées, frais par commune, montant minimum, seuil de livraison offerte. Relevé actuel : Stains, Pierrefitte, Saint-Denis, La Courneuve, Garges, Villetaneuse, Dugny ; 2,50 €, offerte dès 25 €, minimum 15 €.</td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Imprimante à tickets</td><td>Marque et modèle (ou photo de l'étiquette), et l'appareil utilisé en caisse (PC, tablette). Le ticket est prévu au format 80 mm.<span class="why">Vérification de l'impression lors de la recette.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Nombre de tables</td><td>Pour imprimer un QR code par table (commande sur place).</td></tr>
+  </table>
+
+  <div class="confid">Document confidentiel, propriété de MAGAR Développement. Ne peut être communiqué à des tiers sans accord écrit.</div>
+  <div class="foot"><span>LST-2026-TFX-001 · MAGAR DÉVELOPPEMENT · SIRET 908 058 092 00028</span><span>3</span></div>
+</section>
+
+<section class="page">
+  <div class="runhead"><span>Éléments à fournir · Site de commande en ligne Tacos Fox</span><span>LST-2026-TFX-001 · 20/10/2026</span></div>
+
+  <h2 style="margin-top:8px"><span class="n">06</span>Comptes à ouvrir ensemble</h2>
+  <p class="sub" style="margin-bottom:6px">Nous les créons avec vous, sur place ou en visio. Prévoir 30 minutes par compte. Ils sont ouverts <b>au nom du restaurant</b> : vous en restez propriétaire.</p>
+  <table>
+    <tr><th></th><th>Compte</th><th>À avoir sous la main</th></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Compte Stripe (paiement par carte) <span class="tag">requis</span></td><td>Pièce d'identité du gérant, SIRET ou Kbis, RIB du restaurant, adresse, téléphone portable. Les paiements en ligne sont virés sur le compte du restaurant sous 2 à 7 jours. Frais : 1,5 % + 0,25 € par transaction (cartes européennes).<span class="why">Sans ce compte, le site fonctionne en paiement au comptoir uniquement.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Nom de domaine <span class="tag">requis</span></td><td>Choix du nom (par exemple <b>tacosfox.fr</b>, nous vérifions la disponibilité). Environ 15 € par an, au nom du restaurant.<span class="why">Adresse du site et des e-mails (commandes@tacosfox.fr).</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Fiche Google Business <span class="tag opt">option O4</span></td><td>Accès au compte Google si une fiche existe déjà, sinon nous la créons.<span class="why">Apparition sur Google Maps et dans les recherches « tacos Stains ».</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Hébergement</td><td>Pris en charge par MAGAR dans le cadre de la maintenance, ou compte au nom du restaurant (20 à 40 € par mois). À décider avec le contrat de maintenance.</td></tr>
+  </table>
+
+  <h2><span class="n">07</span>Pour la séance de recette</h2>
+  <table>
+    <tr><th></th><th>Élément</th><th>Détail</th></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Disponibilité du gérant</td><td>1 h 30 sur place : commande de test dans chaque mode, impression du ticket, prise en main de l'espace de gestion (modifier un prix, masquer un produit, changer les horaires).</td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Carte bancaire de test</td><td>Pour un vrai paiement de 1 € puis son remboursement, afin de valider le circuit complet.</td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Comptes de l'équipe</td><td>Prénom et e-mail de chaque personne qui utilisera l'espace de gestion (réception des commandes, encaissement).</td></tr>
+  </table>
+
+  <div class="cols" style="margin-top:18px">
+    <div class="panel">
+      <h3>Mise en ligne en deux temps</h3>
+      <ul>
+        <li><b>Dès réception des sections 01, 03 et 05</b> : le site peut ouvrir en commande à emporter et sur place, avec paiement au comptoir.</li>
+        <li><b>Dès l'ouverture du compte Stripe</b> : paiement par carte en ligne et livraison.</li>
+        <li>Les photos et les allergènes se complètent ensuite directement dans l'espace de gestion.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Comment envoyer</h3>
+      <ul>
+        <li>WhatsApp ou e-mail : <b>andrys.developper@gmail.com</b> · 06 41 59 86 88</li>
+        <li>Photos et logo : WeTransfer ou Google Drive, pour conserver la qualité.</li>
+        <li>Inutile de tout envoyer d'un coup : chaque élément reçu est intégré au fil de l'eau.</li>
+        <li>Une question sur un point ? Appelez, on le règle en deux minutes.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="brief" style="margin-top:18px"><b>Rappel du planning.</b> Les semaines du planning (CDC-0006, section 06) comptent à partir de la réception des éléments requis. Plus vite ils arrivent, plus vite le site est en ligne.</div>
+
+  <div class="confid">Document confidentiel, propriété de MAGAR Développement. Ne peut être communiqué à des tiers sans accord écrit.</div>
+  <div class="foot"><span>LST-2026-TFX-001 · MAGAR DÉVELOPPEMENT · SIRET 908 058 092 00028</span><span>4</span></div>
+</section>
+
+</body>
+</html>

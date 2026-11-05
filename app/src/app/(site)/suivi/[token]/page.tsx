@@ -7,7 +7,7 @@ import { prisma } from '@/lib/prisma';
 import { getSettings } from '@/lib/catalog';
 import { publicFeatures } from '@/lib/features';
 import { formatPrice } from '@/lib/money';
-import { MODE_LABELS, onsiteLabel, orderNumberLabel, phoneHref, splitFreePizza } from '@/lib/format';
+import { discountLabel, MODE_LABELS, onsiteLabel, orderNumberLabel, phoneHref, splitFreePizza } from '@/lib/format';
 
 export const metadata: Metadata = { title: 'Suivi de commande', robots: { index: false } };
 export const dynamic = 'force-dynamic';
@@ -111,7 +111,7 @@ export default async function TrackingPage({ params }: { params: Promise<{ token
           </div>
           <div style={{ height: 12 }} />
           <div className="totals">
-            {order.discount > 0 && <div className="is-free"><span>Remise {order.promoCode}</span><span>-{formatPrice(order.discount)}</span></div>}
+            {order.discount > 0 && <div className="is-free"><span>{discountLabel(order.promoCode)}</span><span>-{formatPrice(order.discount)}</span></div>}
             {delivery && <div><span>Livraison</span><span>{order.deliveryFee ? formatPrice(order.deliveryFee) : 'Offerte'}</span></div>}
             <div className="total">
               <span>Total {order.paymentMethod === 'ONSITE' ? 'à régler sur place' : order.paymentStatus === 'PAID' ? 'payé' : ''}</span>

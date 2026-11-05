@@ -5,6 +5,7 @@ import { Pool } from 'pg';
 /**
  * Prisma + node-postgres, pooling Neon (PgBouncer).
  * Sur Vercel, attachDatabasePool réutilise le pool entre invocations Fluid.
+ * Sur Clever Cloud (processus Node durable), le pool pg suffit tel quel.
  * Les migrations Prisma utilisent DATABASE_URL_UNPOOLED (directUrl).
  */
 const globalForPrisma = globalThis as unknown as {

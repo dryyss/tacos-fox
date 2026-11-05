@@ -1,0 +1,179 @@
+---
+description: Contexte, périmètre et règles techniques du projet Tacos Fox (site de commande multi-restaurants)
+globs:
+alwaysApply: true
+---
+
+# Projet Tacos Fox : règles pour l'agent
+
+Tu travailles sur le site de commande en ligne du réseau **Tacos Fox** (5 fast-foods en Seine-Saint-Denis), développé par MAGAR Développement. Lis ce fichier en entier avant toute modification.
+
+**Avant de coder** : inspecte le code existant (démo déployée sur https://tacos-fox.vercel.app/) et réutilise ce qui fonctionne déjà (panier, paiement Stripe en mode test). Ne réécris pas un module qui marche sans raison.
+
+---
+
+## 0. Référence contractuelle
+
+Le **cahier des charges CDC-0007** (`docs/CDC-0007_Tacos_Fox_Essentiel.html`) fait foi : on ne livre que ce pour quoi le client paie. En cas d'écart entre ce fichier et le CDC, suivre le CDC et signaler l'écart. La liste des fonctionnalités livrées, module par module, est dans `app/docs/FONCTIONNALITES.md`.
+
+## 1. Stack
+
+- **Next.js 15** (App Router, React 19, TypeScript strict), dans `app/`
+- **Prisma** + **PostgreSQL Neon** (Francfort), hébergement **Clever Cloud** (Paris), domaine **OVH**
+- **Auth0** (via Auth.js) pour la connexion de l'équipe uniquement ; les clients commandent sans compte
+- **Stripe Checkout + Connect** pour le paiement
+- **Resend** pour les e-mails transactionnels
+
+Pas de Payload CMS : décision du 02/11/2026, on garde Prisma + Auth0 qui fonctionnent.
+
+---
+
+## 2. Périmètre : ce qu'on livre
+
+Offre vendue : **formule Essentiel, 5 restaurants**. Livrer exactement ceci, rien de plus.
+
+### Côté client (site public)
+1. Accueil : promos, best-sellers, badge « Viande halal certifiée Achahada », offre « 1 pizza achetée = 1 offerte » (tailles Senior et Mega)
+2. **Choix du restaurant** parmi les 5 (sélecteur persistant, stocké en cookie)
+3. Carte du restaurant choisi : catégories, recherche, photos, compositions, prix, allergènes
+4. **Composition des produits** (tacos, bowls, menus) : taille, viandes, sauces, suppléments, gratinage, boisson, avec prix recalculé en direct
+5. Panier puis commande **à emporter uniquement**, avec choix d'un **créneau de retrait**
+6. Paiement par carte (Stripe)
+7. Page de confirmation, suivi du statut, **facture PDF envoyée par e-mail**
+8. Une **page locale par restaurant** (`/restaurants/[slug]`) pour le SEO
+9. Bouton d'appel et lien itinéraire
+10. Pages légales : mentions légales, CGV, confidentialité, allergènes
+
+### Côté restaurant
+1. **Écran cuisine** (`/admin`, onglet par restaurant), sur navigateur, tablette ou ordinateur
+   - 3 colonnes (CDC R2) : À préparer, En préparation, Prêtes ; une commande remise au client quitte l'écran et reste dans l'historique
+   - Mise à jour en temps réel (polling court), **alerte sonore répétée** tant qu'une commande attend (CDC R3)
+   - Ruptures : faites par MAGAR Développement sur demande (Gestion > Restaurants, masquage par restaurant). Un bouton rupture pour les restaurants relève de l'option O1
+2. Historique des commandes et des factures du restaurant
+3. Accès protégé par restaurant (un compte cuisine par restaurant, il ne voit que ses commandes)
+
+### Hors périmètre : NE PAS développer
+Ces modules sont vendus en option. Ne les code pas, mais garde une architecture qui permet de les ajouter :
+- Espace de gestion de la carte par le restaurant (produits, prix, photos, horaires)
+- Gestion des stocks, comptabilité et exports, SAV
+- **Livraison** (zones, frais, livreurs)
+- Espace client (comptes, historique, favoris), codes promo
+- Newsletter, programme de fidélité
+
+**Rôles Auth0** : `tacosfox:superadmin` (MAGAR, toute la gestion), `tacosfox:admin` (gérant : commandes, historique, factures, QR des 5 restaurants), `tacosfox:staff:<slug>` (équipier rattaché à son restaurant). Sans l'option O1, ni le gérant ni l'équipe n'accèdent à la gestion de la carte, des prix ou des horaires.
+
+---
+
+## 3. Les 5 restaurants
+
+| slug | Restaurant | Société (SAS, capital 1 000 €, RCS Bobigny) | SIREN |
+|---|---|---|---|
+| `stains-marcel-cachin` | 36 avenue Marcel Cachin, 93240 Stains | LA STREET FOOD | 992 470 260 |
+| `stains-louis-bordes` | 14 avenue Louis Bordes, 93240 Stains | L'EMPIRE FOOD | 990 385 619 |
+| `dugny-22-lariviere` | 22 avenue Louis Larivière, 93440 Dugny | ITALIANO PASTA | 988 720 314 |
+| `dugny-21-lariviere` | 21 avenue Louis Larivière, 93440 Dugny | LA MAISON DU SNACK | 100 039 775 |
+| `blanc-mesnil` | 208-210 avenue du 8 Mai 1945, 93150 Le Blanc-Mesnil | MISTER TACOS | 928 293 802 |
+
+- Le restaurant `blanc-mesnil` a une **carte légèrement différente** (détails à venir).
+- Téléphones, horaires, délais de préparation et numéros de TVA : **pas encore fournis**. Utilise des champs en base, jamais de valeurs en dur.
+- Ne jamais afficher ni stocker de données personnelles des dirigeants.
+
+---
+
+## 4. Modèle de données (Prisma, `app/prisma/schema.prisma`)
+
+Dans le code : la société est portée par chaque `Restaurant` (legalName, legalForm, shareCapital, siren, rcsCity, siret, vatNumber, stripeAccountId), les ajustements de carte par `ProductOverride`, les rôles par Auth0 (`User.staffRestaurants`). La liste ci-dessous reste la cible fonctionnelle.
+
+- `companies` : raison sociale, forme, capital, SIREN, RCS, adresse du siège, n° TVA intracom, `stripeAccountId`, préfixe et compteur de factures
+- `restaurants` : slug, nom, adresse, coordonnées GPS, téléphone, horaires (par jour, avec exceptions), délai de préparation, `company` (relation), actif ou non
+- `categories` : nom, ordre, icône
+- `products` : nom, description, photo, prix de base TTC, taux de TVA, allergènes, catégorie, `optionGroups`, badges (nouveau, épicé, best-seller)
+- `productOverrides` : par restaurant, permet de **masquer**, **changer le prix** ou **marquer en rupture** un produit (sert pour la carte spécifique et le bouton rupture)
+- `optionGroups` : nom, min, max, options (nom, supplément de prix). Ex. « Viandes (2 minimum) », « Sauces (2 maximum) », « Suppléments fromage »
+- `orders` : numéro, restaurant, client (nom, téléphone, e-mail), lignes, créneau, total, statut, `stripePaymentIntentId`, dates
+- `invoices` : numéro, commande, société émettrice, PDF, date
+- `users` : rôles `admin` (MAGAR) et `kitchen` (lié à un restaurant)
+
+Règle de carte : **carte commune** + `productOverrides` par restaurant. Pas de duplication de produits.
+
+---
+
+## 5. Paiement : encaissement séparé
+
+Chaque restaurant appartient à une société différente, et **chaque paiement doit arriver sur le compte de la société du restaurant**.
+
+- Utiliser **Stripe Connect, comptes Standard, en direct charges** : le PaymentIntent est créé sur le compte connecté de la société (`stripeAccount: company.stripeAccountId`)
+- Les frais Stripe sont supportés par chaque restaurant. **Pas de commission plateforme** (`application_fee_amount` absent)
+- Webhooks Connect : `payment_intent.succeeded` crée la commande confirmée et déclenche la facture
+- **Le prix est toujours recalculé côté serveur** à partir de la base. Ne jamais faire confiance au montant envoyé par le navigateur
+- Mode test tant que le site n'est pas livré. Les clés de production ne sont activées qu'à la mise en ligne
+
+---
+
+## 6. Factures
+
+- Une facture PDF par commande payée, **émise au nom de la société du restaurant**, jamais au nom de MAGAR
+- Mentions obligatoires : raison sociale, forme, capital, SIREN, RCS, adresse, n° TVA intracom, numéro et date de facture, détail des lignes, total HT, TVA par taux, total TTC
+- **Numérotation séquentielle sans trou, séparée par société** (ex. `LSF-2026-00001`), générée de façon atomique
+- Taux de TVA stockés par produit : **valeurs à faire confirmer par le comptable du client**, ne pas les deviner
+- Envoi au client par e-mail (Resend) et archivage côté restaurant
+
+---
+
+## 7. Créneaux de retrait
+
+- Calculés à partir des horaires du restaurant et de son délai de préparation
+- Pas de créneau proposé si le restaurant est fermé
+- Pas de limite de commandes par créneau : non prévue au CDC
+
+---
+
+## 8. SEO
+
+- Une page par restaurant avec balisage JSON-LD `Restaurant` et `Menu`
+- Sitemap et robots
+- **`noindex` sur tout le site tant qu'il n'est pas livré** (variable d'environnement `NEXT_PUBLIC_ALLOW_INDEXING`)
+
+---
+
+## 9. Identité et contenus
+
+- Logo : « TF » rouge et blanc, fichier `Tacos_Fox_logo_transparent.png`. Bien sur fond blanc, gris clair ou noir, **pas sur fond rouge**
+- Slogan : « La meilleure excuse pour ne pas cuisiner ce soir »
+- Couleurs : rouge, noir, blanc. Titres en police condensée grasse
+- Mobile d'abord : grandes zones tactiles, bouton panier toujours accessible
+- Textes en **français**, ton direct et chaleureux
+- **Aucun tiret cadratin (—) dans les textes affichés**
+- Carte source : `Carte_Tacos_Fox.xlsx` (à faire valider par le client)
+
+---
+
+## 10. Variables d'environnement attendues
+
+Voir `app/.env.example` et `app/docs/DEPLOY-vercel.md`. Principales :
+
+```
+DATABASE_URL=
+DATABASE_URL_UNPOOLED=
+AUTH_SECRET=
+AUTH_AUTH0_ID= / AUTH_AUTH0_SECRET= / AUTH_AUTH0_ISSUER=
+APP_URL=
+STRIPE_SECRET_KEY=              # compte plateforme Tacos Fox (Connect)
+STRIPE_WEBHOOK_SECRET=          # webhook du compte plateforme
+STRIPE_CONNECT_WEBHOOK_SECRET=  # webhook des comptes connectés (paiements des restaurants)
+RESEND_API_KEY=
+EMAIL_FROM=
+```
+
+---
+
+## 11. Définition de « terminé »
+
+- [ ] Une commande test passe de bout en bout **dans chacun des 5 restaurants**
+- [ ] Le paiement arrive sur le bon compte connecté
+- [ ] La facture porte la bonne société et le bon numéro
+- [ ] La commande apparaît en temps réel sur le bon écran cuisine, avec le son
+- [ ] Le bouton rupture masque le produit côté client
+- [ ] Le restaurant `blanc-mesnil` affiche bien sa carte spécifique
+- [ ] Le site est utilisable sur mobile
+- [ ] Aucune information provisoire de la démo ne reste en ligne

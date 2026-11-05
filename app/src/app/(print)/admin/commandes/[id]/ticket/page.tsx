@@ -3,7 +3,7 @@ import { requireStaffPage, restaurantScope } from '@/lib/admin';
 import { prisma } from '@/lib/prisma';
 import { getSettings } from '@/lib/catalog';
 import { formatPrice } from '@/lib/money';
-import { MODE_LABELS, onsiteLabel, orderNumberLabel, splitFreePizza } from '@/lib/format';
+import { discountLabel, MODE_LABELS, onsiteLabel, orderNumberLabel, splitFreePizza } from '@/lib/format';
 import { markPrinted } from '@/lib/order-admin';
 import { restaurantTitle } from '@/lib/restaurants';
 import { AutoPrint } from './AutoPrint';
@@ -52,7 +52,7 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
       {order.note && <><hr /><div className="note">NOTE : {order.note}</div></>}
       <hr />
       <div className="row"><span>Sous-total</span><span>{formatPrice(order.subtotal)}</span></div>
-      {order.discount > 0 && <div className="row"><span>Remise {order.promoCode}</span><span>-{formatPrice(order.discount)}</span></div>}
+      {order.discount > 0 && <div className="row"><span>{discountLabel(order.promoCode)}</span><span>-{formatPrice(order.discount)}</span></div>}
       {order.mode === 'LIVRAISON' && <div className="row"><span>Livraison</span><span>{formatPrice(order.deliveryFee)}</span></div>}
       <div className="row" style={{ fontSize: 16, fontWeight: 'bold' }}><span>TOTAL TTC</span><span>{formatPrice(order.total)}</span></div>
       <div className="center" style={{ marginTop: '2mm', fontWeight: 'bold' }}>

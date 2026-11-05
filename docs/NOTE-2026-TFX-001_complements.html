@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>NOTE-2026-TFX-001 · Compléments au cahier des charges · Tacos Fox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,600;0,700;1,400&family=Barlow+Condensed:wght@600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4; margin: 0; }
+  :root { --orange: #E07B2E; --orange-soft: #FBEFE4; --ink: #1E1E1E; --muted: #5A5A5A; --line: #E6E2DC; --grey: #F3F1EE; --green: #1F8A4C; --green-soft: #E6F3EC; --red: #C0392B; --red-soft: #FBE8E6; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; background: #fff; color: var(--ink); font-family: 'Barlow', Arial, sans-serif; font-size: 9.9pt; line-height: 1.38; }
+  .page { width: 210mm; height: 297mm; margin: 0 auto; page-break-after: always; position: relative; overflow: hidden; padding: 13mm 16mm 0; display: flex; flex-direction: column; }
+  .page:last-child { page-break-after: auto; }
+  .page::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: var(--orange); }
+  .grow { flex: 1; }
+  h1 { font-family: 'Barlow Condensed', 'Barlow', sans-serif; font-weight: 700; font-size: 26pt; line-height: 1.05; margin: 3px 0 3px; }
+  h2 { font-family: 'Barlow Condensed', 'Barlow', sans-serif; font-weight: 700; font-size: 14pt; text-transform: uppercase; letter-spacing: .01em; margin: 10px 0 6px; padding-bottom: 3px; border-bottom: 2px solid var(--ink); display: flex; align-items: baseline; gap: 12px; }
+  h2 .n { font-family: 'JetBrains Mono', monospace; font-size: 8.5pt; color: var(--orange); font-weight: 500; }
+  p { margin: 0 0 7px; }
+  .kicker { font-family: 'JetBrains Mono', monospace; font-size: 8.3pt; letter-spacing: .08em; text-transform: uppercase; color: var(--orange); margin: 0 0 2px; }
+  .sub { color: var(--muted); font-size: 10.8pt; margin-bottom: 8px; }
+  .head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .logo { width: 104px; }
+  .meta { font-size: 9.3pt; display: grid; grid-template-columns: auto auto; gap: 2px 14px; align-items: baseline; }
+  .meta .k { font-family: 'JetBrains Mono', monospace; font-size: 7.8pt; letter-spacing: .08em; text-transform: uppercase; color: var(--orange); }
+  .brief { background: var(--orange-soft); border-left: 4px solid var(--orange); padding: 7px 12px; margin: 4px 0 2px; }
+
+  /* Avancement */
+  .status { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .status .col { border: 1px solid var(--line); padding: 8px 11px; }
+  .status h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 11.5pt; text-transform: uppercase; margin: 0 0 4px; display: flex; justify-content: space-between; }
+  .status h3 small { font-family: 'JetBrains Mono', monospace; font-size: 7.5pt; color: var(--green); letter-spacing: .06em; }
+  .mods { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.5px; font-size: 8.9pt; }
+  .mods li { display: flex; gap: 6px; align-items: baseline; }
+  .mods .c { font-family: 'JetBrains Mono', monospace; font-size: 7.5pt; color: var(--muted); width: 18px; flex: none; }
+  .mods .ok { color: var(--green); font-weight: 700; flex: none; width: 10px; }
+  .mods .wait { color: var(--orange); font-weight: 700; flex: none; width: 10px; }
+  .mods em { font-style: normal; color: var(--orange); font-size: 8.3pt; }
+
+  /* Tableau des éléments */
+  table { width: 100%; border-collapse: collapse; margin: 4px 0 2px; font-size: 9.1pt; }
+  th { background: var(--ink); color: #fff; text-align: left; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 9pt; letter-spacing: .04em; text-transform: uppercase; padding: 5px 7px; }
+  td { padding: 3.6px 7px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--grey); }
+  td.c { width: 20px; padding-right: 0; }
+  .box { display: inline-block; width: 11px; height: 11px; border: 1.5px solid var(--ink); border-radius: 2px; margin-top: 2px; }
+  td.el { width: 168px; font-weight: 700; }
+  td .why { display: block; color: var(--muted); font-size: 8.4pt; font-weight: 400; margin-top: 1px; }
+  td.p { width: 74px; }
+  .tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 7pt; letter-spacing: .05em; text-transform: uppercase; padding: 2px 5px; border-radius: 3px; white-space: nowrap; }
+  .tag.block { background: var(--red); color: #fff; }
+  .tag.recette { background: var(--orange); color: #fff; }
+  .tag.later { background: #e9e6e1; color: var(--muted); }
+
+  /* Fiches restaurant */
+  .fiche { border: 1px solid #cfcac2; margin: 0 0 3mm; break-inside: avoid; }
+  .fiche .fh { background: var(--ink); color: #fff; display: flex; justify-content: space-between; align-items: baseline; padding: 3px 10px; }
+  .fiche .fh b { font-family: 'Barlow Condensed', sans-serif; font-size: 11.5pt; text-transform: uppercase; letter-spacing: .03em; }
+  .fiche .fh span { font-family: 'JetBrains Mono', monospace; font-size: 7.3pt; letter-spacing: .06em; text-transform: uppercase; color: #f2b483; }
+  .fiche .fb { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; padding: 2px 10px 5px; }
+  .f { display: flex; align-items: flex-end; height: 5.6mm; font-size: 8.6pt; line-height: 1.1; }
+  .f .l { white-space: nowrap; color: var(--muted); margin-right: 5px; }
+  .f .d { flex: 1; border-bottom: 1px dotted #8a857e; height: 1px; margin-bottom: 2px; }
+  .f .s { white-space: nowrap; color: var(--muted); margin-left: 5px; font-size: 8pt; }
+  .hours { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 3px; }
+  .hours div { border: 1px solid var(--line); height: 9mm; font-size: 7.3pt; color: var(--muted); padding: 1px 3px; font-family: 'JetBrains Mono', monospace; letter-spacing: .04em; text-transform: uppercase; }
+
+  /* Étapes */
+  .steps { list-style: none; margin: 3px 0 0; padding: 0; display: grid; gap: 4px; }
+  .steps li { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: start; border: 1px solid var(--line); padding: 5px 11px; }
+  .steps .n { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 18pt; color: var(--orange); line-height: 1; }
+  .steps b { display: block; font-size: 10.2pt; }
+  .steps span { color: var(--muted); font-size: 9.2pt; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .panel { border: 1px solid var(--line); padding: 9px 12px; }
+  .panel h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 12pt; text-transform: uppercase; margin: 0 0 5px; }
+  .panel.plus { background: var(--green-soft); border-color: #cfe5d8; }
+  .panel.opt { background: var(--grey); }
+  ul { margin: 0; padding-left: 16px; }
+  li { margin: 1.5px 0; }
+  li::marker { color: var(--orange); }
+  .contact { margin-top: 6px; background: var(--ink); color: #fff; padding: 11px 14px; display: flex; justify-content: space-between; align-items: center; gap: 14px; }
+  .contact b { font-family: 'Barlow Condensed', sans-serif; font-size: 13pt; text-transform: uppercase; letter-spacing: .02em; }
+  .contact span { font-size: 9.3pt; color: rgba(255,255,255,.8); }
+
+  .foot { margin-top: auto; padding: 4px 0 7mm; display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 7.3pt; letter-spacing: .06em; color: var(--muted); border-top: 1px solid var(--line); }
+  .runhead { display: flex; justify-content: space-between; font-family: 'Barlow Condensed', sans-serif; font-size: 9pt; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-bottom: 4px; }
+  .mono { font-family: 'JetBrains Mono', monospace; font-size: 8.6pt; }
+</style><style>.num{font-family:'JetBrains Mono',monospace;font-size:8pt;color:var(--orange);} .tag.mod{background:var(--ink);color:#fff;} td.el{width:150px;} td.p{width:58px;}</style>
+</head>
+<body>
+<section class="page">
+  <div class="head">
+    <div>
+      <div class="kicker">NOTE-2026-TFX-001 · Compléments</div>
+      <h1>Ce que nous avons ajouté<br>au cahier des charges</h1>
+      <div class="sub">Site de commande Tacos Fox · formule Essentiel, 5 restaurants</div>
+    </div>
+    <div style="text-align:right">
+      <img class="logo" src="magar-logo.svg" alt="MAGAR Développement">
+      <div class="meta" style="margin-top:8px">
+        <span class="k">Date</span><span>03/11/2026</span>
+        <span class="k">Réf.</span><span>DEV-2026-TFX-004 · CDC-0007</span>
+        <span class="k">Client</span><span>Tacos Fox, 5 restaurants</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="brief">
+    Pendant le développement, nous avons complété plusieurs modules du cahier des charges CDC-0007 pour rendre le site plus simple
+    pour vos clients et plus sûr pour vos équipes. Ces compléments <b>améliorent des modules déjà prévus</b> ; ils ne remplacent
+    aucune des options (livraison, commande sur place, gestion de la carte…), qui restent disponibles sur devis.
+  </div>
+
+  <h2><span class="n">01</span>Les compléments</h2>
+  <table>
+    <thead><tr><th></th><th>Complément</th><th>Ce que ça change</th><th>Module</th></tr></thead>
+    <tbody>
+      <tr><td class="c"><span class="num">01</span></td><td class="el">Offre pizza calculée toute seule</td><td>« 1 achetée = 1 offerte » sur Senior et Mega : le client choisit sa pizza offerte, elle apparaît à 0 € sous la pizza payée, dans le panier, sur l'écran cuisine, dans l'e-mail et sur la facture.</td><td class="p"><span class="tag mod">C1 · C4</span></td></tr>
+      <tr><td class="c"><span class="num">02</span></td><td class="el">Burgers et sandwichs seuls ou en menu</td><td>Le client choisit « Seul » ou « Menu ». Frites et boisson ne sont demandées qu'en menu. Les deux prix sont affichés sur la carte.<span class="why">Prix seul provisoire : prix menu moins 2,50 €, à confirmer.</span></td><td class="p"><span class="tag mod">C4</span></td></tr>
+      <tr><td class="c"><span class="num">03</span></td><td class="el">« Prêt dans 15 min »</td><td>Le retrait au plus vite est proposé d'office. Le choix d'une heure précise reste disponible (« Choisir une heure »).</td><td class="p"><span class="tag mod">C5</span></td></tr>
+      <tr><td class="c"><span class="num">04</span></td><td class="el">Carte plus confortable</td><td>Recherche au-dessus des catégories, panier repliable sur ordinateur, grandes photos des plats (103 photos associées).</td><td class="p"><span class="tag mod">C3</span></td></tr>
+      <tr><td class="c"><span class="num">05</span></td><td class="el">Facture téléchargeable</td><td>Bouton « Télécharger la facture » sur la page de suivi, en plus de l'envoi par e-mail.</td><td class="p"><span class="tag mod">C7 · R4</span></td></tr>
+      <tr><td class="c"><span class="num">06</span></td><td class="el">E-mail d'alerte au restaurant</td><td>À chaque commande payée, le restaurant reçoit un e-mail avec le détail, en plus de l'écran cuisine. Utile si la tablette est éteinte.</td><td class="p"><span class="tag mod">R1</span></td></tr>
+      <tr><td class="c"><span class="num">07</span></td><td class="el">Écran cuisine plus lisible</td><td>Les plus anciennes en haut, heure de la commande en gros et temps écoulé. Une commande pour plus tard attend en bas et remonte quand il faut la lancer.</td><td class="p"><span class="tag mod">R2</span></td></tr>
+      <tr><td class="c"><span class="num">08</span></td><td class="el">Sonnerie renforcée</td><td>Sonnerie activée par défaut, répétée tant qu'une commande attend, et dès qu'une commande dépasse 15 min sans être « prête ». Notifications de la tablette et écran qui ne se met pas en veille.</td><td class="p"><span class="tag mod">R3</span></td></tr>
+      <tr><td class="c"><span class="num">09</span></td><td class="el">Sécurité renforcée</td><td>Protection du site contre les usages abusifs, liens de suivi et factures impossibles à deviner, composants mis à jour.</td><td class="p"><span class="tag mod">C6</span></td></tr>
+      <tr><td class="c"><span class="num">10</span></td><td class="el">Livret « Écran cuisine »</td><td>Un document par restaurant : identifiants, mise en route de la tablette, fonctionnement au quotidien, que faire en cas de souci.</td><td class="p"><span class="tag mod">R8</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="grow"></div>
+  <div class="foot"><span>NOTE-2026-TFX-001 · TACOS FOX</span><span>MAGAR DÉVELOPPEMENT</span><span>1 / 2</span></div>
+</section>
+
+<section class="page">
+  <div class="runhead"><span>NOTE-2026-TFX-001 · Compléments au cahier des charges</span><span>Précisions</span></div>
+  <h2 style="margin-top:2px"><span class="n">02</span>Une précision sur les pages villes</h2>
+  <p>Le cahier des charges prévoit « une page par ville » (par exemple /tacos-stains). Vous avez <b>deux restaurants à Stains et deux à Dugny</b> :
+  nous avons donc fait <b>une page par restaurant</b>, pour que chacun soit trouvé sur Google avec sa propre adresse, ses horaires,
+  son itinéraire et son bouton de commande.</p>
+  <table>
+    <tbody>
+      <tr><td class="el">Stains, Marcel Cachin</td><td class="mono">/restaurants/stains-marcel-cachin</td></tr>
+      <tr><td class="el">Stains, Louis Bordes</td><td class="mono">/restaurants/stains-louis-bordes</td></tr>
+      <tr><td class="el">Dugny, 22 Louis Larivière</td><td class="mono">/restaurants/dugny-22-lariviere</td></tr>
+      <tr><td class="el">Dugny, 21 Louis Larivière</td><td class="mono">/restaurants/dugny-21-lariviere</td></tr>
+      <tr><td class="el">Le Blanc-Mesnil</td><td class="mono">/restaurants/blanc-mesnil</td></tr>
+    </tbody>
+  </table>
+
+  <h2><span class="n">03</span>À valider de votre côté</h2>
+  <ul>
+    <li><b>Prix « seul » des burgers et sandwichs</b> : aujourd'hui prix menu moins 2,50 €. Donnez-nous l'écart réel ou les prix seuls.</li>
+    <li><b>Délai de préparation</b> : 15 minutes dans les 5 restaurants. Indiquez-nous un autre délai si besoin, restaurant par restaurant.</li>
+  </ul>
+
+  <div class="grow"></div>
+  <div class="foot"><span>NOTE-2026-TFX-001 · TACOS FOX</span><span>MAGAR DÉVELOPPEMENT</span><span>2 / 2</span></div>
+</section>
+</body>
+</html>

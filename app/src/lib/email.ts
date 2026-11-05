@@ -6,7 +6,7 @@ import { formatPrice } from './money';
 import { appUrl } from './url';
 import { publicFeatures } from './features';
 import { renderInvoice } from './invoice';
-import { onsiteLabel, splitFreePizza } from './format';
+import { discountLabel, onsiteLabel, splitFreePizza } from './format';
 
 const MODE_LABELS = { SURPLACE: 'Sur place', EMPORTER: 'À emporter', LIVRAISON: 'Livraison' } as const;
 
@@ -65,7 +65,7 @@ export async function notifyOrderConfirmed(orderId: string) {
     <p>Merci ${esc(order.customerName)}, votre commande <b>${num}</b> est bien reçue.</p>
     <p><b>${MODE_LABELS[order.mode]}</b> · ${when}${r && order.mode !== 'LIVRAISON' ? `<br>${esc(`${r.name} ${r.city}`)}, ${esc(r.addressLine1)}, ${esc(r.postalCode)} ${esc(r.city)}` : ''}${order.mode === 'LIVRAISON' ? `<br>${esc(order.addressLine1 ?? '')}, ${esc(order.postalCode ?? '')} ${esc(order.city ?? '')}` : ''}</p>
     <table style="width:100%;border-collapse:collapse;font-size:14px">${rows}
-      ${order.discount ? `<tr><td>Remise ${esc(order.promoCode ?? '')}</td><td style="text-align:right">-${formatPrice(order.discount)}</td></tr>` : ''}
+      ${order.discount ? `<tr><td>${esc(discountLabel(order.promoCode))}</td><td style="text-align:right">-${formatPrice(order.discount)}</td></tr>` : ''}
       ${order.mode === 'LIVRAISON' ? `<tr><td>Livraison</td><td style="text-align:right">${order.deliveryFee ? formatPrice(order.deliveryFee) : 'Offerte'}</td></tr>` : ''}
       <tr><td style="padding-top:10px;border-top:2px dashed #E8E8E5"><b>Total ${order.paymentMethod === 'CARD' ? 'payé' : `à régler au comptoir${order.onsiteMethods.length ? ` (${onsiteLabel(order.onsiteMethods).toLowerCase()})` : ''}`}</b></td><td style="padding-top:10px;border-top:2px dashed #E8E8E5;text-align:right"><b>${formatPrice(order.total)}</b></td></tr>
     </table>

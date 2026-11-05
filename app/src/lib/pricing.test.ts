@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeTotals, priceLine, PricingError } from './pricing';
+import { computeTotals, offeredBottles, priceLine, PricingError, threePlusOneDiscount } from './pricing';
 import type { CatalogGroup, CatalogProduct } from './catalog-types';
 
 const choice = (id: string, price = 0, isAvailable = true) => ({ id, label: id, price, isAvailable });
@@ -158,5 +158,24 @@ describe('burger seul ou en menu', () => {
 
   it('refuse une commande sans formule', () => {
     expect(() => priceLine(burger, { productId: 'petit-fox', qty: 1 })).toThrow(PricingError);
+  });
+});
+
+describe('offres du 4 novembre', () => {
+  it('offre la part la moins chère toutes les 4 parts', () => {
+    expect(threePlusOneDiscount([{ unitPrice: 350, qty: 3 }])).toBe(0);
+    expect(threePlusOneDiscount([{ unitPrice: 350, qty: 4 }])).toBe(350);
+    expect(threePlusOneDiscount([{ unitPrice: 350, qty: 8 }])).toBe(700);
+    expect(threePlusOneDiscount([{ unitPrice: 200, qty: 2 }, { unitPrice: 500, qty: 2 }])).toBe(200);
+  });
+
+  it('offre une grande boisson pour 2 mega ou 4 senior', () => {
+    const line = (sizeCode: string, qty: number, grandes: number) => ({ kind: 'PIZZA', sizeCode, qty, grandePrice: 300, grandes });
+    expect(offeredBottles([line('mega', 2, 1)])).toBe(300);
+    expect(offeredBottles([line('mega', 1, 1)])).toBe(0);
+    expect(offeredBottles([line('mega', 2, 0)])).toBe(0);
+    expect(offeredBottles([line('senior', 4, 1)])).toBe(300);
+    expect(offeredBottles([line('mega', 4, 2)])).toBe(600);
+    expect(offeredBottles([line('junior', 4, 1)])).toBe(0);
   });
 });

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>LST-2026-TFX-002 · Éléments à fournir · Tacos Fox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,600;0,700;1,400&family=Barlow+Condensed:wght@600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root { --orange: #E07B2E; --orange-soft: #FBEFE4; --ink: #1E1E1E; --muted: #5A5A5A; --line: #E6E2DC; --grey: #F3F1EE; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; background: #fff; color: var(--ink); font-family: 'Barlow', Arial, sans-serif; font-size: 10.6pt; line-height: 1.45; }
+  .page { width: 210mm; height: 297mm; background: #fff; margin: 0 auto; break-after: page; page-break-after: always; position: relative; overflow: hidden; padding: 14mm 16mm 22mm; }
+  .page::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: var(--orange); }
+  h1 { font-family: 'Barlow Condensed', 'Barlow', sans-serif; font-weight: 700; font-size: 27pt; line-height: 1.05; margin: 4px 0 4px; }
+  h2 { font-family: 'Barlow Condensed', 'Barlow', sans-serif; font-weight: 700; font-size: 15pt; text-transform: uppercase; letter-spacing: .01em; margin: 20px 0 8px; padding-bottom: 5px; border-bottom: 2px solid var(--ink); display: flex; align-items: baseline; gap: 14px; }
+  h2 .n { font-family: 'JetBrains Mono', monospace; font-size: 9pt; color: var(--orange); font-weight: 500; }
+  p { margin: 0 0 8px; }
+  .kicker { font-family: 'JetBrains Mono', monospace; font-size: 8.5pt; letter-spacing: .08em; text-transform: uppercase; color: var(--orange); margin: 0 0 2px; }
+  .sub { color: var(--muted); font-size: 11pt; margin-bottom: 12px; }
+  .head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+  .logo { width: 108px; }
+  .meta { font-size: 9.5pt; display: grid; grid-template-columns: auto auto; gap: 3px 16px; align-items: baseline; }
+  .meta .k { font-family: 'JetBrains Mono', monospace; font-size: 8pt; letter-spacing: .08em; text-transform: uppercase; color: var(--orange); }
+  .brief { background: var(--orange-soft); border-left: 4px solid var(--orange); padding: 10px 14px; margin: 10px 0 6px; }
+  .brief b { font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 4px; font-size: 9.8pt; }
+  th { background: var(--ink); color: #fff; text-align: left; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 9.5pt; letter-spacing: .04em; text-transform: uppercase; padding: 6px 8px; }
+  td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--grey); }
+  td.c { width: 22px; padding-right: 0; }
+  .box { display: inline-block; width: 12px; height: 12px; border: 1.5px solid var(--ink); border-radius: 2px; margin-top: 2px; }
+  td.el { width: 150px; font-weight: 700; }
+  td .why { display: block; color: var(--muted); font-size: 9pt; margin-top: 1px; }
+  .tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 7.5pt; letter-spacing: .06em; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; background: var(--orange); color: #fff; margin-left: 4px; vertical-align: middle; }
+  .tag.opt { background: #e9e6e1; color: var(--muted); }
+  td.el .tag { display: table; margin: 4px 0 0; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .panel { border: 1px solid var(--line); padding: 10px 12px; }
+  .panel h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 12.5pt; text-transform: uppercase; margin: 0 0 6px; }
+  ul { margin: 0; padding-left: 16px; }
+  li { margin: 2px 0; }
+  li::marker { color: var(--orange); }
+  .confid { position: absolute; left: 0; right: 0; bottom: 13mm; text-align: center; font-size: 8pt; font-style: italic; color: var(--muted); }
+  .foot { position: absolute; left: 16mm; right: 16mm; bottom: 7mm; display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 7.5pt; letter-spacing: .06em; color: var(--muted); border-top: 1px solid var(--line); padding-top: 5px; }
+  .runhead { display: flex; justify-content: space-between; font-family: 'Barlow Condensed', sans-serif; font-size: 9pt; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-bottom: 6px; }
+
+  /* Fiche restaurant */
+  .fiche { border: 1px solid #cfcac2; margin: 0 0 4.5mm; break-inside: avoid; }
+  .fiche .fh { background: var(--ink); color: #fff; display: flex; justify-content: space-between; align-items: baseline; padding: 3px 10px; }
+  .fiche .fh b { font-family: 'Barlow Condensed', sans-serif; font-size: 12pt; text-transform: uppercase; letter-spacing: .03em; }
+  .fiche .fh span { font-family: 'JetBrains Mono', monospace; font-size: 7.5pt; letter-spacing: .06em; text-transform: uppercase; color: #f2b483; }
+  .fiche .fb { display: grid; grid-template-columns: 1.3fr 1fr; gap: 0 14px; padding: 2px 10px 6px; }
+  .f { display: flex; align-items: flex-end; height: 6.3mm; font-size: 8.8pt; line-height: 1.1; }
+  .f .l { white-space: nowrap; color: var(--muted); margin-right: 5px; }
+  .f .d { flex: 1; border-bottom: 1px dotted #8a857e; height: 1px; margin-bottom: 2px; }
+  .f .s { white-space: nowrap; color: var(--muted); margin: 0 5px; }
+  .f .bx { display: inline-block; width: 10px; height: 10px; border: 1.3px solid var(--ink); border-radius: 2px; margin: 0 3px 1px 8px; }
+  .f .sm { font-size: 8pt; color: var(--muted); white-space: nowrap; }
+  .hcap { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 9pt; text-transform: uppercase; letter-spacing: .04em; height: 6.3mm; display: flex; align-items: flex-end; border-bottom: 1px solid var(--ink); }
+  .f .day { width: 17mm; color: var(--ink); font-weight: 600; }
+  table.team td { padding: 0 8px; height: 7.4mm; vertical-align: middle; font-size: 9pt; }
+  table.team td.c { width: 30px; text-align: center; }
+  table.team tr:nth-child(even) td { background: #fff; }
+  table.team { table-layout: fixed; }
+  table.team th { white-space: nowrap; }
+  table.team td.dot { border-bottom: 1px dotted #8a857e; border-right: 10px solid #fff; }
+  .page:last-child { break-after: auto; page-break-after: auto; }
+  @page { size: A4; margin: 0; }
+  @media screen { body { background: #d9d6d1; } .page { margin: 10px auto; } }
+</style>
+</head>
+<body>
+
+<!-- ============ PAGE 1 ============ -->
+<section class="page">
+  <div class="head">
+    <img class="logo" src="magar-logo.svg" alt="MAGAR Développement">
+    <div class="meta">
+      <span class="k">Réf.</span><span>LST-2026-TFX-002</span>
+      <span class="k">Date</span><span>30/10/2026</span>
+      <span class="k">Devis lié</span><span>DEV-2026-TFX-004 · CDC-0007</span>
+      <span class="k">Client</span><span>Tacos Fox, 5 restaurants</span>
+      <span class="k">Prestataire</span><span>MAGAR Développement</span>
+    </div>
+  </div>
+
+  <p class="kicker">Liste de contrôle · Formule Essentiel · 5 restaurants</p>
+  <h1>Éléments à fournir pour la mise en ligne</h1>
+  <p class="sub">Tout ce que Tacos Fox nous transmet pour lancer son site de commande à emporter. À cocher au fur et à mesure.</p>
+
+  <div class="brief"><b>En bref.</b> Pour mettre le site en ligne, nous avons besoin des informations ci-dessous. Envoyez-les par WhatsApp ou e-mail (<b>andrys.developper@gmail.com</b>), en une ou plusieurs fois. Les points marqués <span class="tag">requis</span> conditionnent la mise en ligne ; les autres peuvent suivre. Les informations propres à chaque restaurant se notent dans les <b>fiches restaurant</b> (pages 6 et 7).</div>
+
+  <h2><span class="n">01</span>Société et informations légales</h2>
+  <p style="font-size:9.8pt">Les factures des clients sont émises <b>au nom du restaurant qui encaisse</b>. Il nous faut donc la société qui signe le devis, et la société qui exploite chaque restaurant (si c'est la même, indiquez-le simplement).</p>
+  <table>
+    <tr><th></th><th>Élément</th><th>Détail et utilisation</th></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Société signataire <span class="tag">requis</span></td><td>Raison sociale et forme juridique (SARL, SAS…), SIRET (14 chiffres), adresse du siège.<span class="why">Devis, contrat, mentions légales du site.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Nom du gérant <span class="tag">requis</span></td><td>La personne qui signe le devis. Elle est aussi indiquée comme responsable du site.<span class="why">Contrat, mentions légales.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Société de chaque restaurant <span class="tag">requis</span></td><td>Pour chacun des 5 restaurants : raison sociale, SIRET et numéro de TVA de la société qui l'exploite. À noter dans la fiche restaurant.<span class="why">Factures des clients, CGV, compte de paiement.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Taux de TVA</td><td>Les taux appliqués sur vos ventes à emporter (plats, boissons). À confirmer avec votre comptable.<span class="why">Montants de TVA sur les factures.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Médiateur de la consommation</td><td>Nom et site du médiateur auquel vos restaurants adhèrent (souvent proposé par l'assureur ou la fédération). Si vous n'en avez pas, nous vous indiquons des médiateurs agréés.<span class="why">Mention obligatoire dans les CGV.</span></td></tr>
+  </table>
+
+  <div class="confid">Document confidentiel, propriété de MAGAR Développement. Ne peut être communiqué à des tiers sans accord écrit.</div>
+  <div class="foot"><span>LST-2026-TFX-002 · MAGAR DÉVELOPPEMENT · SIRET 908 058 092 00028</span><span>1</span></div>
+</section>
+
+<!-- ============ PAGE 2 ============ -->
+<section class="page">
+  <div class="runhead"><span>Éléments à fournir · Site de commande Tacos Fox · 5 restaurants</span><span>LST-2026-TFX-002 · 30/10/2026</span></div>
+
+  <h2 style="margin-top:8px"><span class="n">02</span>Paiement en ligne</h2>
+  <p style="font-size:9.8pt">Les clients paient par carte sur le site. L'argent arrive <b>directement sur le compte bancaire du restaurant</b>, pas chez nous. Pour cela, chaque restaurant a un <b>compte de paiement</b> (service Stripe). Si une même société possède plusieurs restaurants, un seul compte suffit pour cette société.</p>
+  <table>
+    <tr><th></th><th>Élément</th><th>Détail et utilisation</th></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Nombre de comptes <span class="tag">requis</span></td><td>Dites-nous quels restaurants partagent la même société. Exemple : restaurants 1 et 2 = une société, donc un compte.<span class="why">Pour savoir combien de comptes ouvrir.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Pièce d'identité <span class="tag">requis</span></td><td>Carte d'identité ou passeport du représentant légal de la société, en cours de validité.<span class="why">Vérification d'identité exigée par la loi.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Extrait Kbis <span class="tag">requis</span></td><td>De moins de 3 mois, pour chaque société.<span class="why">Prouve que la société existe.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">RIB <span class="tag">requis</span></td><td>Le RIB du compte bancaire qui recevra les paiements des clients.<span class="why">Les ventes y sont virées automatiquement.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Téléphone portable <span class="tag">requis</span></td><td>Du représentant légal : un code de sécurité y est envoyé à la création.<span class="why">Sécurité du compte.</span></td></tr>
+  </table>
+  <div class="brief" style="font-size:9.8pt; margin-top:8px"><b>Création accompagnée.</b> Nous ouvrons chaque compte avec vous, sur place ou en visio : environ 30 minutes par compte. Le compte est au nom de la société : elle en reste propriétaire. Frais du service : environ <b>1,5 % + 0,25 € par paiement</b>, à la charge de chaque restaurant.</div>
+
+  <h2><span class="n">03</span>L'équipe et les accès</h2>
+  <p style="font-size:9.8pt">Chaque personne a son propre <b>compte de connexion sécurisé</b>. Elle reçoit une invitation par e-mail, puis se connecte pour voir les commandes.</p>
+  <table>
+    <tr><th></th><th>Élément</th><th>Détail et utilisation</th></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Équipe de chaque restaurant <span class="tag">requis</span></td><td>Prénom et e-mail de chaque personne qui utilisera l'écran cuisine. Elle ne voit que les commandes de son restaurant. Tableau à remplir page 7.<span class="why">Création des accès à l'écran cuisine.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Les gérants <span class="tag">requis</span></td><td>Qui sont les gérants : ils ont accès aux commandes, à l'historique et aux factures des 5 restaurants.<span class="why">Les changements de carte, de prix et d'horaires sont faits par MAGAR Développement sur simple message (option O1 pour les faire vous-mêmes).</span></td></tr>
+  </table>
+
+  <div class="confid">Document confidentiel, propriété de MAGAR Développement. Ne peut être communiqué à des tiers sans accord écrit.</div>
+  <div class="foot"><span>LST-2026-TFX-002 · MAGAR DÉVELOPPEMENT · SIRET 908 058 092 00028</span><span>2</span></div>
+</section>
+
+<!-- ============ PAGE 3 ============ -->
+<section class="page">
+  <div class="runhead"><span>Éléments à fournir · Site de commande Tacos Fox · 5 restaurants</span><span>LST-2026-TFX-002 · 30/10/2026</span></div>
+
+  <h2 style="margin-top:8px"><span class="n">04</span>La carte</h2>
+  <p style="font-size:9.8pt">La carte commune aux restaurants est déjà relevée dans le fichier <b>Carte_Tacos_Fox.xlsx</b> (131 produits). Il reste à la valider et à compléter les points ci-dessous.</p>
+  <table>
+    <tr><th></th><th>Élément</th><th>Détail et utilisation</th></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Validation du relevé <span class="tag">requis</span></td><td>Relire le fichier : noms, compositions, prix. Signaler toute erreur.<span class="why">La carte en ligne est saisie à partir de ce relevé.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Prix à confirmer <span class="tag">requis</span></td><td>Desserts, boissons, paninis, crêpes, menu enfant, salade norvégienne, supplément raclette.<span class="why">Ces prix n'étaient pas lisibles lors du relevé.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Différences du 5<sup>e</sup> restaurant <span class="tag">requis</span></td><td>Un des 5 restaurants a une carte un peu différente. Dites-nous <b>lequel</b>, puis listez : les produits en plus, les produits en moins, les prix différents.<span class="why">Chaque restaurant affiche sa propre carte.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Règles des offres <span class="tag">requis</span></td><td>Pizza « 1 achetée = 1 offerte » : quelles tailles sont concernées ? L'offre s'applique-t-elle dans les 5 restaurants ? Menus : frites et boisson toujours incluses ?<span class="why">Le site calcule l'offre tout seul.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Suppléments et accompagnements <span class="tag">requis</span></td><td>Le relevé n'indique que les frites. Existe-t-il d'autres accompagnements ou suppléments (fromage, sauce, viande en plus…) ? À quel prix ?<span class="why">Choix proposés au client pendant la commande.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Allergènes <span class="tag">requis</span></td><td>Pour chaque plat, les allergènes présents parmi les 14 obligatoires (gluten, œufs, lait, arachides, fruits à coque, soja, poisson, crustacés, mollusques, céleri, moutarde, sésame, sulfites, lupin). Nous fournissons un tableau à cocher.<span class="why">Obligation légale : le client doit pouvoir les voir avant de commander.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Incontournables</td><td>4 à 8 plats à mettre en avant sur la page d'accueil. Par défaut : tacos, Le 360, Bowl 1 viande, Crousty Fox.</td></tr>
+  </table>
+
+  <div class="confid">Document confidentiel, propriété de MAGAR Développement. Ne peut être communiqué à des tiers sans accord écrit.</div>
+  <div class="foot"><span>LST-2026-TFX-002 · MAGAR DÉVELOPPEMENT · SIRET 908 058 092 00028</span><span>3</span></div>
+</section>
+
+<!-- ============ PAGE 4 ============ -->
+<section class="page">
+  <div class="runhead"><span>Éléments à fournir · Site de commande Tacos Fox · 5 restaurants</span><span>LST-2026-TFX-002 · 30/10/2026</span></div>
+
+  <h2 style="margin-top:8px"><span class="n">05</span>Identité visuelle</h2>
+  <table>
+    <tr><th></th><th>Élément</th><th>Détail et utilisation</th></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Logo en haute définition <span class="tag">requis</span></td><td>Fichier d'origine : SVG, AI, PDF ou PNG grand format (2000 px minimum). Une photo de l'enseigne ne suffit pas.<span class="why">En-tête du site, QR codes, factures.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Couleurs</td><td>Si vous avez une charte graphique. Sinon nous gardons les couleurs de la maquette.</td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Slogan</td><td>Valider « La meilleure excuse pour ne pas cuisiner ce soir » ou proposer le vôtre.</td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Mention halal</td><td>Nom exact de l'organisme qui certifie et photo du certificat (un par restaurant si différent).<span class="why">Affiché sur le site pour rassurer les clients.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Réseaux sociaux</td><td>Liens Instagram, Snapchat, TikTok, Facebook (ceux qui existent).</td></tr>
+  </table>
+
+  <h2><span class="n">06</span>Photos</h2>
+  <table>
+    <tr><th></th><th>Élément</th><th>Détail et utilisation</th></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Plats phares <span class="tag">requis</span></td><td>Au minimum : un tacos, un burger, une pizza, un bowl, un Crousty Fox, et une belle photo pour la bannière d'accueil.<span class="why">Cartes produits et page d'accueil.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Devanture de chaque restaurant <span class="tag">requis</span></td><td>Une photo de la façade de chacun des 5 restaurants.<span class="why">Page de chaque ville, pour être trouvé sur Google.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Conseils de prise de vue</td><td>Lumière du jour, fond simple, plat au centre, pas de flash. 1 200 px minimum. Envoi par WeTransfer ou Google Drive (WhatsApp abîme la qualité).</td></tr>
+  </table>
+
+  <h2><span class="n">07</span>Nom de domaine et Google</h2>
+  <table>
+    <tr><th></th><th>Élément</th><th>Détail et utilisation</th></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Nom de domaine <span class="tag">requis</span></td><td>Choisissez l'adresse du site (par exemple <b>tacosfox.fr</b>), nous vérifions qu'elle est libre. Inclus la première année.<span class="why">Adresse du site et des e-mails de commande.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Fiches Google des restaurants</td><td>Si vos restaurants ont déjà une fiche sur Google Maps : le lien de chaque fiche, ou l'accès au compte Google qui les gère.<span class="why">Relier chaque page ville à sa fiche Google.</span></td></tr>
+  </table>
+
+  <div class="confid">Document confidentiel, propriété de MAGAR Développement. Ne peut être communiqué à des tiers sans accord écrit.</div>
+  <div class="foot"><span>LST-2026-TFX-002 · MAGAR DÉVELOPPEMENT · SIRET 908 058 092 00028</span><span>4</span></div>
+</section>
+
+<!-- ============ PAGE 5 ============ -->
+<section class="page">
+  <div class="runhead"><span>Éléments à fournir · Site de commande Tacos Fox · 5 restaurants</span><span>LST-2026-TFX-002 · 30/10/2026</span></div>
+
+  <h2 style="margin-top:8px"><span class="n">08</span>Matériel en cuisine</h2>
+  <p style="font-size:9.8pt">Les commandes s'affichent sur un <b>écran cuisine</b> qui fonctionne dans un simple navigateur internet : pas de logiciel à installer. Le matériel reste à la charge de chaque restaurant.</p>
+  <table>
+    <tr><th></th><th>Élément</th><th>Détail et utilisation</th></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Appareil utilisé <span class="tag">requis</span></td><td>Pour chaque restaurant : tablette, ordinateur ou écran ? Marque si possible.<span class="why">Vérifier que l'écran cuisine s'affiche bien.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Connexion internet <span class="tag">requis</span></td><td>Wi-Fi ou box dans chaque cuisine, qui fonctionne pendant le service.<span class="why">Les commandes arrivent par internet.</span></td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Imprimante à tickets</td><td>Si vous en voulez une : marque et modèle (ou photo de l'étiquette), pour chaque restaurant concerné.<span class="why">Tester l'impression des tickets de commande.</span></td></tr>
+  </table>
+
+  <h2><span class="n">09</span>Pour la recette (les essais)</h2>
+  <table>
+    <tr><th></th><th>Élément</th><th>Détail</th></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Un responsable par restaurant</td><td>Disponible environ 1 heure : passer une commande d'essai, la voir arriver sur l'écran cuisine, la faire avancer jusqu'à « prête », retrouver une commande et sa facture dans l'historique.</td></tr>
+    <tr><td class="c"><span class="box"></span></td><td class="el">Une carte bancaire</td><td>Pour un vrai paiement de 1 € dans chaque restaurant, remboursé ensuite. On vérifie ainsi que l'argent arrive bien sur le bon compte.</td></tr>
+  </table>
+
+  <div class="cols" style="margin-top:18px">
+    <div class="panel">
+      <h3>Mise en ligne</h3>
+      <ul>
+        <li>Les 3 semaines du planning comptent <b>à partir de la réception des éléments requis</b>.</li>
+        <li>Le site peut ouvrir <b>restaurant par restaurant</b> : dès que les éléments d'un restaurant et son compte de paiement sont prêts, il passe en ligne.</li>
+        <li>Les photos et les allergènes peuvent se compléter ensuite.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Comment envoyer</h3>
+      <ul>
+        <li>WhatsApp ou e-mail : <b>andrys.developper@gmail.com</b> · 06 41 59 86 88</li>
+        <li>Photos et logo : WeTransfer ou Google Drive, pour garder la qualité.</li>
+        <li>Inutile de tout envoyer d'un coup : chaque élément reçu est intégré au fur et à mesure.</li>
+        <li>Une question ? Appelez, on règle ça en deux minutes.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="brief" style="margin-top:18px"><b>Dernière étape.</b> Remplissez une fiche par restaurant (pages 6 et 7). Vous pouvez la photographier et l'envoyer par WhatsApp, ou nous la dicter par téléphone.</div>
+
+  <div class="confid">Document confidentiel, propriété de MAGAR Développement. Ne peut être communiqué à des tiers sans accord écrit.</div>
+  <div class="foot"><span>LST-2026-TFX-002 · MAGAR DÉVELOPPEMENT · SIRET 908 058 092 00028</span><span>5</span></div>
+</section>
+
+<!-- ============ PAGE 6 : FICHES 1-3 ============ -->
+<section class="page">
+  <div class="runhead"><span>Éléments à fournir · Site de commande Tacos Fox · 5 restaurants</span><span>LST-2026-TFX-002 · 30/10/2026</span></div>
+
+  <h2 style="margin-top:4px; margin-bottom:4px"><span class="n">10</span>Fiches restaurant</h2>
+  <p style="font-size:9pt; color:var(--muted); margin-bottom:6px">Une fiche par restaurant. Horaires : notez l'ouverture et la fermeture, cochez « fermé » les jours de fermeture (en cas de coupure, notez les deux plages).</p>
+
+  <div class="fiche"><div class="fh"><b>Restaurant 1</b><span>Fiche à remplir</span></div><div class="fb"><div><div class="f"><span class="l">Nom affiché sur le site</span><span class="d"></span></div><div class="f"><span class="l">Adresse (n°, rue)</span><span class="d"></span></div><div class="f"><span class="l">Code postal</span><span class="d"></span><span class="s">Ville</span><span class="d"></span></div><div class="f"><span class="l">Téléphone affiché aux clients</span><span class="d"></span></div><div class="f"><span class="l">Délai moyen de préparation</span><span class="d"></span><span class="s">min · Nombre de tables (QR codes)</span><span class="d"></span></div><div class="f"><span class="l">Société qui exploite (raison sociale)</span><span class="d"></span></div><div class="f"><span class="l">SIRET</span><span class="d"></span><span class="s">N° TVA</span><span class="d"></span></div><div class="f"><span class="l">Compte de paiement :</span><span class="bx"></span><span class="sm">propre à ce restaurant</span><span class="bx"></span><span class="sm">partagé avec le n°</span><span class="d"></span></div><div class="f"><span class="l">Personne de contact (prénom, nom)</span><span class="d"></span></div><div class="f"><span class="l">Téléphone ou e-mail du contact</span><span class="d"></span></div></div><div><div class="hcap">Horaires d'ouverture</div><div class="f"><span class="l day">Lundi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Mardi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Mercredi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Jeudi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Vendredi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Samedi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Dimanche</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l">Congés, jours fériés</span><span class="d"></span></div></div></div></div>
+  <div class="fiche"><div class="fh"><b>Restaurant 2</b><span>Fiche à remplir</span></div><div class="fb"><div><div class="f"><span class="l">Nom affiché sur le site</span><span class="d"></span></div><div class="f"><span class="l">Adresse (n°, rue)</span><span class="d"></span></div><div class="f"><span class="l">Code postal</span><span class="d"></span><span class="s">Ville</span><span class="d"></span></div><div class="f"><span class="l">Téléphone affiché aux clients</span><span class="d"></span></div><div class="f"><span class="l">Délai moyen de préparation</span><span class="d"></span><span class="s">min · Nombre de tables (QR codes)</span><span class="d"></span></div><div class="f"><span class="l">Société qui exploite (raison sociale)</span><span class="d"></span></div><div class="f"><span class="l">SIRET</span><span class="d"></span><span class="s">N° TVA</span><span class="d"></span></div><div class="f"><span class="l">Compte de paiement :</span><span class="bx"></span><span class="sm">propre à ce restaurant</span><span class="bx"></span><span class="sm">partagé avec le n°</span><span class="d"></span></div><div class="f"><span class="l">Personne de contact (prénom, nom)</span><span class="d"></span></div><div class="f"><span class="l">Téléphone ou e-mail du contact</span><span class="d"></span></div></div><div><div class="hcap">Horaires d'ouverture</div><div class="f"><span class="l day">Lundi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Mardi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Mercredi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Jeudi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Vendredi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Samedi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Dimanche</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l">Congés, jours fériés</span><span class="d"></span></div></div></div></div>
+  <div class="fiche"><div class="fh"><b>Restaurant 3</b><span>Fiche à remplir</span></div><div class="fb"><div><div class="f"><span class="l">Nom affiché sur le site</span><span class="d"></span></div><div class="f"><span class="l">Adresse (n°, rue)</span><span class="d"></span></div><div class="f"><span class="l">Code postal</span><span class="d"></span><span class="s">Ville</span><span class="d"></span></div><div class="f"><span class="l">Téléphone affiché aux clients</span><span class="d"></span></div><div class="f"><span class="l">Délai moyen de préparation</span><span class="d"></span><span class="s">min · Nombre de tables (QR codes)</span><span class="d"></span></div><div class="f"><span class="l">Société qui exploite (raison sociale)</span><span class="d"></span></div><div class="f"><span class="l">SIRET</span><span class="d"></span><span class="s">N° TVA</span><span class="d"></span></div><div class="f"><span class="l">Compte de paiement :</span><span class="bx"></span><span class="sm">propre à ce restaurant</span><span class="bx"></span><span class="sm">partagé avec le n°</span><span class="d"></span></div><div class="f"><span class="l">Personne de contact (prénom, nom)</span><span class="d"></span></div><div class="f"><span class="l">Téléphone ou e-mail du contact</span><span class="d"></span></div></div><div><div class="hcap">Horaires d'ouverture</div><div class="f"><span class="l day">Lundi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Mardi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Mercredi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Jeudi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Vendredi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Samedi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Dimanche</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l">Congés, jours fériés</span><span class="d"></span></div></div></div></div>
+
+  <div class="confid">Document confidentiel, propriété de MAGAR Développement. Ne peut être communiqué à des tiers sans accord écrit.</div>
+  <div class="foot"><span>LST-2026-TFX-002 · MAGAR DÉVELOPPEMENT · SIRET 908 058 092 00028</span><span>6</span></div>
+</section>
+
+<!-- ============ PAGE 7 : FICHES 4-5 + ÉQUIPE ============ -->
+<section class="page">
+  <div class="runhead"><span>Éléments à fournir · Site de commande Tacos Fox · 5 restaurants</span><span>LST-2026-TFX-002 · 30/10/2026</span></div>
+
+  <div class="fiche"><div class="fh"><b>Restaurant 4</b><span>Fiche à remplir</span></div><div class="fb"><div><div class="f"><span class="l">Nom affiché sur le site</span><span class="d"></span></div><div class="f"><span class="l">Adresse (n°, rue)</span><span class="d"></span></div><div class="f"><span class="l">Code postal</span><span class="d"></span><span class="s">Ville</span><span class="d"></span></div><div class="f"><span class="l">Téléphone affiché aux clients</span><span class="d"></span></div><div class="f"><span class="l">Délai moyen de préparation</span><span class="d"></span><span class="s">min · Nombre de tables (QR codes)</span><span class="d"></span></div><div class="f"><span class="l">Société qui exploite (raison sociale)</span><span class="d"></span></div><div class="f"><span class="l">SIRET</span><span class="d"></span><span class="s">N° TVA</span><span class="d"></span></div><div class="f"><span class="l">Compte de paiement :</span><span class="bx"></span><span class="sm">propre à ce restaurant</span><span class="bx"></span><span class="sm">partagé avec le n°</span><span class="d"></span></div><div class="f"><span class="l">Personne de contact (prénom, nom)</span><span class="d"></span></div><div class="f"><span class="l">Téléphone ou e-mail du contact</span><span class="d"></span></div></div><div><div class="hcap">Horaires d'ouverture</div><div class="f"><span class="l day">Lundi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Mardi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Mercredi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Jeudi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Vendredi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Samedi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Dimanche</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l">Congés, jours fériés</span><span class="d"></span></div></div></div></div>
+  <div class="fiche"><div class="fh"><b>Restaurant 5</b><span>Fiche à remplir</span></div><div class="fb"><div><div class="f"><span class="l">Nom affiché sur le site</span><span class="d"></span></div><div class="f"><span class="l">Adresse (n°, rue)</span><span class="d"></span></div><div class="f"><span class="l">Code postal</span><span class="d"></span><span class="s">Ville</span><span class="d"></span></div><div class="f"><span class="l">Téléphone affiché aux clients</span><span class="d"></span></div><div class="f"><span class="l">Délai moyen de préparation</span><span class="d"></span><span class="s">min · Nombre de tables (QR codes)</span><span class="d"></span></div><div class="f"><span class="l">Société qui exploite (raison sociale)</span><span class="d"></span></div><div class="f"><span class="l">SIRET</span><span class="d"></span><span class="s">N° TVA</span><span class="d"></span></div><div class="f"><span class="l">Compte de paiement :</span><span class="bx"></span><span class="sm">propre à ce restaurant</span><span class="bx"></span><span class="sm">partagé avec le n°</span><span class="d"></span></div><div class="f"><span class="l">Personne de contact (prénom, nom)</span><span class="d"></span></div><div class="f"><span class="l">Téléphone ou e-mail du contact</span><span class="d"></span></div></div><div><div class="hcap">Horaires d'ouverture</div><div class="f"><span class="l day">Lundi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Mardi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Mercredi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Jeudi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Vendredi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Samedi</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l day">Dimanche</span><span class="d"></span><span class="s">à</span><span class="d"></span><span class="bx"></span><span class="sm">fermé</span></div><div class="f"><span class="l">Congés, jours fériés</span><span class="d"></span></div></div></div></div>
+
+  <h2 style="margin-top:2mm; margin-bottom:2px"><span class="n">11</span>L'équipe</h2>
+  <table class="team">
+    <colgroup><col style="width:30mm"><col style="width:48mm"><col><col style="width:20mm"></colgroup>
+    <tr><th>Restaurant n°</th><th>Prénom</th><th>E-mail</th><th style="text-align:center">Gérant</th></tr>
+    <tr><td class="dot"></td><td class="dot"></td><td class="dot"></td><td class="c"><span class="box"></span></td></tr><tr><td class="dot"></td><td class="dot"></td><td class="dot"></td><td class="c"><span class="box"></span></td></tr><tr><td class="dot"></td><td class="dot"></td><td class="dot"></td><td class="c"><span class="box"></span></td></tr><tr><td class="dot"></td><td class="dot"></td><td class="dot"></td><td class="c"><span class="box"></span></td></tr><tr><td class="dot"></td><td class="dot"></td><td class="dot"></td><td class="c"><span class="box"></span></td></tr><tr><td class="dot"></td><td class="dot"></td><td class="dot"></td><td class="c"><span class="box"></span></td></tr><tr><td class="dot"></td><td class="dot"></td><td class="dot"></td><td class="c"><span class="box"></span></td></tr><tr><td class="dot"></td><td class="dot"></td><td class="dot"></td><td class="c"><span class="box"></span></td></tr><tr><td class="dot"></td><td class="dot"></td><td class="dot"></td><td class="c"><span class="box"></span></td></tr>
+  </table>
+  <p style="font-size:8.5pt; color:var(--muted); margin-top:3px">Cochez « Gérant » pour les personnes qui ont accès aux 5 restaurants. Plus de lignes ? Envoyez la liste par WhatsApp ou e-mail.</p>
+
+  <div class="confid">Document confidentiel, propriété de MAGAR Développement. Ne peut être communiqué à des tiers sans accord écrit.</div>
+  <div class="foot"><span>LST-2026-TFX-002 · MAGAR DÉVELOPPEMENT · SIRET 908 058 092 00028</span><span>7</span></div>
+</section>
+
+</body>
+</html>

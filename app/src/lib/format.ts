@@ -2,6 +2,9 @@
 
 export const MODE_LABELS = { SURPLACE: 'Sur place', EMPORTER: 'À emporter', LIVRAISON: 'Livraison' } as const;
 
+/* Remise enregistrée : un code promo, ou une offre de la carte (3+1, bouteille). */
+export const discountLabel = (promoCode?: string | null) => (promoCode ? `Remise ${promoCode}` : 'Offre');
+
 /* Paiement au comptoir : moyens que le restaurant accepte (Gestion > Restaurants) */
 export const ONSITE_METHODS = ['ESPECES', 'TITRE_RESTAURANT', 'CHEQUE_VACANCES'] as const;
 export type OnsiteMethod = typeof ONSITE_METHODS[number];

@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>LST-2026-TFX-003 · Éléments manquants · Tacos Fox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,600;0,700;1,400&family=Barlow+Condensed:wght@600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4; margin: 0; }
+  :root { --orange: #E07B2E; --orange-soft: #FBEFE4; --ink: #1E1E1E; --muted: #5A5A5A; --line: #E6E2DC; --grey: #F3F1EE; --green: #1F8A4C; --green-soft: #E6F3EC; --red: #C0392B; --red-soft: #FBE8E6; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; background: #fff; color: var(--ink); font-family: 'Barlow', Arial, sans-serif; font-size: 9.9pt; line-height: 1.38; }
+  .page { width: 210mm; height: 297mm; margin: 0 auto; page-break-after: always; position: relative; overflow: hidden; padding: 13mm 16mm 0; display: flex; flex-direction: column; }
+  .page:last-child { page-break-after: auto; }
+  .page::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: var(--orange); }
+  .grow { flex: 1; }
+  h1 { font-family: 'Barlow Condensed', 'Barlow', sans-serif; font-weight: 700; font-size: 26pt; line-height: 1.05; margin: 3px 0 3px; }
+  h2 { font-family: 'Barlow Condensed', 'Barlow', sans-serif; font-weight: 700; font-size: 14pt; text-transform: uppercase; letter-spacing: .01em; margin: 10px 0 6px; padding-bottom: 3px; border-bottom: 2px solid var(--ink); display: flex; align-items: baseline; gap: 12px; }
+  h2 .n { font-family: 'JetBrains Mono', monospace; font-size: 8.5pt; color: var(--orange); font-weight: 500; }
+  p { margin: 0 0 7px; }
+  .kicker { font-family: 'JetBrains Mono', monospace; font-size: 8.3pt; letter-spacing: .08em; text-transform: uppercase; color: var(--orange); margin: 0 0 2px; }
+  .sub { color: var(--muted); font-size: 10.8pt; margin-bottom: 8px; }
+  .head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .logo { width: 104px; }
+  .meta { font-size: 9.3pt; display: grid; grid-template-columns: auto auto; gap: 2px 14px; align-items: baseline; }
+  .meta .k { font-family: 'JetBrains Mono', monospace; font-size: 7.8pt; letter-spacing: .08em; text-transform: uppercase; color: var(--orange); }
+  .brief { background: var(--orange-soft); border-left: 4px solid var(--orange); padding: 7px 12px; margin: 4px 0 2px; }
+
+  /* Avancement */
+  .status { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .status .col { border: 1px solid var(--line); padding: 8px 11px; }
+  .status h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 11.5pt; text-transform: uppercase; margin: 0 0 4px; display: flex; justify-content: space-between; }
+  .status h3 small { font-family: 'JetBrains Mono', monospace; font-size: 7.5pt; color: var(--green); letter-spacing: .06em; }
+  .mods { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.5px; font-size: 8.9pt; }
+  .mods li { display: flex; gap: 6px; align-items: baseline; }
+  .mods .c { font-family: 'JetBrains Mono', monospace; font-size: 7.5pt; color: var(--muted); width: 18px; flex: none; }
+  .mods .ok { color: var(--green); font-weight: 700; flex: none; width: 10px; }
+  .mods .wait { color: var(--orange); font-weight: 700; flex: none; width: 10px; }
+  .mods em { font-style: normal; color: var(--orange); font-size: 8.3pt; }
+
+  /* Tableau des éléments */
+  table { width: 100%; border-collapse: collapse; margin: 4px 0 2px; font-size: 9.1pt; }
+  th { background: var(--ink); color: #fff; text-align: left; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 9pt; letter-spacing: .04em; text-transform: uppercase; padding: 5px 7px; }
+  td { padding: 3.6px 7px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--grey); }
+  td.c { width: 20px; padding-right: 0; }
+  .box { display: inline-block; width: 11px; height: 11px; border: 1.5px solid var(--ink); border-radius: 2px; margin-top: 2px; }
+  td.el { width: 168px; font-weight: 700; }
+  td .why { display: block; color: var(--muted); font-size: 8.4pt; font-weight: 400; margin-top: 1px; }
+  td.p { width: 74px; }
+  .tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 7pt; letter-spacing: .05em; text-transform: uppercase; padding: 2px 5px; border-radius: 3px; white-space: nowrap; }
+  .tag.block { background: var(--red); color: #fff; }
+  .tag.recette { background: var(--orange); color: #fff; }
+  .tag.later { background: #e9e6e1; color: var(--muted); }
+
+  /* Fiches restaurant */
+  .fiche { border: 1px solid #cfcac2; margin: 0 0 3mm; break-inside: avoid; }
+  .fiche .fh { background: var(--ink); color: #fff; display: flex; justify-content: space-between; align-items: baseline; padding: 3px 10px; }
+  .fiche .fh b { font-family: 'Barlow Condensed', sans-serif; font-size: 11.5pt; text-transform: uppercase; letter-spacing: .03em; }
+  .fiche .fh span { font-family: 'JetBrains Mono', monospace; font-size: 7.3pt; letter-spacing: .06em; text-transform: uppercase; color: #f2b483; }
+  .fiche .fb { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; padding: 2px 10px 5px; }
+  .f { display: flex; align-items: flex-end; height: 5.6mm; font-size: 8.6pt; line-height: 1.1; }
+  .f .l { white-space: nowrap; color: var(--muted); margin-right: 5px; }
+  .f .d { flex: 1; border-bottom: 1px dotted #8a857e; height: 1px; margin-bottom: 2px; }
+  .f .s { white-space: nowrap; color: var(--muted); margin-left: 5px; font-size: 8pt; }
+  .hours { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 3px; }
+  .hours div { border: 1px solid var(--line); height: 9mm; font-size: 7.3pt; color: var(--muted); padding: 1px 3px; font-family: 'JetBrains Mono', monospace; letter-spacing: .04em; text-transform: uppercase; }
+
+  /* Étapes */
+  .steps { list-style: none; margin: 3px 0 0; padding: 0; display: grid; gap: 4px; }
+  .steps li { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: start; border: 1px solid var(--line); padding: 5px 11px; }
+  .steps .n { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 18pt; color: var(--orange); line-height: 1; }
+  .steps b { display: block; font-size: 10.2pt; }
+  .steps span { color: var(--muted); font-size: 9.2pt; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .panel { border: 1px solid var(--line); padding: 9px 12px; }
+  .panel h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 12pt; text-transform: uppercase; margin: 0 0 5px; }
+  .panel.plus { background: var(--green-soft); border-color: #cfe5d8; }
+  .panel.opt { background: var(--grey); }
+  ul { margin: 0; padding-left: 16px; }
+  li { margin: 1.5px 0; }
+  li::marker { color: var(--orange); }
+  .contact { margin-top: 6px; background: var(--ink); color: #fff; padding: 11px 14px; display: flex; justify-content: space-between; align-items: center; gap: 14px; }
+  .contact b { font-family: 'Barlow Condensed', sans-serif; font-size: 13pt; text-transform: uppercase; letter-spacing: .02em; }
+  .contact span { font-size: 9.3pt; color: rgba(255,255,255,.8); }
+
+  .foot { margin-top: auto; padding: 4px 0 7mm; display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 7.3pt; letter-spacing: .06em; color: var(--muted); border-top: 1px solid var(--line); }
+  .runhead { display: flex; justify-content: space-between; font-family: 'Barlow Condensed', sans-serif; font-size: 9pt; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<!-- ============ PAGE 1 ============ -->
+<section class="page">
+  <div class="head">
+    <div>
+      <div class="kicker">LST-2026-TFX-003 · Point d'avancement</div>
+      <h1>Ce qu'il nous manque<br>avant la mise en ligne</h1>
+      <div class="sub">Site de commande Tacos Fox · formule Essentiel, 5 restaurants</div>
+    </div>
+    <div style="text-align:right">
+      <img class="logo" src="magar-logo.svg" alt="MAGAR Développement">
+      <div class="meta" style="margin-top:8px">
+        <span class="k">Date</span><span>03/11/2026</span>
+        <span class="k">Réf.</span><span>DEV-2026-TFX-004 · CDC-0007</span>
+        <span class="k">Client</span><span>Tacos Fox, 5 restaurants</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="brief">
+    <b>Le site est développé.</b> Les 17 modules du cahier des charges sont en place et testés. Pour passer à la <b>recette</b>
+    (la vérification finale faite ensemble) puis à la <b>mise en ligne</b>, il nous manque les éléments ci-dessous.
+    Les éléments <b>bloquants</b> sont à nous transmettre en priorité.
+  </div>
+
+  <h2><span class="n">01</span>Où en est le site</h2>
+  <div class="status">
+    <div class="col">
+      <h3>Côté client <small>9 / 9 PRÊTS</small></h3>
+      <ul class="mods">
+        <li><span class="ok">✓</span><span class="c">C1</span>Accueil : offres, incontournables, badge halal</li>
+        <li><span class="ok">✓</span><span class="c">C2</span>Choix parmi les 5 restaurants</li>
+        <li><span class="ok">✓</span><span class="c">C3</span>Carte avec photos <em>· carte du 5e à recevoir</em></li>
+        <li><span class="ok">✓</span><span class="c">C4</span>Composer son tacos, seul ou en menu</li>
+        <li><span class="ok">✓</span><span class="c">C5</span>Panier, à emporter, « prêt dans 15 min » ou créneau</li>
+        <li><span class="ok">✓</span><span class="c">C6</span>Paiement carte sécurisé (3-D Secure)</li>
+        <li><span class="ok">✓</span><span class="c">C7</span>Suivi en direct et facture téléchargeable</li>
+        <li><span class="ok">✓</span><span class="c">C8</span>Une page par restaurant pour Google</li>
+        <li><span class="ok">✓</span><span class="c">C9</span>Pages légales <em>· médiateur à recevoir</em></li>
+      </ul>
+    </div>
+    <div class="col">
+      <h3>Côté restaurant <small>8 / 8 PRÊTS</small></h3>
+      <ul class="mods">
+        <li><span class="ok">✓</span><span class="c">R1</span>Commandes reçues en direct, e-mail d'alerte</li>
+        <li><span class="ok">✓</span><span class="c">R2</span>Écran cuisine en 3 colonnes</li>
+        <li><span class="ok">✓</span><span class="c">R3</span>Sonnerie répétée, alerte en cas de retard</li>
+        <li><span class="ok">✓</span><span class="c">R4</span>Facture au nom de chaque société <em>· TVA à confirmer</em></li>
+        <li><span class="ok">✓</span><span class="c">R5</span>Encaissement séparé <em>· comptes Stripe à ouvrir</em></li>
+        <li><span class="ok">✓</span><span class="c">R6</span>Historique des commandes et factures</li>
+        <li><span class="ok">✓</span><span class="c">R7</span>Un QR code par restaurant</li>
+        <li><span class="ok">✓</span><span class="c">R8</span>Comptes cuisine créés <em>· gérant et équipe à recevoir</em></li>
+      </ul>
+    </div>
+  </div>
+
+  <h2><span class="n">02</span>Les prochaines étapes</h2>
+  <ol class="steps">
+    <li><span class="n">1</span><div><b>Vous nous transmettez les éléments</b><span>En priorité les bloquants : horaires et téléphones, comptes Stripe, nom de domaine, carte du Blanc-Mesnil.</span></div></li>
+    <li><span class="n">2</span><div><b>Ouverture des comptes Stripe, accompagnée</b><span>Une séance d'environ 30 minutes par société, avec le dirigeant. Les paiements arrivent ensuite directement sur le compte de chaque restaurant.</span></div></li>
+    <li><span class="n">3</span><div><b>Nous finalisons</b><span>Saisie des horaires, de la carte et des allergènes, mise en place du domaine et des e-mails, comptes du gérant et de l'équipe, QR codes définitifs.</span></div></li>
+    <li><span class="n">4</span><div><b>Recette ensemble</b><span>Les 12 points du cahier des charges sont vérifiés, dont une vraie commande de test dans chacun des 5 restaurants, payée et reçue sur l'écran cuisine.</span></div></li>
+    <li><span class="n">5</span><div><b>Mise en ligne et prise en main</b><span>Environ 1 heure avec l'équipe, avec le livret « Écran cuisine » remis à chaque restaurant.</span></div></li>
+    <li><span class="n">6</span><div><b>Garantie 30 jours</b><span>Après validation, toute anomalie bloquante est corrigée gratuitement pendant 30 jours.</span></div></li>
+  </ol>
+
+  <div class="foot"><span>LST-2026-TFX-003 · TACOS FOX</span><span>MAGAR DÉVELOPPEMENT</span><span>1 / 3</span></div>
+</section>
+
+<!-- ============ PAGE 2 : éléments ============ -->
+<section class="page">
+  <div class="runhead"><span>LST-2026-TFX-003 · Éléments manquants</span><span>À nous fournir</span></div>
+  <h2 style="margin-top:2px"><span class="n">03</span>Ce que vous devez nous fournir</h2>
+  <table>
+    <thead><tr><th></th><th>Élément</th><th>Détail</th><th>Priorité</th></tr></thead>
+    <tbody>
+      <tr><td class="c"><span class="box"></span></td><td class="el">Horaires, téléphone et délai<span class="why">des 5 restaurants</span></td><td>Jours et heures d'ouverture, jours de fermeture, téléphone affiché aux clients, délai de préparation (15 min par défaut). <b>Fiches page 3.</b><span class="why">Sans eux, 4 restaurants sur 5 ne peuvent pas encore prendre de commandes.</span></td><td class="p"><span class="tag block">Bloquant</span></td></tr>
+      <tr><td class="c"><span class="box"></span></td><td class="el">Comptes Stripe<span class="why">une séance par société</span></td><td>Séance accompagnée d'environ 30 min avec chaque dirigeant : pièce d'identité, RIB de la société, Kbis. Plus un compte Stripe au nom de Tacos Fox.<span class="why">Chaque paiement doit arriver sur le compte de la société du restaurant.</span></td><td class="p"><span class="tag block">Bloquant</span></td></tr>
+      <tr><td class="c"><span class="box"></span></td><td class="el">Nom de domaine</td><td>L'adresse définitive du site (ex. tacosfox.fr) et l'accès à son hébergeur de domaine.<span class="why">Adresse du site, envoi des e-mails de commande et des factures, QR codes imprimés.</span></td><td class="p"><span class="tag block">Bloquant</span></td></tr>
+      <tr><td class="c"><span class="box"></span></td><td class="el">Carte du Blanc-Mesnil</td><td>Les produits en plus, en moins et les prix différents de ce restaurant.<span class="why">Critère de recette : la carte spécifique ne s'affiche que pour lui.</span></td><td class="p"><span class="tag block">Bloquant</span></td></tr>
+      <tr><td class="c"><span class="box"></span></td><td class="el">Validation de la carte</td><td>Relire les prix. Confirmer le prix « seul » des burgers et sandwichs (aujourd'hui : prix menu moins 2,50 €) et les prix à confirmer (desserts, boissons, paninis, crêpes, menu enfant).</td><td class="p"><span class="tag recette">Avant recette</span></td></tr>
+      <tr><td class="c"><span class="box"></span></td><td class="el">Allergènes</td><td>La liste des allergènes de chaque plat (obligation légale).</td><td class="p"><span class="tag recette">Avant recette</span></td></tr>
+      <tr><td class="c"><span class="box"></span></td><td class="el">TVA et comptable</td><td>N° de TVA intracommunautaire de chaque société et taux de TVA validés par votre comptable.<span class="why">Factures conformes.</span></td><td class="p"><span class="tag recette">Avant recette</span></td></tr>
+      <tr><td class="c"><span class="box"></span></td><td class="el">Gérant et équipe</td><td>Nom et e-mail du gérant (accès aux 5 restaurants) ; prénom, e-mail et restaurant de chaque cuisinier. E-mail de chaque restaurant pour les alertes de commande.</td><td class="p"><span class="tag recette">Avant recette</span></td></tr>
+      <tr><td class="c"><span class="box"></span></td><td class="el">Mentions légales</td><td>Société qui signe le devis, médiateur de la consommation (nom et adresse), copie du certificat halal Achahada.</td><td class="p"><span class="tag recette">Avant recette</span></td></tr>
+      <tr><td class="c"><span class="box"></span></td><td class="el">Matériel en cuisine</td><td>Une tablette (ou un ordinateur) par restaurant, branchée, avec wifi et son.</td><td class="p"><span class="tag recette">Avant recette</span></td></tr>
+      <tr><td class="c"><span class="box"></span></td><td class="el">Administratif</td><td>Contrat de maintenance et devis signés. Kbis de moins de 3 mois (4 extraits reçus sont trop anciens).</td><td class="p"><span class="tag recette">Avant recette</span></td></tr>
+      <tr><td class="c"><span class="box"></span></td><td class="el">Photos</td><td>Devantures des 5 restaurants, bannière d'accueil, et photos des plats encore sans photo (Crousty Fox, Fish Burger, croque-monsieur, milkshakes, smoothies, desserts, boissons).<span class="why">Des visuels provisoires sont en place en attendant.</span></td><td class="p"><span class="tag later">Dès que possible</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2><span class="n">04</span>À savoir</h2>
+  <div class="cols">
+    <div class="panel plus">
+      <h3>Inclus en plus du cahier des charges</h3>
+      <ul>
+        <li>Offre pizza « 1 achetée = 1 offerte » calculée automatiquement</li>
+        <li>Burgers et sandwichs au choix seuls ou en menu</li>
+        <li>Sonnerie quand une commande dépasse son délai</li>
+        <li>E-mail d'alerte au restaurant à chaque commande</li>
+        <li>Facture téléchargeable depuis la page de suivi</li>
+        <li>Livret « Écran cuisine » pour chaque restaurant</li>
+      </ul>
+    </div>
+    <div class="panel opt">
+      <h3>Non inclus dans la formule Essentiel</h3>
+      <ul>
+        <li>Commande sur place</li>
+        <li>Livraison (option O5)</li>
+        <li>Paiement au comptoir : espèces, titres-restaurant</li>
+        <li>Gestion de la carte par le restaurant (option O1). Sans elle, les ruptures et changements de carte sont faits par MAGAR Développement sur simple message</li>
+      </ul>
+      <p style="margin:6px 0 0;font-size:9pt;color:var(--muted)">Disponibles sur devis complémentaire.</p>
+    </div>
+  </div>
+
+  <div class="foot"><span>LST-2026-TFX-003 · TACOS FOX</span><span>MAGAR DÉVELOPPEMENT</span><span>2 / 3</span></div>
+</section>
+
+<!-- ============ PAGE 2 : fiches ============ -->
+<section class="page">
+  <div class="runhead"><span>LST-2026-TFX-003 · Éléments manquants</span><span>Fiches restaurant</span></div>
+  <h2 style="margin-top:2px"><span class="n">05</span>Une fiche par restaurant, à compléter</h2>
+  <p class="sub" style="font-size:9.6pt;margin-bottom:6px">Une ligne par jour pour les horaires (ex. « 11h-23h », « fermé »). Vous pouvez aussi nous répondre par e-mail ou message.</p>
+
+  <div class="fiche"><div class="fh"><b>Tacos Fox Stains · 36 avenue Marcel Cachin</b><span>La Street Food · 992 470 260</span></div>
+    <div class="fb">
+      <div class="f"><span class="l">Téléphone</span><span class="d"></span></div>
+      <div class="f"><span class="l">E-mail du restaurant</span><span class="d"></span></div>
+      <div class="f"><span class="l">Délai de préparation</span><span class="d"></span><span class="s">min</span></div>
+      <div class="f"><span class="l">N° de TVA</span><span class="d"></span></div>
+      <div class="f"><span class="l">Responsable cuisine</span><span class="d"></span></div>
+      <div class="f"><span class="l">Dirigeant (Stripe)</span><span class="d"></span></div>
+      <div class="hours"><div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div></div>
+    </div></div>
+
+  <div class="fiche"><div class="fh"><b>Tacos Fox Stains · 14 avenue Louis Bordes</b><span>L'Empire Food · 990 385 619</span></div>
+    <div class="fb">
+      <div class="f"><span class="l">Téléphone</span><span class="d"></span></div>
+      <div class="f"><span class="l">E-mail du restaurant</span><span class="d"></span></div>
+      <div class="f"><span class="l">Délai de préparation</span><span class="d"></span><span class="s">min</span></div>
+      <div class="f"><span class="l">N° de TVA</span><span class="d"></span></div>
+      <div class="f"><span class="l">Responsable cuisine</span><span class="d"></span></div>
+      <div class="f"><span class="l">Dirigeant (Stripe)</span><span class="d"></span></div>
+      <div class="hours"><div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div></div>
+    </div></div>
+
+  <div class="fiche"><div class="fh"><b>Tacos Fox Dugny · 22 avenue Louis Larivière</b><span>Italiano Pasta · 988 720 314</span></div>
+    <div class="fb">
+      <div class="f"><span class="l">Téléphone</span><span class="d"></span></div>
+      <div class="f"><span class="l">E-mail du restaurant</span><span class="d"></span></div>
+      <div class="f"><span class="l">Délai de préparation</span><span class="d"></span><span class="s">min</span></div>
+      <div class="f"><span class="l">N° de TVA</span><span class="d"></span></div>
+      <div class="f"><span class="l">Responsable cuisine</span><span class="d"></span></div>
+      <div class="f"><span class="l">Dirigeant (Stripe)</span><span class="d"></span></div>
+      <div class="hours"><div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div></div>
+    </div></div>
+
+  <div class="fiche"><div class="fh"><b>Tacos Fox Dugny · 21 avenue Louis Larivière</b><span>La Maison du Snack · 100 039 775</span></div>
+    <div class="fb">
+      <div class="f"><span class="l">Téléphone</span><span class="d"></span></div>
+      <div class="f"><span class="l">E-mail du restaurant</span><span class="d"></span></div>
+      <div class="f"><span class="l">Délai de préparation</span><span class="d"></span><span class="s">min</span></div>
+      <div class="f"><span class="l">N° de TVA</span><span class="d"></span></div>
+      <div class="f"><span class="l">Responsable cuisine</span><span class="d"></span></div>
+      <div class="f"><span class="l">Dirigeant (Stripe)</span><span class="d"></span></div>
+      <div class="hours"><div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div></div>
+    </div></div>
+
+  <div class="fiche"><div class="fh"><b>Tacos Fox Le Blanc-Mesnil · 208-210 av. du 8 Mai 1945</b><span>Mister Tacos · 928 293 802</span></div>
+    <div class="fb">
+      <div class="f"><span class="l">Téléphone</span><span class="d"></span></div>
+      <div class="f"><span class="l">E-mail du restaurant</span><span class="d"></span></div>
+      <div class="f"><span class="l">Délai de préparation</span><span class="d"></span><span class="s">min</span></div>
+      <div class="f"><span class="l">N° de TVA</span><span class="d"></span></div>
+      <div class="f"><span class="l">Responsable cuisine</span><span class="d"></span></div>
+      <div class="f"><span class="l">Dirigeant (Stripe)</span><span class="d"></span></div>
+      <div class="hours"><div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div></div>
+      <div class="f" style="grid-column:1/-1"><span class="l">Carte spécifique : produits en plus, en moins, prix différents</span><span class="d"></span></div>
+      <div class="f" style="grid-column:1/-1"><span class="l"></span><span class="d"></span></div>
+    </div></div>
+
+  <div class="grow"></div>
+  <div class="contact">
+    <div><b>Une question, un élément à envoyer ?</b><br><span>Répondez simplement à l'e-mail qui accompagne ce document, ou contactez MAGAR Développement.</span></div>
+  </div>
+  <div style="height:4mm"></div>
+  <div class="foot"><span>LST-2026-TFX-003 · TACOS FOX</span><span>MAGAR DÉVELOPPEMENT</span><span>3 / 3</span></div>
+</section>
+
+</body>
+</html>

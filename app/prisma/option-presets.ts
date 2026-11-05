@@ -2,7 +2,7 @@
    (pics/Carte_Tacos_Fox.xlsx). Prix en euros. Le gérant les ajuste ensuite dans la gestion. */
 
 export type PresetChoice = { label: string; price?: number; isAvailable?: boolean };
-export type PresetGroup = { key: string; label: string; hint?: string; min: number; max: number; sizeCodes?: string[]; choices: PresetChoice[] };
+export type PresetGroup = { key: string; label: string; hint?: string; min: number; max: number; allowRepeat?: boolean; sizeCodes?: string[]; choices: PresetChoice[] };
 
 /* Burgers et sandwichs vendus seuls ou en menu. Le relevé donne le prix menu ; seul = menu − 2,50 € (décision du 03/11/2026, à confirmer par le client). */
 export const MENU_SUPPLEMENT = 2.5;
@@ -34,24 +34,27 @@ const EXTRA_CHEESES: PresetChoice[] = [
 ];
 
 const DRINKS = ['Coca-Cola', 'Coca-Cola Zéro', 'Fanta', 'Sprite', 'Oasis Tropical', 'Ice Tea', 'Eau'];
+const MEAT_CHOICES = ['Chicken jaune', 'Chicken rouge', 'Cordon bleu', 'Escalope', 'Kebab', 'Merguez', 'Nuggets', 'Tenders', 'Viande hachée'];
 
-/* Groupes à proposer pour un sandwich ou un burger selon sa description et sa formule */
-export function sandwichGroups(p: { description: string; formula: string | null }): PresetGroup[] {
+/* Groupes à proposer pour un sandwich ou un burger.
+   Burgers : pas de supplément viande. Menus : plus de frites en supplément. Sauces : 3 max, jamais obligatoires. */
+export function sandwichGroups(p: { description: string; formula: string | null; category?: string }): PresetGroup[] {
   const isMenu = isMenuFormula(p.formula) || p.formula === SEUL_MENU_FORMULA;
+  const sandwich = p.category === 'sandwichs';
   const groups: PresetGroup[] = [];
-  if (/crudit/i.test(p.description)) {
-    groups.push({ key: 'crudites', label: 'Vos crudités', hint: 'Laissez vide pour sans crudités', min: 0, max: 3, choices: [{ label: 'Salade' }, { label: 'Tomate' }, { label: 'Oignon' }] });
+  if (sandwich || /crudit/i.test(p.description)) {
+    groups.push({ key: 'crudites', label: 'Vos crudités', hint: 'Au choix, laissez vide pour sans', min: 0, max: 3, choices: [{ label: 'Salade' }, { label: 'Tomate' }, { label: 'Oignon' }] });
   }
-  groups.push(
-    { key: 'sauces', label: 'Vos sauces', hint: '2 maximum, incluses', min: 0, max: 2, choices: SAUCES.map(label => ({ label })) },
-    { key: 'extra-meat', label: 'Supplément viande', hint: 'Optionnel', min: 0, max: 3, choices: EXTRA_MEATS },
-    { key: 'cheeses', label: 'Supplément fromage', hint: 'Optionnel', min: 0, max: 3, choices: EXTRA_CHEESES },
-  );
+  const meats = /2 viandes au choix/i.test(p.description) ? 2 : /viande au choix/i.test(p.description) ? 1 : 0;
+  if (meats) {
+    groups.push({ key: 'meat', label: meats > 1 ? 'Vos viandes' : 'Votre viande', hint: 'Au choix', min: meats, max: meats, allowRepeat: true, choices: MEAT_CHOICES.map(label => ({ label })) });
+  }
+  groups.push({ key: 'sauces', label: 'Vos sauces', hint: '3 maximum, au choix', min: 0, max: 3, choices: SAUCES.map(label => ({ label })) });
+  if (p.category !== 'burgers') groups.push({ key: 'extra-meat', label: 'Supplément viande', hint: 'Optionnel', min: 0, max: 3, choices: EXTRA_MEATS });
+  groups.push({ key: 'cheeses', label: 'Supplément fromage', hint: 'Optionnel', min: 0, max: 3, choices: EXTRA_CHEESES });
   if (isMenu) {
     groups.push(
-      // Demandés seulement quand le client prend la formule « Menu »
       { key: 'side', label: 'Votre accompagnement', hint: 'Inclus dans le menu', min: 1, max: 1, sizeCodes: ['menu'], choices: [{ label: 'Frites' }] },
-      { key: 'extras', label: 'En plus', hint: 'Optionnel', min: 0, max: 2, sizeCodes: ['menu'], choices: [{ label: 'Frites supplémentaires', price: 1.5 }] },
       { key: 'drink', label: 'Votre boisson', hint: 'Incluse dans le menu', min: 1, max: 1, sizeCodes: ['menu'], choices: DRINKS.map(label => ({ label })) },
     );
   }

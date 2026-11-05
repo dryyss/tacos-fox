@@ -11,19 +11,19 @@ const cents = (euros: number) => Math.round(euros * 100);
 async function main() {
   const products = await prisma.product.findMany({
     where: { category: { slug: { in: SANDWICH_CATEGORIES } } },
-    include: { optionGroups: true },
+    include: { optionGroups: true, category: true },
   });
   let added = 0;
   for (const p of products) {
     const have = new Set(p.optionGroups.map(g => g.key));
     const next = p.optionGroups.length;
-    for (const [i, g] of sandwichGroups(p).entries()) {
+    for (const [i, g] of sandwichGroups({ description: p.description, formula: p.formula, category: p.category.slug }).entries()) {
       if (have.has(g.key)) continue;
       added++;
       if (dry) continue;
       await prisma.optionGroup.create({
         data: {
-          productId: p.id, key: g.key, label: g.label, hint: g.hint ?? null, min: g.min, max: g.max, sizeCodes: g.sizeCodes ?? [], sortOrder: next + i,
+          productId: p.id, key: g.key, label: g.label, hint: g.hint ?? null, min: g.min, max: g.max, allowRepeat: !!g.allowRepeat, sizeCodes: g.sizeCodes ?? [], sortOrder: next + i,
           choices: { create: g.choices.map((c, j) => ({ label: c.label, price: cents(c.price ?? 0), isAvailable: c.isAvailable ?? true, sortOrder: j })) },
         },
       });

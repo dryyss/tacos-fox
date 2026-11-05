@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>CDC-0007 · Cahier des charges · Tacos Fox Essentiel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,600;0,700;1,400&family=Barlow+Condensed:wght@600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root { --orange: #E07B2E; --orange-soft: #FBEFE4; --orange-light: #EBA872; --ink: #1E1E1E; --muted: #5A5A5A; --line: #E6E2DC; --grey: #F3F1EE; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; background: #d9d6d1; color: var(--ink); font-family: 'Barlow', Arial, sans-serif; font-size: 10.4pt; line-height: 1.42; }
+  .page { width: 210mm; height: 297mm; background: #fff; margin: 10px auto; position: relative; overflow: hidden; padding: 14mm 16mm 22mm; }
+  .page::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: var(--orange); }
+  h1 { font-family: 'Barlow Condensed', 'Barlow', sans-serif; font-weight: 700; font-size: 25pt; white-space: nowrap; line-height: 1.05; margin: 4px 0 4px; }
+  h2 { font-family: 'Barlow Condensed', 'Barlow', sans-serif; font-weight: 700; font-size: 15pt; text-transform: uppercase; letter-spacing: .01em; margin: 18px 0 8px; padding-bottom: 5px; border-bottom: 2px solid var(--ink); display: flex; align-items: baseline; gap: 14px; }
+  h2 .n { font-family: 'JetBrains Mono', monospace; font-size: 9pt; color: var(--orange); font-weight: 500; }
+  h2.first { margin-top: 8px; }
+  h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 12pt; text-transform: uppercase; margin: 12px 0 5px; letter-spacing: .02em; }
+  p { margin: 0 0 7px; }
+  sup { line-height: 0; font-size: .7em; }
+  .cols3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .steps { counter-reset: st; list-style: none; padding-left: 0; }
+  .steps li { counter-increment: st; position: relative; padding-left: 26px; margin: 5px 0; }
+  .steps li::before { content: counter(st, decimal-leading-zero); position: absolute; left: 0; top: 2px; font-family: 'JetBrains Mono', monospace; font-size: 8.5pt; color: var(--orange); }
+  .kicker { font-family: 'JetBrains Mono', monospace; font-size: 8.5pt; letter-spacing: .08em; text-transform: uppercase; color: var(--orange); margin: 0 0 2px; }
+  .sub { color: var(--muted); font-size: 11pt; margin-bottom: 12px; }
+  .note { color: var(--muted); font-size: 9pt; margin: 4px 0 0; }
+  .head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+  .logo { width: 108px; }
+  .meta { font-size: 9.5pt; display: grid; grid-template-columns: auto auto; gap: 3px 16px; align-items: baseline; }
+  .meta .k { font-family: 'JetBrains Mono', monospace; font-size: 8pt; letter-spacing: .08em; text-transform: uppercase; color: var(--orange); }
+  .brief { background: var(--orange-soft); border-left: 4px solid var(--orange); padding: 9px 14px; margin: 10px 0 6px; }
+  .brief b { font-weight: 700; }
+  .callout { background: var(--grey); border-left: 4px solid var(--ink); padding: 9px 14px; margin: 10px 0 6px; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 4px; font-size: 9.6pt; }
+  th { background: var(--ink); color: #fff; text-align: left; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 9.5pt; letter-spacing: .04em; text-transform: uppercase; padding: 6px 8px; }
+  td { padding: 5px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--grey); }
+  td.id { width: 38px; font-family: 'JetBrains Mono', monospace; font-size: 8.5pt; color: var(--orange); padding-top: 6px; }
+  td.mod { width: 150px; }
+  td.el { width: 140px; font-weight: 700; }
+  td.r, th.r { text-align: right; white-space: nowrap; }
+  td .why { display: block; color: var(--muted); font-size: 8.8pt; margin-top: 1px; }
+  ul { margin: 0; padding-left: 16px; }
+  li { margin: 2px 0; }
+  li::marker { color: var(--orange); }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .panel { border: 1px solid var(--line); padding: 9px 12px; }
+  .panel h3 { margin: 0 0 5px; }
+  .panel ul { font-size: 9.1pt; }
+  /* Maquette écran cuisine */
+  .kds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; background: var(--ink); padding: 8px; border-radius: 4px; margin: 6px 0 8px; }
+  .kds .col { background: #2b2b2b; border-radius: 3px; padding: 6px; }
+  .kds .t { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 9.5pt; text-transform: uppercase; color: #fff; letter-spacing: .04em; margin-bottom: 5px; display: flex; justify-content: space-between; }
+  .kds .t i { font-style: normal; font-family: 'JetBrains Mono', monospace; font-size: 8pt; background: var(--orange); color: #fff; border-radius: 8px; padding: 0 6px; }
+  .kds .card { background: #fff; border-radius: 3px; padding: 4px 6px; font-size: 8.2pt; line-height: 1.3; margin-bottom: 4px; border-left: 3px solid var(--orange); }
+  .kds .col.p .card { border-left-color: #E8B23A; }
+  .kds .col.r .card { border-left-color: #3E9B5A; }
+  .kds .card b { font-family: 'JetBrains Mono', monospace; font-size: 7.8pt; }
+  .kds .card span { color: var(--muted); }
+  /* Planning */
+  table.plan td { border: 1px solid var(--line); padding: 6px 8px; }
+  table.plan tr:nth-child(even) td { background: transparent; }
+  table.plan th.w { text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 8pt; width: 17%; }
+  table.plan td.on { background: #D97A2E !important; }
+  table.plan td.ms { background: var(--ink) !important; }
+  .legend { font-size: 9pt; color: var(--muted); margin-top: 4px; }
+  .sq { display: inline-block; width: 9px; height: 9px; margin: 0 4px 0 0; vertical-align: baseline; }
+  /* Recette : cases à cocher */
+  ul.check { list-style: none; padding-left: 0; }
+  ul.check li { position: relative; padding-left: 22px; margin: 4px 0; }
+  ul.check li::before { content: ""; position: absolute; left: 0; top: 3px; width: 11px; height: 11px; border: 1.5px solid var(--ink); border-radius: 2px; }
+  .sign { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  .sign div { border: 1px solid var(--line); padding: 8px 12px; height: 26mm; font-size: 9pt; color: var(--muted); }
+  .sign b { color: var(--ink); font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; font-size: 10.5pt; letter-spacing: .03em; display: block; margin-bottom: 2px; }
+  .confid { position: absolute; left: 0; right: 0; bottom: 13mm; text-align: center; font-size: 8pt; font-style: italic; color: var(--muted); }
+  .foot { position: absolute; left: 16mm; right: 16mm; bottom: 7mm; display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 7.5pt; letter-spacing: .06em; color: var(--muted); border-top: 1px solid var(--line); padding-top: 5px; }
+  .runhead { display: flex; justify-content: space-between; font-family: 'Barlow Condensed', sans-serif; font-size: 9pt; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-bottom: 6px; }
+  @page { size: A4; margin: 0; }
+  @media print { body { background: #fff; } .page { margin: 0; page-break-after: always; } .page:last-child { page-break-after: auto; } }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 -->
+<section class="page">
+  <div class="head">
+    <img class="logo" src="magar-logo.svg" alt="MAGAR Développement">
+    <div class="meta">
+      <span class="k">Réf.</span><span>CDC-0007</span>
+      <span class="k">Date</span><span>30/10/2026</span>
+      <span class="k">Devis lié</span><span>DEV-2026-TFX-004 · formule Essentiel</span>
+      <span class="k">Client</span><span>Tacos Fox (5 restaurants)</span>
+      <span class="k">Prestataire</span><span>MAGAR Développement</span>
+    </div>
+  </div>
+
+  <p class="kicker">Cahier des charges fonctionnel et technique</p>
+  <h1>Site de commande en ligne Tacos Fox · 5 restaurants</h1>
+  <p class="sub">Référence de travail du projet, remise au lancement après signature du devis.</p>
+
+  <div class="brief"><b>En bref.</b> Un seul site pour les 5 restaurants Tacos Fox. Le client choisit son restaurant, compose sa commande à emporter, choisit son créneau et paie par carte. La commande s'affiche aussitôt sur l'écran cuisine du bon restaurant, et le paiement arrive sur le compte de ce restaurant. Ce document décrit chaque module, le fonctionnement à plusieurs restaurants, le socle technique et les critères de recette. Il sert de référence commune pendant tout le projet : ce qui n'y figure pas fait l'objet d'une option ou d'un devis complémentaire.</div>
+
+  <h2><span class="n">01</span>Modules côté client</h2>
+  <p>Ce que voient et utilisent vos clients, sur téléphone comme sur ordinateur. Ils commandent <b>sans créer de compte</b>.</p>
+  <table>
+    <tr><th>ID</th><th>Module</th><th>Description</th></tr>
+    <tr><td class="id">C1</td><td class="mod">Accueil</td><td>Promotions en cours, best-sellers, badge halal, horaires, accès direct à la commande.</td></tr>
+    <tr><td class="id">C2</td><td class="mod">Choix du restaurant</td><td>Le client choisit l'un des 5 restaurants (liste avec adresse et horaires). Ce choix est rappelé tout au long de la commande et peut être changé avant le paiement.</td></tr>
+    <tr><td class="id">C3</td><td class="mod">La carte</td><td>Carte complète du restaurant choisi, par catégories : photos, compositions, sauces, suppléments et allergènes. Le 5<sup>e</sup> restaurant affiche sa carte spécifique.</td></tr>
+    <tr><td class="id">C4</td><td class="mod">Composer son tacos ou menu</td><td>Taille, viandes, sauces, suppléments, boisson. Le prix se met à jour à chaque choix.</td></tr>
+    <tr><td class="id">C5</td><td class="mod">Panier et commande à emporter</td><td>Panier modifiable, choix du créneau de retrait parmi les horaires du restaurant, nom, téléphone et e-mail.</td></tr>
+    <tr><td class="id">C6</td><td class="mod">Paiement sécurisé</td><td>Carte bancaire via Stripe, avec 3-D Secure (validation par la banque du client). Aucune donnée de carte ne passe par le site.</td></tr>
+    <tr><td class="id">C7</td><td class="mod">Suivi et facture</td><td>Page de suivi de la commande (reçue, en préparation, prête). Confirmation et facture envoyées par e-mail.</td></tr>
+    <tr><td class="id">C8</td><td class="mod">Pages villes</td><td>Une page par ville (par exemple <b>/tacos-stains</b>) avec adresse, horaires, accès et lien de commande, pour être trouvé sur Google.</td></tr>
+    <tr><td class="id">C9</td><td class="mod">Pages légales</td><td>Mentions légales, CGV, politique de confidentialité (RGPD) et page allergènes.</td></tr>
+  </table>
+
+  <div class="confid">Document confidentiel, propriété de MAGAR Développement. Ne peut être communiqué à des tiers sans accord écrit.</div>
+  <div class="foot"><span>CDC-0007 · MAGAR DÉVELOPPEMENT · SIRET 908 058 092 00028</span><span>1</span></div>
+</section>
+
+<!-- PAGE 2 -->
+<section class="page">
+  <div class="runhead"><span>Cahier des charges · Site de commande en ligne Tacos Fox · 5 restaurants</span><span>CDC-0007 · 30/10/2026</span></div>
+
+  <h2 class="first"><span class="n">02</span>Modules côté restaurant</h2>
+  <p>Ce qu'utilisent vos équipes en cuisine et le gérant. Chaque restaurant ne voit que ses propres commandes.</p>
+  <table>
+    <tr><th>ID</th><th>Module</th><th>Description</th></tr>
+    <tr><td class="id">R1</td><td class="mod">Réception des commandes</td><td>Les commandes payées arrivent en temps réel, sans recharger la page, dans le restaurant choisi par le client.</td></tr>
+    <tr><td class="id">R2</td><td class="mod">Écran cuisine</td><td>Tableau en 3 colonnes : à préparer, en préparation, prêtes. Détail ci-dessous.</td></tr>
+    <tr><td class="id">R3</td><td class="mod">Alertes</td><td>Alerte sonore et notification à l'écran à chaque nouvelle commande, répétées tant qu'elle n'a pas été prise en charge.</td></tr>
+    <tr><td class="id">R4</td><td class="mod">Factures</td><td>Une facture conforme est générée pour chaque commande, au nom du restaurant qui encaisse, avec sa propre numérotation.</td></tr>
+    <tr><td class="id">R5</td><td class="mod">Encaissement séparé</td><td>Chaque paiement est versé directement sur le compte du restaurant qui prépare la commande.</td></tr>
+    <tr><td class="id">R6</td><td class="mod">Historique</td><td>Liste des commandes et des factures par restaurant, avec recherche par date ou numéro. Le gérant voit les 5 restaurants.</td></tr>
+    <tr><td class="id">R7</td><td class="mod">QR codes</td><td>Un QR code par restaurant, qui ouvre directement sa carte, prêt à imprimer pour les tables, la vitrine et les flyers.</td></tr>
+    <tr><td class="id">R8</td><td class="mod">Comptes de l'équipe</td><td>Accès personnel pour chaque cuisinier et gérant. Prise en main d'environ 1 h à la mise en ligne.</td></tr>
+  </table>
+
+  <h3>L'écran cuisine en détail (R2)</h3>
+  <div class="kds">
+    <div class="col"><div class="t">À préparer <i>2</i></div>
+      <div class="card"><b>#0142 · 19:30</b> Karim<br>Tacos L · poulet, cordon bleu<br><span>Algérienne, samouraï · cheddar</span></div>
+      <div class="card"><b>#0143 · 19:45</b> Inès<br>Menu Crousty Fox · Coca<br><span>Sauce blanche</span></div>
+    </div>
+    <div class="col p"><div class="t">En préparation <i>1</i></div>
+      <div class="card"><b>#0141 · 19:15</b> Yanis<br>2 × Tacos M · viande hachée<br><span>Fromagère · sans oignons</span></div>
+    </div>
+    <div class="col r"><div class="t">Prêtes <i>1</i></div>
+      <div class="card"><b>#0140 · 19:00</b> Sarah<br>Bowl 1 viande · tenders<br><span>À remettre au client</span></div>
+    </div>
+  </div>
+  <ul>
+    <li><b>Une carte par commande</b> : numéro, créneau de retrait, prénom du client, détail complet (taille, viandes, sauces, suppléments, remarques).</li>
+    <li><b>Un appui pour avancer</b> : « à préparer » → « en préparation » → « prête ». Le client voit le statut changer sur sa page de suivi. Une fois remise au client, la commande quitte l'écran et reste dans l'historique.</li>
+    <li><b>Ordre de passage</b> : les commandes sont classées par créneau de retrait, la plus urgente en haut.</li>
+    <li><b>Son</b> : une alerte retentit à chaque nouvelle commande. Le navigateur demande d'appuyer une fois sur l'écran à l'ouverture pour autoriser le son.</li>
+    <li><b>Sur tablette ou ordinateur</b> : l'écran s'ouvre dans un simple navigateur web (Chrome, Edge, Safari), sans application à installer. Il faut une connexion internet.</li>
+    <li><b>Plusieurs écrans par restaurant</b> : par exemple un en cuisine et un au comptoir. Ils restent synchronisés : une commande avancée sur l'un l'est aussitôt sur l'autre.</li>
+  </ul>
+  <p class="note">Le matériel (tablette, ordinateur, support mural) reste à la charge de chaque restaurant. Nous conseillons une tablette de 10 pouces ou plus, branchée sur secteur.</p>
+
+  <div class="confid">Document confidentiel, propriété de MAGAR Développement. Ne peut être communiqué à des tiers sans accord écrit.</div>
+  <div class="foot"><span>CDC-0007 · MAGAR DÉVELOPPEMENT · SIRET 908 058 092 00028</span><span>2</span></div>
+</section>
+
+<!-- PAGE 3 -->
+<section class="page">
+  <div class="runhead"><span>Cahier des charges · Site de commande en ligne Tacos Fox · 5 restaurants</span><span>CDC-0007 · 30/10/2026</span></div>
+
+  <h2 class="first"><span class="n">03</span>Organisation multi-restaurants</h2>
+  <p>Un seul site, une seule adresse, mais chaque restaurant fonctionne comme une boutique à part entière.</p>
+  <table>
+    <tr><th>Sujet</th><th>Fonctionnement retenu</th></tr>
+    <tr><td class="el">Choix du restaurant</td><td>Le client choisit son restaurant à l'arrivée sur le site, ou arrive directement dessus par sa page ville ou son QR code.</td></tr>
+    <tr><td class="el">Horaires et créneaux</td><td>Chaque restaurant a ses horaires, ses jours de fermeture et son délai de préparation. Les créneaux proposés au client en découlent. Hors horaires, la commande est fermée pour ce restaurant.</td></tr>
+    <tr><td class="el">La carte</td><td>Une carte commune aux 4 premiers restaurants. Le 5<sup>e</sup> a sa carte spécifique (produits et prix qui lui sont propres). Un produit en rupture peut être masqué dans un seul restaurant.</td></tr>
+    <tr><td class="el">Encaissement</td><td>Chaque restaurant (ou chaque société) relie son propre compte de paiement Stripe. L'argent d'une commande va directement au restaurant qui la prépare, jamais sur un compte commun.</td></tr>
+    <tr><td class="el">Factures</td><td>Émises au nom de la société du restaurant qui encaisse (raison sociale, SIRET, adresse), avec une numérotation continue propre à chaque restaurant.</td></tr>
+    <tr><td class="el">Comptes de l'équipe</td><td><b>Gérant</b> : accès aux 5 restaurants (commandes, historique, factures). <b>Équipe</b> : accès à l'écran cuisine et aux commandes de son seul restaurant.</td></tr>
+    <tr><td class="el">QR codes et pages villes</td><td>Un QR code et une page ville par restaurant, qui mènent directement à sa carte.</td></tr>
+  </table>
+
+  <h2><span class="n">04</span>Spécifications techniques</h2>
+  <p>Les briques choisies, et ce qu'elles font concrètement pour vous.</p>
+  <table>
+    <tr><th>Socle technique</th><th>En clair</th></tr>
+    <tr><td class="el">Next.js (React, TypeScript)</td><td>Technologie web moderne utilisée par de grands sites : pages rapides, bien lues par Google.</td></tr>
+    <tr><td class="el">Base PostgreSQL (Neon)</td><td>Là où sont rangées la carte, les commandes et les factures. Hébergée à Francfort (Allemagne), sauvegardée automatiquement.</td></tr>
+    <tr><td class="el">Hébergement Vercel</td><td>Serveurs qui font tourner le site, en région Europe. Le site tient la charge aux heures de pointe.</td></tr>
+    <tr><td class="el">Stripe Checkout et Connect</td><td>Paiement par carte certifié PCI-DSS (la norme de sécurité des cartes bancaires), avec 3-D Secure. Connect relie le compte de chaque restaurant à un compte Stripe principal et verse chaque paiement au bon restaurant.</td></tr>
+    <tr><td class="el">Connexion Auth0</td><td>Service de connexion sécurisé, réservé à l'équipe, avec les rôles gérant et équipe.</td></tr>
+    <tr><td class="el">E-mails Resend</td><td>Envoi fiable des confirmations de commande et des factures.</td></tr>
+  </table>
+
+  <div class="confid">Document confidentiel, propriété de MAGAR Développement. Ne peut être communiqué à des tiers sans accord écrit.</div>
+  <div class="foot"><span>CDC-0007 · MAGAR DÉVELOPPEMENT · SIRET 908 058 092 00028</span><span>3</span></div>
+</section>
+
+<!-- PAGE 4 -->
+<section class="page">
+  <div class="runhead"><span>Cahier des charges · Site de commande en ligne Tacos Fox · 5 restaurants</span><span>CDC-0007 · 30/10/2026</span></div>
+
+  <table style="margin-top:8px">
+    <tr><th>Qualité et conformité</th><th>En clair</th></tr>
+    <tr><td class="el">100 % mobile</td><td>Affichage adapté au téléphone, à la tablette et à l'ordinateur.</td></tr>
+    <tr><td class="el">Prix contrôlés</td><td>Le prix est toujours recalculé par le serveur au moment du paiement : impossible de le modifier depuis le navigateur.</td></tr>
+    <tr><td class="el">SEO local</td><td>Une page par ville, balisage « restaurant local » lu par Google (JSON-LD) et plan du site (sitemap).</td></tr>
+    <tr><td class="el">RGPD</td><td>Données hébergées en Europe, seules les données utiles à la commande sont collectées, aucun cookie publicitaire ni traceur (pas de bandeau de consentement à imposer aux clients).</td></tr>
+    <tr><td class="el">Options prêtes</td><td>Les options O1, O2, O3, O5, O7, O8… sont déjà prévues dans le socle, désactivées par défaut. Elles s'activent sans refaire le site.</td></tr>
+  </table>
+
+  <div class="callout">La plateforme s'appuie sur un socle logiciel éprouvé, développé par MAGAR Développement, personnalisé aux couleurs et aux cartes de Tacos Fox. Le code source du socle reste la propriété de MAGAR Développement ; le site livré, ses contenus et le nom de domaine appartiennent au client après règlement de la dernière mensualité.</div>
+
+  <h2><span class="n">05</span>Hors périmètre et options</h2>
+  <p>Les options ci-dessous ne sont pas incluses dans la formule Essentiel. Chacune peut être ajoutée plus tard, sans refaire le site, aux prix du devis DEV-2026-TFX-004.</p>
+  <div class="cols3">
+    <div class="panel">
+      <h3>Gestion du restaurant</h3>
+      <ul>
+        <li>O1 · Gestion de la carte&nbsp;·&nbsp;300&nbsp;€</li>
+        <li>O2 · Stocks&nbsp;·&nbsp;300&nbsp;€</li>
+        <li>O3 · Comptabilité et exports&nbsp;·&nbsp;250&nbsp;€</li>
+        <li>O4 · SAV et réclamations&nbsp;·&nbsp;200&nbsp;€</li>
+      </ul>
+      <h3 style="margin-top:8px">Livraison</h3>
+      <ul>
+        <li>O5 · Livraison par zones&nbsp;·&nbsp;500&nbsp;€</li>
+        <li>O6 · Livreurs et tournées&nbsp;·&nbsp;400&nbsp;€</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Relation client</h3>
+      <ul>
+        <li>O7 · Espace client&nbsp;·&nbsp;300&nbsp;€</li>
+        <li>O8 · Codes promo&nbsp;·&nbsp;200&nbsp;€</li>
+        <li>O9 · E-mails personnalisés&nbsp;·&nbsp;150&nbsp;€</li>
+        <li>O10 · Newsletter&nbsp;·&nbsp;250&nbsp;€</li>
+        <li>O11 · Fidélité&nbsp;·&nbsp;sur&nbsp;devis</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Visibilité et image</h3>
+      <ul>
+        <li>O12 · SEO local avancé&nbsp;·&nbsp;300&nbsp;€</li>
+        <li>O13 · Fiches produits&nbsp;·&nbsp;250&nbsp;€</li>
+        <li>O14 · Logo&nbsp;·&nbsp;350&nbsp;€</li>
+        <li>O15 · Shooting photo&nbsp;·&nbsp;sur&nbsp;devis</li>
+      </ul>
+      <h3 style="margin-top:8px">Accompagnement</h3>
+      <ul>
+        <li>O16 · Formation&nbsp;·&nbsp;150&nbsp;€</li>
+        <li>O17 · Mode d'emploi&nbsp;·&nbsp;150&nbsp;€</li>
+        <li>O18 · Suivi renforcé&nbsp;·&nbsp;200&nbsp;€</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="brief"><b>Modifications de la carte sans l'option O1.</b> Les changements de produits, prix, photos, ruptures et horaires sont faits par MAGAR Développement, sur simple message. Ils sont compris dans la maintenance si elle est souscrite, sinon facturés 60 € de l'heure.</div>
+
+  <h3>Également à la charge des restaurants</h3>
+  <ul>
+    <li><b>Frais de paiement</b> : environ 1,5 % + 0,25 € par transaction, prélevés par Stripe sur le compte de chaque restaurant.</li>
+    <li><b>Matériel en cuisine</b> : tablette ou ordinateur, support, connexion internet.</li>
+    <li><b>À partir de la 2<sup>e</sup> année</b> : le nom de domaine et l'hébergement sont inclus la première année. Ensuite, une maintenance optionnelle est proposée : Sérénité 49 € par mois ou Business 99 € par mois.</li>
+  </ul>
+
+  <div class="confid">Document confidentiel, propriété de MAGAR Développement. Ne peut être communiqué à des tiers sans accord écrit.</div>
+  <div class="foot"><span>CDC-0007 · MAGAR DÉVELOPPEMENT · SIRET 908 058 092 00028</span><span>4</span></div>
+</section>
+
+<!-- PAGE 5 -->
+<section class="page">
+  <div class="runhead"><span>Cahier des charges · Site de commande en ligne Tacos Fox · 5 restaurants</span><span>CDC-0007 · 30/10/2026</span></div>
+
+  <h2 class="first"><span class="n">06</span>Éléments fournis par le client</h2>
+  <table>
+    <tr><th>Élément</th><th>Détail</th><th class="r">Échéance</th></tr>
+    <tr><td class="el">Identité</td><td>Logo en bonne qualité et photos des plats.</td><td class="r">Semaine 1</td></tr>
+    <tr><td class="el">Les 5 restaurants</td><td>Adresse, horaires, téléphone de chacun, et matériel prévu en cuisine.</td><td class="r">Semaine 1</td></tr>
+    <tr><td class="el">La carte</td><td>Validation de la carte relevée, et liste des différences du 5<sup>e</sup> restaurant (produits, prix).</td><td class="r">Semaine 1</td></tr>
+    <tr><td class="el">Infos société</td><td>Raison sociale, SIRET et gérant de chaque société qui encaisse (numéro de TVA le cas échéant).</td><td class="r">Semaine 1</td></tr>
+    <tr><td class="el">Compte de paiement</td><td>Un compte Stripe par restaurant ou par société. Création accompagnée, environ 30 minutes par compte.</td><td class="r">Semaine 2</td></tr>
+    <tr><td class="el">Comptes de l'équipe</td><td>Prénom, e-mail et restaurant de chaque personne qui utilisera l'écran cuisine.</td><td class="r">Semaine 2</td></tr>
+  </table>
+
+  <h2><span class="n">07</span>Recette et critères de validation</h2>
+  <p>La « recette » est la séance de vérification finale, faite ensemble avant la mise en ligne. Le site est validé quand tous les points suivants sont vérifiés :</p>
+  <ul class="check">
+    <li>Une commande réelle de test passe de bout en bout dans chacun des 5 restaurants.</li>
+    <li>Le prix payé correspond au panier, suppléments compris.</li>
+    <li>Le paiement par carte arrive sur le compte du bon restaurant, et le remboursement fonctionne.</li>
+    <li>La commande apparaît en temps réel sur l'écran cuisine du bon restaurant, avec l'alerte sonore.</li>
+    <li>Les statuts « en préparation » et « prête » s'affichent sur la page de suivi du client.</li>
+    <li>La facture est émise au nom du bon restaurant et reçue par e-mail.</li>
+    <li>La carte spécifique du 5<sup>e</sup> restaurant s'affiche uniquement pour lui.</li>
+    <li>Les créneaux proposés respectent les horaires de chaque restaurant.</li>
+    <li>Un cuisinier ne voit que les commandes de son restaurant ; le gérant voit les 5.</li>
+    <li>Les 5 pages villes sont en ligne et chaque QR code ouvre la carte du bon restaurant.</li>
+    <li>Le site s'affiche correctement sur mobile, tablette et ordinateur.</li>
+    <li>Les mentions légales, les CGV, la politique de confidentialité et la page allergènes sont en ligne.</li>
+  </ul>
+
+  <div class="brief"><b>Garantie.</b> Après validation, les anomalies bloquantes sont corrigées gratuitement pendant 30 jours. Les demandes nouvelles relèvent de la maintenance, d'une option ou d'un devis complémentaire.</div>
+
+  <div class="confid">Document confidentiel, propriété de MAGAR Développement. Ne peut être communiqué à des tiers sans accord écrit.</div>
+  <div class="foot"><span>CDC-0007 · MAGAR DÉVELOPPEMENT · SIRET 908 058 092 00028</span><span>5</span></div>
+</section>
+
+<!-- PAGE 6 -->
+<section class="page">
+  <div class="runhead"><span>Cahier des charges · Site de commande en ligne Tacos Fox · 5 restaurants</span><span>CDC-0007 · 30/10/2026</span></div>
+
+  <h2 class="first"><span class="n">08</span>Planning</h2>
+  <table class="plan">
+    <tr><th>Phase</th><th class="w">S1</th><th class="w">S2</th><th class="w">S3</th></tr>
+    <tr><td>Réception des éléments</td><td class="on"></td><td></td><td></td></tr>
+    <tr><td>Création du site et intégration des cartes</td><td class="on"></td><td class="on"></td><td></td></tr>
+    <tr><td>Commande, paiement et écran cuisine</td><td></td><td class="on"></td><td class="on"></td></tr>
+    <tr><td>Pages locales et QR codes</td><td></td><td class="on"></td><td></td></tr>
+    <tr><td>Tests et prise en main</td><td></td><td></td><td class="on"></td></tr>
+    <tr><td><b>Mise en ligne</b></td><td></td><td></td><td class="ms"></td></tr>
+  </table>
+  <p class="legend"><span class="sq" style="background:#D97A2E"></span>Phase de travail &nbsp; <span class="sq" style="background:#1E1E1E"></span>Mise en ligne (jalon). Délai de 3 semaines, compté à partir de la réception des éléments de la section 06.</p>
+
+  <h3 style="margin-top:18px">Les étapes, de la signature à la mise en ligne</h3>
+  <ol class="steps">
+    <li><b>Signature du devis</b> DEV-2026-TFX-004 et versement de l'acompte de 680 €.</li>
+    <li><b>Envoi des éléments</b> de la section 06. Le délai de 3 semaines démarre à leur réception.</li>
+    <li><b>Création du site</b> : intégration des cartes, commande, paiement et écran cuisine. Points d'étape réguliers par WhatsApp ou e-mail.</li>
+    <li><b>Ouverture des comptes Stripe</b> de chaque restaurant ou société, avec notre accompagnement.</li>
+    <li><b>Recette ensemble</b> (section 07), puis prise en main d'environ 1 h avec l'équipe.</li>
+    <li><b>Mise en ligne</b>, puis règlement du solde en 3 mensualités de 340 €. Le site appartient à Tacos Fox après la dernière mensualité.</li>
+  </ol>
+
+  <div class="brief" style="margin-top:14px"><b>Contact.</b> Andrys MAGAR · andrys.developper@gmail.com · 06 41 59 86 88. Une question sur un point de ce document ? Appelez, on le règle ensemble.</div>
+
+  <div class="sign" style="margin-top:20px">
+    <div><b>Pour Tacos Fox</b>Nom, date et signature, précédés de « Bon pour accord »</div>
+    <div><b>Pour MAGAR Développement</b>Andrys MAGAR</div>
+  </div>
+
+  <div class="confid">Document confidentiel, propriété de MAGAR Développement. Ne peut être communiqué à des tiers sans accord écrit.</div>
+  <div class="foot"><span>CDC-0007 · MAGAR DÉVELOPPEMENT · SIRET 908 058 092 00028</span><span>6</span></div>
+</section>
+
+</body>
+</html>

@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { PDFDocument, rgb, StandardFonts, type PDFFont, type PDFImage, type PDFPage } from 'pdf-lib';
 import type { Order, OrderItem, Restaurant, Settings } from '@prisma/client';
 import { splitVat } from './accounting';
-import { MODE_LABELS, onsiteLabel, orderNumberLabel, splitFreePizza } from './format';
+import { discountLabel, MODE_LABELS, onsiteLabel, orderNumberLabel, splitFreePizza } from './format';
 
 async function brandLogo(pdf: PDFDocument): Promise<PDFImage> {
   return pdf.embedPng(await readFile(join(process.cwd(), 'src/lib/invoice-logo.png')));
@@ -128,7 +128,7 @@ export async function renderInvoice(order: Order & { items: OrderItem[] }, setti
   const net = order.total - order.refundedAmount;
   const { ht, vat } = splitVat(order.total, s.vatRate);
   const rows: [string, string, boolean?][] = [['Sous-total TTC', euros(order.subtotal)]];
-  if (order.discount) rows.push([`Remise ${order.promoCode ?? ''}`, '-' + euros(order.discount)]);
+  if (order.discount) rows.push([discountLabel(order.promoCode), '-' + euros(order.discount)]);
   if (order.mode === 'LIVRAISON') rows.push(['Livraison TTC', euros(order.deliveryFee)]);
   rows.push(['Total HT', euros(ht)], [`TVA ${(s.vatRate / 100).toString().replace('.', ',')} %`, euros(vat)], ['Total TTC', euros(order.total), true]);
   if (order.refundedAmount) rows.push(['Remboursé', '-' + euros(order.refundedAmount)], ['Net payé TTC', euros(net), true]);
