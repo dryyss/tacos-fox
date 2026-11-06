@@ -17,7 +17,7 @@ La base de développement est une branche Neon du projet `tacos-fox` (jamais `pr
 
 - Site : http://localhost:3000
 - Gestion : http://localhost:3000/admin (compte Auth0 ayant le rôle `tacosfox:admin` ou `tacosfox:staff:<restaurant>`)
-- Connexion : uniquement via Auth0 (e-mail, Google, Apple, Microsoft). Les rôles se donnent dans Auth0 (User Management → Users → Roles) et sont repris à la connexion suivante.
+- Connexion : uniquement via Auth0 (e-mail). Les rôles se donnent dans Auth0 (User Management → Users → Roles) et sont repris à la connexion suivante.
 - Sans clé Stripe, le paiement carte est simulé (développement uniquement). Sans clé Resend, les e-mails sont écrits dans la console.
 
 `npm run db:seed` ne touche pas à une carte existante. Pour la recharger depuis le relevé `prisma/catalog-source.cjs` : `npm run db:seed -- --reset-catalog` (écrase les modifications faites dans la gestion).

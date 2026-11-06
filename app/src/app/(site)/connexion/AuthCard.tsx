@@ -10,7 +10,7 @@ const ERRORS: Record<string, string> = {
   Configuration: 'La connexion est momentanément indisponible. Réessayez dans un instant.',
 };
 
-/* Carte de connexion / inscription : tout passe par Auth0 (e-mail, Google, Apple, Microsoft).
+/* Carte de connexion / inscription : tout passe par Auth0 (e-mail).
    staffOnly (pas d'espace client, option O7) : connexion de l'équipe seulement, sans inscription. */
 export function AuthCard({ mode, retour, error, staffOnly = false }: { mode: 'login' | 'signup'; retour?: string; error?: string; staffOnly?: boolean }) {
   if (staffOnly) return <StaffCard retour={retour} error={error} />;
@@ -34,7 +34,7 @@ export function AuthCard({ mode, retour, error, staffOnly = false }: { mode: 'lo
           <input type="hidden" name="retour" value={retour ?? '/compte'} />
           <button className="btn btn--primary btn--xl btn--block" type="submit">{primary.label}</button>
         </form>
-        <p className="auth-card__methods">E-mail, Google, Apple ou Microsoft</p>
+        <p className="auth-card__methods">Connexion par e-mail</p>
 
         <div className="auth-card__sep"><span>{secondary.hint}</span></div>
         <form action={secondary.action}>

@@ -10,7 +10,7 @@ const safeReturn = (v: FormDataEntryValue | null) => {
   return s.startsWith('/') && !s.startsWith('//') ? s : '/compte';
 };
 
-/* Toute l'authentification passe par Auth0 (e-mail, Google, Apple, Microsoft) */
+/* Toute l'authentification passe par Auth0 (e-mail) */
 export async function loginWithAuth0(form: FormData) {
   await signIn('auth0', { redirectTo: safeReturn(form.get('retour')) });
 }
